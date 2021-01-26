@@ -19,3 +19,7 @@ export interface SchemaNodeDefinition {
 export interface NodeProps {
   node: Node;
 }
+
+export interface SchemaProps {
+  treeConfig: Record<string, Node>;
+}

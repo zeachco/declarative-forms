@@ -2,6 +2,7 @@ import React from "react";
 import { NodeProps } from "./framework/types";
 import { NodeValue } from "./framework/types";
 import { ReactComponent } from "./framework/types";
+import { SchemaProps } from "./framework/types";
 import { NodeKind } from "./framework/types";
 import { SchemaNodeDefinition } from "./framework/types";
 import { Validator } from "./framework/types";
@@ -49,7 +50,7 @@ function PolyNode({ node }: NodeProps) {
         {options.map(key => <option key={key}>{key}</option>)}
       </select>
       {errors.map(err => <strong>{err}</strong>)}
-      {variant && <SchemaRender config={variant} />}
+      {variant && <SchemaRender treeConfig={variant} />}
       {JSON.stringify(variant)}
     </div>
   );
@@ -70,10 +71,9 @@ function ListNode({ node }: NodeProps) {
 }
 
 function UndefinedKindNode({ node }: NodeProps) {
-  // { node.schema.kind } { node.value }
   return (
     <div>
-      error
+      { node.schema?.kind } { node.value }
     </div>
   );
 }
@@ -107,6 +107,10 @@ class Node {
 
     if (this.schema.kind === 'polymorphic') {
       this.value = this.value || options[0]
+    }
+
+    if (this.schema.attributes && !plugins[this.schema.kind]) {
+      this.schema.kind = 'group'
     }
 
     this.children = parseSchema(schema.attributes, path);
@@ -163,17 +167,24 @@ class TreeConfig {
 }
 
 function getPluginComponent(kind: NodeKind): ReactComponent {
+  if (!kind) {
+    console.warn({kind})
+  }
   return plugins[kind] || UndefinedKindNode
 }
 
-function SchemaRender({ config }) {
-  console.log(config)
+function SchemaRender({ treeConfig }: SchemaProps) {
+  console.log(treeConfig)
   return (
     <div>
-      {Object.keys(config).map(key => {
-        const node = config[key] as Node;
+      {Object.keys(treeConfig).map(key => {
+        const node = treeConfig[key] as Node;
         if (!node) {
           return <div>"{key}" plugin can't be found</div>
+        }
+        if(!node.schema) {
+          console.warn(node)
+          return <div>"{key}" has no schema</div>
         }
         const Plugin = getPluginComponent(node.schema?.kind);
         return <Plugin key={key} node={node} />;
@@ -215,7 +226,7 @@ console.log(treeConfig);
 export function App() {
   return (
     <div>
-      <SchemaRender config={treeConfig} />
+      <SchemaRender treeConfig={treeConfig} />
     </div>
   );
 }

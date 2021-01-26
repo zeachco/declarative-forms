@@ -2,7 +2,6 @@ import React from "react";
 import { NodeProps } from "./framework/types";
 import { NodeValue } from "./framework/types";
 import { ReactComponent } from "./framework/types";
-import { SchemaProps } from "./framework/types";
 import { NodeKind } from "./framework/types";
 import { SchemaNodeDefinition } from "./framework/types";
 import { Validator } from "./framework/types";
@@ -11,11 +10,18 @@ import { SCHEMA } from './schema'
 
 // PLUGINS
 
-const NoValidator: ValidatorFn = (_) => '';
+const noValidator: ValidatorFn = (_) => '';
 
 const validatorFunctions: Record<string, ValidatorFn> = {
-  Presence(val, options: Validator) {
-    return Boolean(val) ? '' : 'Must be present'
+  Presence(val, _options: Validator) {
+    return Boolean(val) ? '' : 'PresenceError :: Field must be defined'
+  },
+  Format(val, options: Validator) {
+    if (!options.format) {
+      return noValidator(val);
+    }
+    const exp = new RegExp(options.format)
+    return exp.test(val) ? '' : `FormatError :: Field does not match expression ${options.format}`
   }
 }
 
@@ -26,6 +32,14 @@ const plugins = {
   list: ListNode,
   polymorphic: PolyNode,
 };
+
+function UndefinedKindNode({ node }: NodeProps) {
+  return (
+    <div>
+      [{ node.schema?.kind} {node.value} {JSON.stringify(Object.keys(node.children))}]
+    </div>
+  );
+}
 
 function StringNode({ node }: NodeProps) {
   const { onChange, errors } = useNode(node);
@@ -38,54 +52,51 @@ function StringNode({ node }: NodeProps) {
   );
 }
 
-function PolyNode({ node }: NodeProps) {
-  const { onChange, errors } = useNode(node);
-  const options = Object.keys(node.schema.attributes);
-  const variant = node.children[node.value].schema.attributes
-  console.log('poly node render');
-  return (
-    <div>
-      <label>{node.path} :</label>
-      <select onChange={onChange}>
-        {options.map(key => <option key={key}>{key}</option>)}
-      </select>
-      {errors.map(err => <strong>{err}</strong>)}
-      {variant && <SchemaRender treeConfig={variant} />}
-      {JSON.stringify(variant)}
-    </div>
-  );
-}
-
 function ListNode({ node }: NodeProps) {
   const { onChange, errors } = useNode(node);
   const options = Object.keys(node.schema.attributes);
   const variant = node.children[node.value]
-  console.log('list node render');
   return (
     <div>
       <label>{node.path} :</label>
-      ListNode...
+      [ListNode...]
       {errors.map(err => <strong>{err}</strong>)}
     </div>
   );
 }
 
-function UndefinedKindNode({ node }: NodeProps) {
+function PolyNode({ node }: NodeProps) {
+  const { onChange, errors } = useNode(node);
+  
+  if (!node) {
+    return <pre>{JSON.stringify({node})}</pre>
+  }
+  
+  const optionsJsx: React.ReactNodeArray = []
+  node.children.forEach((_,key) => {
+    optionsJsx.push(<option key={key}>{key}</option>)
+  })
+
+  const subNode = node.children.get(node.value)
+  
   return (
     <div>
-      { node.schema?.kind } { node.value }
+      <label>{node.path} :</label>
+      <select onChange={onChange}>
+        {optionsJsx}
+      </select>
+      {errors.map(err => <strong>{err}</strong>)}
+      {subNode && <SchemaNodeComponent node={subNode} />}
     </div>
   );
 }
 
 // FORM FRAMEWORK
-
 class Node {
   public name: string;
   public errors: string[] = [];
-  public children: Record<string, Node>;
+  public children: Map<string, Node>;
   public schema: SchemaNodeDefinition;
-  public childrenKind: string = '';
 
   constructor(
     public path: string,
@@ -100,20 +111,15 @@ class Node {
       kind: Array.isArray(options) ? 'polymorphic' : schema.kind,
     }
 
+    if (this.schema.kind === 'polymorphic') {
+      this.value = this.value || options[0];
+    }
+
     if (Array.isArray(this.schema.kind)) {
-      this.schema.childrenKind = this.schema.kind[0];
       this.schema.kind = 'list';
     }
 
-    if (this.schema.kind === 'polymorphic') {
-      this.value = this.value || options[0]
-    }
-
-    if (this.schema.attributes && !plugins[this.schema.kind]) {
-      this.schema.kind = 'group'
-    }
-
-    this.children = parseSchema(schema.attributes, path);
+    this.buildChildren();
   }
 
   onChange = (value: any) => {
@@ -132,65 +138,65 @@ class Node {
 
     return this.errors;
   }
+
+  buildChildren() {
+    const children = new Map<string, Node>();
+    for (let key in this.schema.attributes) {
+      const path = this.path ? [this.path, key].join('.') : key
+      children.set(key, new Node(path, this.schema.attributes[key]))
+    }
+    this.children = children;
+  }
 }
 
 function getValidatorFn(validatorConfig: Validator) {
-  return [validatorFunctions[validatorConfig.name] || NoValidator, validatorConfig]
-}
-
-function parseSchema(schema, parentPath = '') {
-  const config: Record<string, Node> = {}
-  for (let key in schema) {
-    const path = parentPath ? [parentPath, key].join('.') : key
-    config[key] = new Node(path, schema[key])
-  }
-  return config
-}
-
-class Mutator {
-  constructor(
-    public path: string,
-    public mode: 'replace' | 'wrap' | 'prepend' | 'append',
-    public component: ReactComponent,
-  ) {
-
-  }
-}
-
-class TreeConfig {
-  constructor(
-    public schema: Record<string, Node>,
-    public validators: ValidatorFn[],
-  ) {
-
-  }
+  return [validatorFunctions[validatorConfig.name] || noValidator, validatorConfig]
 }
 
 function getPluginComponent(kind: NodeKind): ReactComponent {
-  if (!kind) {
-    console.warn({kind})
-  }
   return plugins[kind] || UndefinedKindNode
 }
 
-function SchemaRender({ treeConfig }: SchemaProps) {
-  console.log(treeConfig)
-  return (
-    <div>
-      {Object.keys(treeConfig).map(key => {
-        const node = treeConfig[key] as Node;
-        if (!node) {
-          return <div>"{key}" plugin can't be found</div>
-        }
-        if(!node.schema) {
-          console.warn(node)
-          return <div>"{key}" has no schema</div>
-        }
-        const Plugin = getPluginComponent(node.schema?.kind);
-        return <Plugin key={key} node={node} />;
-      })}
-    </div>
-  );
+function SchemaNodeComponent({ node }: NodeProps) {
+  // console.log({ node });
+
+  if (!node) {
+    return null;
+  }
+
+  const jsx: React.ReactNodeArray = [];
+
+  node.children.forEach((childNode: Node) => {
+    const key = childNode.path;
+
+    if (!childNode.schema) {
+      jsx.push(<div key={key}>"{key}" has no schema</div>);
+      return;
+    }
+
+    if (!plugins[childNode.schema.kind]) {
+      // console.error({childNode});
+      childNode.children.forEach(child => {
+        jsx.push(<SchemaNodeComponent key={child.path} node={child} />)
+      })
+      return;
+    }
+
+    const Plugin = getPluginComponent(childNode.schema?.kind);
+    const PluginName = Plugin.toString().split('(')[0].replace('function ', '')
+    // jsx.push (
+    //   <ul key={key} >
+    //     &lt;{PluginName} /&gt;
+    //     <li>
+    //       <Plugin key={key} node={childNode} />
+    //     </li>
+    //   </ul>
+    // );
+    jsx.push (<Plugin key={key} node={childNode} />);
+    
+  })
+
+  return <div>{jsx}</div>;
 }
 
 function useNode(node: Node) {
@@ -209,24 +215,12 @@ function useNode(node: Node) {
 
 // DEMO
 
-const legacyConfig = parseSchema(SCHEMA);
-
-const treeConfig: Record<string, Node> = {
-  fistName: new Node('fistName', { kind: 'string' }),
-  lastName: new Node('lastName', { kind: 'string' }),
-  birthDate: new Node('birthDate', { kind: 'date' }),
-  street: new Node('street', { kind: 'string' }),
-  zip: new Node('zip', { kind: 'string' }),
-  region: new Node('region', { kind: 'region', validators: [{ name: 'Presence' }] }, 'QC'),
-  ...legacyConfig,
-};
-
-console.log(treeConfig);
+const legacyConfigWrappedInNodes = new Node('', {attributes: SCHEMA});
 
 export function App() {
   return (
     <div>
-      <SchemaRender treeConfig={treeConfig} />
+      <SchemaNodeComponent node={legacyConfigWrappedInNodes} />
     </div>
   );
 }

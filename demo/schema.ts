@@ -2,1664 +2,1664 @@ export const SCHEMA = {
   legalEntity: {
     kind: {
       polymorphic: [
-        "SoleProp",
-        "Corporation",
-        "LLC",
-        "Partnership",
-        "Nonprofit"
-      ]
+        'SoleProp',
+        'Corporation',
+        'LLC',
+        'Partnership',
+        'Nonprofit',
+      ],
     },
     attributes: {
       SoleProp: {
-        kind: "SoleProp",
+        kind: 'SoleProp',
         attributes: {
           businessDetails: {
-            kind: "BusinessDetailsSoleProp",
+            kind: 'BusinessDetailsSoleProp',
             attributes: {
               businessTaxId: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Format",
-                    format: "(?-mix:\\A([0-9]{2}-[0-9]{7}|[0-9]{9})\\z)"
-                  }
-                ]
+                    name: 'Format',
+                    format: '(?-mix:\\A([0-9]{2}-[0-9]{7}|[0-9]{9})\\z)',
+                  },
+                ],
               },
               address: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  allowAutocomplete: "true"
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               city: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line",
-                  allowAutocomplete: "true"
+                  group: 'city_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               postalCode: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line",
-                  allowAutocomplete: "true"
+                  group: 'city_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               provinceCode: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  allowAutocomplete: "true"
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
-              }
+                    name: 'Presence',
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           personalDetails: {
-            kind: "PersonalDetailsSoleProp",
+            kind: 'PersonalDetailsSoleProp',
             attributes: {
               firstName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line",
-                  allowAutocomplete: "true"
+                  group: 'name_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               lastName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line",
-                  allowAutocomplete: "true"
+                  group: 'name_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               dateOfBirth: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Format",
+                    name: 'Format',
                     format:
-                      "(?-mix:\\A(19|20)[0-9]{2}-(01|02|03|04|05|06|07|08|09|10|11|12)-(0[1-9]|(1|2)[0-9]|(30|31))\\z)"
-                  }
-                ]
+                      '(?-mix:\\A(19|20)[0-9]{2}-(01|02|03|04|05|06|07|08|09|10|11|12)-(0[1-9]|(1|2)[0-9]|(30|31))\\z)',
+                  },
+                ],
               },
               ssnLast4: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
-              }
+                    name: 'Presence',
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           productDetails: {
-            kind: "ProductDetails",
+            kind: 'ProductDetails',
             attributes: {
               mccId: {
-                kind: "integer",
+                kind: 'integer',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               productDescription: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  multiline: true
+                  multiline: true,
                 },
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Length",
-                    maximum: 500
-                  }
-                ]
-              }
+                    name: 'Length',
+                    maximum: 500,
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           billingDetails: {
-            kind: "SimpleBillingDetails",
+            kind: 'SimpleBillingDetails',
             attributes: {
               statementDescriptor: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "billing_line"
+                  group: 'billing_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Length",
-                    maximum: 22
-                  }
-                ]
+                    name: 'Length',
+                    maximum: 22,
+                  },
+                ],
               },
               phoneNumber: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "billing_line"
+                  group: 'billing_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
-              }
+                    name: 'Presence',
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           bankAccountDetails: {
-            kind: "BankAccountDetails",
+            kind: 'BankAccountDetails',
             attributes: {
               routingNumber: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "bank_line"
+                  group: 'bank_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               accountNumber: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "bank_line"
+                  group: 'bank_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               shopifyBalance: {
-                kind: "boolean"
-              }
+                kind: 'boolean',
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
-          }
-        }
+                name: 'Presence',
+              },
+            ],
+          },
+        },
       },
       Corporation: {
-        kind: "Corporation",
+        kind: 'Corporation',
         attributes: {
           businessDetails: {
-            kind: "BusinessDetailsCompany",
+            kind: 'BusinessDetailsCompany',
             attributes: {
               businessName: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               businessTaxId: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Format",
-                    format: "(?-mix:\\A([0-9]{2}-[0-9]{7}|[0-9]{9})\\z)"
-                  }
-                ]
+                    name: 'Format',
+                    format: '(?-mix:\\A([0-9]{2}-[0-9]{7}|[0-9]{9})\\z)',
+                  },
+                ],
               },
               address: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  allowAutocomplete: "true"
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               city: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line",
-                  allowAutocomplete: "true"
+                  group: 'city_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               postalCode: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line",
-                  allowAutocomplete: "true"
+                  group: 'city_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               provinceCode: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  allowAutocomplete: "true"
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
-              }
+                    name: 'Presence',
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           personalDetails: {
-            kind: "PersonalDetailsCompany",
+            kind: 'PersonalDetailsCompany',
             attributes: {
               firstName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line",
-                  allowAutocomplete: "true"
+                  group: 'name_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               lastName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line",
-                  allowAutocomplete: "true"
+                  group: 'name_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               jobTitle: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               dateOfBirth: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Format",
+                    name: 'Format',
                     format:
-                      "(?-mix:\\A(19|20)[0-9]{2}-(01|02|03|04|05|06|07|08|09|10|11|12)-(0[1-9]|(1|2)[0-9]|(30|31))\\z)"
-                  }
-                ]
+                      '(?-mix:\\A(19|20)[0-9]{2}-(01|02|03|04|05|06|07|08|09|10|11|12)-(0[1-9]|(1|2)[0-9]|(30|31))\\z)',
+                  },
+                ],
               },
               ssnLast4: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Format",
-                    format: "(?-mix:\\A[0-9]{4}?\\z)"
-                  }
-                ]
+                    name: 'Format',
+                    format: '(?-mix:\\A[0-9]{4}?\\z)',
+                  },
+                ],
               },
               address: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               city: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line"
+                  group: 'city_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               postalCode: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line"
+                  group: 'city_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               region: {
-                kind: "Region",
+                kind: 'Region',
                 attributes: {
                   country: {
-                    kind: "string",
+                    kind: 'string',
                     validators: [
                       {
-                        name: "Presence"
-                      }
-                    ]
+                        name: 'Presence',
+                      },
+                    ],
                   },
                   provinceCode: {
-                    kind: "string"
-                  }
+                    kind: 'string',
+                  },
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
-              }
+                    name: 'Presence',
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           people: {
-            kind: ["AdditionalOwner"],
+            kind: ['AdditionalOwner'],
             attributes: {
               firstName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line"
+                  group: 'name_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               lastName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line"
+                  group: 'name_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               email: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               ownershipPercentage: {
-                kind: "integer",
+                kind: 'integer',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Numericality",
+                    name: 'Numericality',
                     format: {
                       greater_than: 0,
                       less_than: 101,
-                      allow_nil: false
-                    }
-                  }
-                ]
-              }
-            }
+                      allow_nil: false,
+                    },
+                  },
+                ],
+              },
+            },
           },
           productDetails: {
-            kind: "ProductDetails",
+            kind: 'ProductDetails',
             attributes: {
               mccId: {
-                kind: "integer",
+                kind: 'integer',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               productDescription: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  multiline: true
+                  multiline: true,
                 },
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Length",
-                    maximum: 500
-                  }
-                ]
-              }
+                    name: 'Length',
+                    maximum: 500,
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           billingDetails: {
-            kind: "SimpleBillingDetails",
+            kind: 'SimpleBillingDetails',
             attributes: {
               statementDescriptor: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "billing_line"
+                  group: 'billing_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Length",
-                    maximum: 22
-                  }
-                ]
+                    name: 'Length',
+                    maximum: 22,
+                  },
+                ],
               },
               phoneNumber: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "billing_line"
+                  group: 'billing_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
-              }
+                    name: 'Presence',
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           bankAccountDetails: {
-            kind: "BankAccountDetails",
+            kind: 'BankAccountDetails',
             attributes: {
               routingNumber: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "bank_line"
+                  group: 'bank_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               accountNumber: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "bank_line"
+                  group: 'bank_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               shopifyBalance: {
-                kind: "boolean"
-              }
+                kind: 'boolean',
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
-          }
-        }
+                name: 'Presence',
+              },
+            ],
+          },
+        },
       },
       LLC: {
-        kind: "LLC",
+        kind: 'LLC',
         attributes: {
           businessDetails: {
-            kind: "BusinessDetailsCompany",
+            kind: 'BusinessDetailsCompany',
             attributes: {
               businessName: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               businessTaxId: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Format",
-                    format: "(?-mix:\\A([0-9]{2}-[0-9]{7}|[0-9]{9})\\z)"
-                  }
-                ]
+                    name: 'Format',
+                    format: '(?-mix:\\A([0-9]{2}-[0-9]{7}|[0-9]{9})\\z)',
+                  },
+                ],
               },
               address: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  allowAutocomplete: "true"
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               city: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line",
-                  allowAutocomplete: "true"
+                  group: 'city_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               postalCode: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line",
-                  allowAutocomplete: "true"
+                  group: 'city_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               provinceCode: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  allowAutocomplete: "true"
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
-              }
+                    name: 'Presence',
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           personalDetails: {
-            kind: "PersonalDetailsCompany",
+            kind: 'PersonalDetailsCompany',
             attributes: {
               firstName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line",
-                  allowAutocomplete: "true"
+                  group: 'name_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               lastName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line",
-                  allowAutocomplete: "true"
+                  group: 'name_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               jobTitle: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               dateOfBirth: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Format",
+                    name: 'Format',
                     format:
-                      "(?-mix:\\A(19|20)[0-9]{2}-(01|02|03|04|05|06|07|08|09|10|11|12)-(0[1-9]|(1|2)[0-9]|(30|31))\\z)"
-                  }
-                ]
+                      '(?-mix:\\A(19|20)[0-9]{2}-(01|02|03|04|05|06|07|08|09|10|11|12)-(0[1-9]|(1|2)[0-9]|(30|31))\\z)',
+                  },
+                ],
               },
               ssnLast4: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Format",
-                    format: "(?-mix:\\A[0-9]{4}?\\z)"
-                  }
-                ]
+                    name: 'Format',
+                    format: '(?-mix:\\A[0-9]{4}?\\z)',
+                  },
+                ],
               },
               address: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               city: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line"
+                  group: 'city_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               postalCode: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line"
+                  group: 'city_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               region: {
-                kind: "Region",
+                kind: 'Region',
                 attributes: {
                   country: {
-                    kind: "string",
+                    kind: 'string',
                     validators: [
                       {
-                        name: "Presence"
-                      }
-                    ]
+                        name: 'Presence',
+                      },
+                    ],
                   },
                   provinceCode: {
-                    kind: "string"
-                  }
+                    kind: 'string',
+                  },
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
-              }
+                    name: 'Presence',
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           people: {
-            kind: ["AdditionalOwner"],
+            kind: ['AdditionalOwner'],
             attributes: {
               firstName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line"
+                  group: 'name_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               lastName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line"
+                  group: 'name_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               email: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               ownershipPercentage: {
-                kind: "integer",
+                kind: 'integer',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Numericality",
+                    name: 'Numericality',
                     format: {
                       greater_than: 0,
                       less_than: 101,
-                      allow_nil: false
-                    }
-                  }
-                ]
-              }
-            }
+                      allow_nil: false,
+                    },
+                  },
+                ],
+              },
+            },
           },
           productDetails: {
-            kind: "ProductDetails",
+            kind: 'ProductDetails',
             attributes: {
               mccId: {
-                kind: "integer",
+                kind: 'integer',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               productDescription: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  multiline: true
+                  multiline: true,
                 },
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Length",
-                    maximum: 500
-                  }
-                ]
-              }
+                    name: 'Length',
+                    maximum: 500,
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           billingDetails: {
-            kind: "SimpleBillingDetails",
+            kind: 'SimpleBillingDetails',
             attributes: {
               statementDescriptor: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "billing_line"
+                  group: 'billing_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Length",
-                    maximum: 22
-                  }
-                ]
+                    name: 'Length',
+                    maximum: 22,
+                  },
+                ],
               },
               phoneNumber: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "billing_line"
+                  group: 'billing_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
-              }
+                    name: 'Presence',
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           bankAccountDetails: {
-            kind: "BankAccountDetails",
+            kind: 'BankAccountDetails',
             attributes: {
               routingNumber: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "bank_line"
+                  group: 'bank_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               accountNumber: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "bank_line"
+                  group: 'bank_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               shopifyBalance: {
-                kind: "boolean"
-              }
+                kind: 'boolean',
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
-          }
-        }
+                name: 'Presence',
+              },
+            ],
+          },
+        },
       },
       Partnership: {
-        kind: "Partnership",
+        kind: 'Partnership',
         attributes: {
           businessDetails: {
-            kind: "BusinessDetailsCompany",
+            kind: 'BusinessDetailsCompany',
             attributes: {
               businessName: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               businessTaxId: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Format",
-                    format: "(?-mix:\\A([0-9]{2}-[0-9]{7}|[0-9]{9})\\z)"
-                  }
-                ]
+                    name: 'Format',
+                    format: '(?-mix:\\A([0-9]{2}-[0-9]{7}|[0-9]{9})\\z)',
+                  },
+                ],
               },
               address: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  allowAutocomplete: "true"
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               city: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line",
-                  allowAutocomplete: "true"
+                  group: 'city_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               postalCode: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line",
-                  allowAutocomplete: "true"
+                  group: 'city_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               provinceCode: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  allowAutocomplete: "true"
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
-              }
+                    name: 'Presence',
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           personalDetails: {
-            kind: "PersonalDetailsCompany",
+            kind: 'PersonalDetailsCompany',
             attributes: {
               firstName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line",
-                  allowAutocomplete: "true"
+                  group: 'name_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               lastName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line",
-                  allowAutocomplete: "true"
+                  group: 'name_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               jobTitle: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               dateOfBirth: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Format",
+                    name: 'Format',
                     format:
-                      "(?-mix:\\A(19|20)[0-9]{2}-(01|02|03|04|05|06|07|08|09|10|11|12)-(0[1-9]|(1|2)[0-9]|(30|31))\\z)"
-                  }
-                ]
+                      '(?-mix:\\A(19|20)[0-9]{2}-(01|02|03|04|05|06|07|08|09|10|11|12)-(0[1-9]|(1|2)[0-9]|(30|31))\\z)',
+                  },
+                ],
               },
               ssnLast4: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Format",
-                    format: "(?-mix:\\A[0-9]{4}?\\z)"
-                  }
-                ]
+                    name: 'Format',
+                    format: '(?-mix:\\A[0-9]{4}?\\z)',
+                  },
+                ],
               },
               address: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               city: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line"
+                  group: 'city_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               postalCode: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line"
+                  group: 'city_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               region: {
-                kind: "Region",
+                kind: 'Region',
                 attributes: {
                   country: {
-                    kind: "string",
+                    kind: 'string',
                     validators: [
                       {
-                        name: "Presence"
-                      }
-                    ]
+                        name: 'Presence',
+                      },
+                    ],
                   },
                   provinceCode: {
-                    kind: "string"
-                  }
+                    kind: 'string',
+                  },
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
-              }
+                    name: 'Presence',
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           people: {
-            kind: ["AdditionalOwner"],
+            kind: ['AdditionalOwner'],
             attributes: {
               firstName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line"
+                  group: 'name_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               lastName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line"
+                  group: 'name_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               email: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               ownershipPercentage: {
-                kind: "integer",
+                kind: 'integer',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Numericality",
+                    name: 'Numericality',
                     format: {
                       greater_than: 0,
                       less_than: 101,
-                      allow_nil: false
-                    }
-                  }
-                ]
-              }
-            }
+                      allow_nil: false,
+                    },
+                  },
+                ],
+              },
+            },
           },
           productDetails: {
-            kind: "ProductDetails",
+            kind: 'ProductDetails',
             attributes: {
               mccId: {
-                kind: "integer",
+                kind: 'integer',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               productDescription: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  multiline: true
+                  multiline: true,
                 },
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Length",
-                    maximum: 500
-                  }
-                ]
-              }
+                    name: 'Length',
+                    maximum: 500,
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           billingDetails: {
-            kind: "SimpleBillingDetails",
+            kind: 'SimpleBillingDetails',
             attributes: {
               statementDescriptor: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "billing_line"
+                  group: 'billing_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Length",
-                    maximum: 22
-                  }
-                ]
+                    name: 'Length',
+                    maximum: 22,
+                  },
+                ],
               },
               phoneNumber: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "billing_line"
+                  group: 'billing_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
-              }
+                    name: 'Presence',
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           bankAccountDetails: {
-            kind: "BankAccountDetails",
+            kind: 'BankAccountDetails',
             attributes: {
               routingNumber: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "bank_line"
+                  group: 'bank_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               accountNumber: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "bank_line"
+                  group: 'bank_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               shopifyBalance: {
-                kind: "boolean"
-              }
+                kind: 'boolean',
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
-          }
-        }
+                name: 'Presence',
+              },
+            ],
+          },
+        },
       },
       Nonprofit: {
-        kind: "Nonprofit",
+        kind: 'Nonprofit',
         attributes: {
           businessDetails: {
-            kind: "BusinessDetailsCompany",
+            kind: 'BusinessDetailsCompany',
             attributes: {
               businessName: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               businessTaxId: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Format",
-                    format: "(?-mix:\\A([0-9]{2}-[0-9]{7}|[0-9]{9})\\z)"
-                  }
-                ]
+                    name: 'Format',
+                    format: '(?-mix:\\A([0-9]{2}-[0-9]{7}|[0-9]{9})\\z)',
+                  },
+                ],
               },
               address: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  allowAutocomplete: "true"
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               city: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line",
-                  allowAutocomplete: "true"
+                  group: 'city_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               postalCode: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line",
-                  allowAutocomplete: "true"
+                  group: 'city_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               provinceCode: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  allowAutocomplete: "true"
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
-              }
+                    name: 'Presence',
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           personalDetails: {
-            kind: "PersonalDetailsCompany",
+            kind: 'PersonalDetailsCompany',
             attributes: {
               firstName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line",
-                  allowAutocomplete: "true"
+                  group: 'name_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               lastName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line",
-                  allowAutocomplete: "true"
+                  group: 'name_line',
+                  allowAutocomplete: 'true',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               jobTitle: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               dateOfBirth: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Format",
+                    name: 'Format',
                     format:
-                      "(?-mix:\\A(19|20)[0-9]{2}-(01|02|03|04|05|06|07|08|09|10|11|12)-(0[1-9]|(1|2)[0-9]|(30|31))\\z)"
-                  }
-                ]
+                      '(?-mix:\\A(19|20)[0-9]{2}-(01|02|03|04|05|06|07|08|09|10|11|12)-(0[1-9]|(1|2)[0-9]|(30|31))\\z)',
+                  },
+                ],
               },
               ssnLast4: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Format",
-                    format: "(?-mix:\\A[0-9]{4}?\\z)"
-                  }
-                ]
+                    name: 'Format',
+                    format: '(?-mix:\\A[0-9]{4}?\\z)',
+                  },
+                ],
               },
               address: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               city: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line"
+                  group: 'city_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               postalCode: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "city_line"
+                  group: 'city_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               region: {
-                kind: "Region",
+                kind: 'Region',
                 attributes: {
                   country: {
-                    kind: "string",
+                    kind: 'string',
                     validators: [
                       {
-                        name: "Presence"
-                      }
-                    ]
+                        name: 'Presence',
+                      },
+                    ],
                   },
                   provinceCode: {
-                    kind: "string"
-                  }
+                    kind: 'string',
+                  },
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
-              }
+                    name: 'Presence',
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           people: {
-            kind: ["AdditionalOwner"],
+            kind: ['AdditionalOwner'],
             attributes: {
               firstName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line"
+                  group: 'name_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               lastName: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "name_line"
+                  group: 'name_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               email: {
-                kind: "string",
+                kind: 'string',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               ownershipPercentage: {
-                kind: "integer",
+                kind: 'integer',
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Numericality",
+                    name: 'Numericality',
                     format: {
                       greater_than: 0,
                       less_than: 101,
-                      allow_nil: false
-                    }
-                  }
-                ]
-              }
-            }
+                      allow_nil: false,
+                    },
+                  },
+                ],
+              },
+            },
           },
           productDetails: {
-            kind: "ProductDetails",
+            kind: 'ProductDetails',
             attributes: {
               mccId: {
-                kind: "integer",
+                kind: 'integer',
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               productDescription: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  multiline: true
+                  multiline: true,
                 },
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Length",
-                    maximum: 500
-                  }
-                ]
-              }
+                    name: 'Length',
+                    maximum: 500,
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           billingDetails: {
-            kind: "SimpleBillingDetails",
+            kind: 'SimpleBillingDetails',
             attributes: {
               statementDescriptor: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "billing_line"
+                  group: 'billing_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
+                    name: 'Presence',
                   },
                   {
-                    name: "Length",
-                    maximum: 22
-                  }
-                ]
+                    name: 'Length',
+                    maximum: 22,
+                  },
+                ],
               },
               phoneNumber: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "billing_line"
+                  group: 'billing_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
-              }
+                    name: 'Presence',
+                  },
+                ],
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
+                name: 'Presence',
+              },
+            ],
           },
           bankAccountDetails: {
-            kind: "BankAccountDetails",
+            kind: 'BankAccountDetails',
             attributes: {
               routingNumber: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "bank_line"
+                  group: 'bank_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               accountNumber: {
-                kind: "string",
+                kind: 'string',
                 meta: {
-                  group: "bank_line"
+                  group: 'bank_line',
                 },
                 validators: [
                   {
-                    name: "Presence"
-                  }
-                ]
+                    name: 'Presence',
+                  },
+                ],
               },
               shopifyBalance: {
-                kind: "boolean"
-              }
+                kind: 'boolean',
+              },
             },
             validators: [
               {
-                name: "Presence"
-              }
-            ]
-          }
-        }
-      }
+                name: 'Presence',
+              },
+            ],
+          },
+        },
+      },
     },
     validators: [
       {
-        name: "Presence"
-      }
-    ]
-  }
+        name: 'Presence',
+      },
+    ],
+  },
 };

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import {
   DeclarativeFormContext,
-  ValidatorFn,
   Node,
   SchemaNodeComponent,
+  SchemaNodeDefinitionLegacy,
 } from '../framework';
 import { ListNode, PolyNode, StringNode } from './plugins';
 import { SCHEMA } from './schema';
@@ -23,10 +23,12 @@ const context = new DeclarativeFormContext({
   },
 });
 
-const legacyConfigWrappedInNodes = new Node(context, '', {
+const schema: SchemaNodeDefinitionLegacy = {
   kind: 'group',
   attributes: SCHEMA,
-});
+};
+
+const legacyConfigWrappedInNodes = new Node(context, '', schema);
 
 export function App() {
   return (

@@ -66,6 +66,7 @@ export class Node<T = never> {
 
     return {
       ...schema,
+      attributes: schema.attributes as SchemaNodeDefinition['attributes'],
       kind: kind as NodeKind,
     };
   }

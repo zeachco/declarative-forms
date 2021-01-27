@@ -1,4 +1,4 @@
-export type NodeKind = 'polymorphic' | 'string' | 'list' | 'group' | string;
+export type NodeKind = string;
 export type NodeValue = any;
 export type ReactComponent = any;
 

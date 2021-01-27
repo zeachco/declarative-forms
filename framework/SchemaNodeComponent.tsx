@@ -25,10 +25,6 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
       ? context.plugins.list
       : context.plugins[childNode.schema.kind];
 
-    const pluginName =
-      Plugin?.toString().split('(')[0].replace('function ', '') ||
-      childNode.schema?.kind;
-
     if (Plugin) {
       jsx.push(<Plugin key={keyName} context={context} node={childNode} />);
     } else {
@@ -40,12 +36,13 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
       });
     }
 
-    if (context.debug)
-      jsx = [
-        <DebugPath node={node} name={pluginName}>
-          {jsx}
-        </DebugPath>,
-      ];
+    if (context.debug) {
+      const pluginName = Plugin?.toString()
+        .split('(')[0]
+        .replace('function ', '');
+
+      jsx = [<DebugPath node={node} name={pluginName} children={jsx} />];
+    }
   });
 
   const { Before, After, Replace, Wrap } = context.getDecorator(node.path);
@@ -57,12 +54,12 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
 }
 
 interface DebugProps {
-  children: React.ReactChild;
+  children: React.ReactNode;
   name: string;
   node: Node;
 }
 
-function DebugPath({ children, name, node }: DebugProps) {
+function DebugPath({ children, node, name = '' }: DebugProps) {
   const color = Math.floor(Math.random() * 16777215).toString(16);
   const style = {
     boxShadow: `inset 0 0 3px 1px #${color}, inset -.5em 0 2em -.5em #${color}44`,
@@ -72,7 +69,8 @@ function DebugPath({ children, name, node }: DebugProps) {
   return (
     <div key={name} title={name} style={style}>
       <small style={{ color }}>
-        &lt;{name} <span color="white">path="{node.path}"</span> &gt;
+        &lt;{name}{' '}
+        <span color="white">path="{[node.path, name].join('.')}"</span> &gt;
       </small>
       {children}
       <small style={{ color }}>&lt;/{name} &gt;</small>

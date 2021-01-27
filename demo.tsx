@@ -39,23 +39,14 @@ const plugins = {
   polymorphic: PolyNode,
 };
 
-function UndefinedKindNode({ node }: NodeProps) {
-  return (
-    <div>
-      [{node.schema?.kind} {node.value}{' '}
-      {JSON.stringify(Object.keys(node.children))}]
-    </div>
-  );
-}
-
 function StringNode({ node }: NodeProps) {
   const { onChange, errors } = useNode(node);
   return (
     <div>
       <label>{node.path} : </label>
-      <input value={node.value} onChange={onChange} />
+      <input value={node.value?.toString() || ''} onChange={onChange} />
       {errors.map((err) => (
-        <strong>{err}</strong>
+        <strong key={err}>{err}</strong>
       ))}
     </div>
   );
@@ -63,25 +54,33 @@ function StringNode({ node }: NodeProps) {
 
 function ListNode({ node }: NodeProps) {
   const { onChange, errors } = useNode(node);
-  const options = Object.keys(node.schema.attributes);
-  const variant = node.children[node.value];
+
+  const jsx: React.ReactNodeArray = ['[ListNode...]'];
+
+  node.children.forEach((val, key) => {
+    jsx.push(<pre key={key}>{JSON.stringify({ [key]: val })}</pre>);
+  });
+
   return (
     <div>
       <label>{node.path} :</label>
-      [ListNode...]
+
       {errors.map((err) => (
-        <strong>{err}</strong>
+        <strong key={err}>{err}</strong>
       ))}
+      {jsx}
+      <button onClick={handleAddNew}>Add node</button>
     </div>
   );
+
+  function handleAddNew() {
+    const subPath = [node.path, node.value.length].join('.');
+    onChange(node.value.push(new Node(subPath, node.schema)));
+  }
 }
 
 function PolyNode({ node }: NodeProps) {
   const { onChange, errors } = useNode(node);
-
-  if (!node) {
-    return <pre>{JSON.stringify({ node })}</pre>;
-  }
 
   const optionsJsx: React.ReactNodeArray = [];
   node.children.forEach((_, key) => {
@@ -110,7 +109,7 @@ function schemaCompatibilityLayer(
 
   if (typeof kind !== 'string') {
     if (Array.isArray(kind)) {
-      isList = true
+      isList = true;
       kind = kind[0];
     } else if (Array.isArray(kind.polymorphic)) {
       kind = 'polymorphic';
@@ -213,9 +212,12 @@ function SchemaNodeComponent({ node }: NodeProps) {
 }
 
 function useNode(node: Node) {
+  if (!node) {
+    throw new Error('no Node provided in useNode hook');
+  }
   const [state, changeState] = React.useState({
     errors: [] as string[],
-    onChange(val) {
+    onChange(val: any) {
       node.onChange(val);
       changeState({
         ...state,
@@ -228,7 +230,10 @@ function useNode(node: Node) {
 
 // DEMO
 
-const legacyConfigWrappedInNodes = new Node('', { attributes: SCHEMA });
+const legacyConfigWrappedInNodes = new Node('', {
+  kind: 'group',
+  attributes: SCHEMA,
+});
 
 export function App() {
   return (

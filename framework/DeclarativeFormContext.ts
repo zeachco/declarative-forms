@@ -24,7 +24,7 @@ export class DeclarativeFormContext implements FormContext {
   public labels: FormContext['labels'];
   public values: FormContext['values'];
   public translators: FormContext['translators'];
-  public debug = false;
+  public debug = true;
 
   private decoratorsByPath: Record<string, DecoratorsForPath> = {};
 

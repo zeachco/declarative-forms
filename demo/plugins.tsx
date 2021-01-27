@@ -45,7 +45,8 @@ export function ListNode({ node, context }: NodeProps) {
 
 // this will be moved internal to framework
 export function PolyNode({ node, context }: NodeProps) {
-  const { onChange, errors } = useNode(node);
+  const { onChange, errors, currentNode } = useNode(node);
+  const current = currentNode();
 
   const optionsJsx: React.ReactNodeArray = [];
 
@@ -53,16 +54,16 @@ export function PolyNode({ node, context }: NodeProps) {
     optionsJsx.push(<option key={key}>{key}</option>);
   }
 
-  const subNode = node.children[node.value];
-
   return (
     <div>
-      <label>{node.path} :</label>
+      <label>
+        {node.path} &gt; {current?.path || 'none'} :
+      </label>
       <select onChange={onChange}>{optionsJsx}</select>
       {errors.map((err) => (
         <strong>{err}</strong>
       ))}
-      {subNode && <SchemaNodeComponent context={context} node={subNode} />}
+      {current && <SchemaNodeComponent context={context} node={current} />}
     </div>
   );
 }

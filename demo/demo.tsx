@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {
   DeclarativeFormContext,
   Node,
@@ -34,12 +34,29 @@ const legacyConfigWrappedInNodes = new Node(context, '', schema);
 (window as any).context = context;
 
 export function App() {
+  const [debug, setDebug] = React.useState(false);
+  context.debug = debug;
+
   return (
     <div>
+      <label>
+        Debug:
+        <input
+          type="checkbox"
+          value={context.debug ? 'checked' : 'unchecked'}
+          onChange={handleSwitch}
+        />
+      </label>
+      <hr />
       <SchemaNodeComponent
         context={context}
         node={legacyConfigWrappedInNodes}
+        key={debug.toString()}
       />
     </div>
   );
+
+  function handleSwitch() {
+    setDebug(!context.debug);
+  }
 }

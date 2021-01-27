@@ -15,7 +15,7 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
     return null;
   }
 
-  const jsx: React.ReactNodeArray = [];
+  let jsx: React.ReactNodeArray = [];
 
   node.attributes.forEach((attribute) => {
     const childNode: Node = node.children[attribute];
@@ -23,17 +23,11 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
 
     const Plugin = node.isList
       ? context.plugins.list
-      : context.plugins[
-          childNode.schema.kind as keyof DeclarativeFormContext['plugins']
-        ];
+      : context.plugins[childNode.schema.kind];
 
-    // Allows to show components being used
-    if (context.debug) {
-      const pluginName =
-        Plugin?.toString().split('(')[0].replace('function ', '') ||
-        childNode.schema?.kind;
-      jsx.push(<div key={pluginName}>&lt;{pluginName} /&gt;</div>);
-    }
+    const pluginName =
+      Plugin?.toString().split('(')[0].replace('function ', '') ||
+      childNode.schema?.kind;
 
     if (Plugin) {
       jsx.push(<Plugin key={key} context={context} node={childNode} />);
@@ -45,13 +39,30 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
         <SchemaNodeComponent key={child.path} context={context} node={child} />
       );
     });
-    return;
+
+    if (context.debug) jsx = [<DebugPath name={pluginName}>{jsx}</DebugPath>];
   });
 
   const { Before, After, Replace, Wrap } = context.getDecorator(node.path);
-  if (Replace) jsx.splice(0, jsx.length, <Replace key={node.path} />);
+  if (Replace) jsx = [<Replace key={node.path} />];
   if (Before) jsx.unshift(<Before key="_before" />);
   if (After) jsx.push(<After key="_after" />);
   if (Wrap) return <Wrap>{jsx}</Wrap>;
   return <React.Fragment>{jsx}</React.Fragment>;
+}
+
+function DebugPath({ children = null as React.ReactNode, name = 'unknown' }) {
+  const color = Math.floor(Math.random() * 16777215).toString(16);
+  const style = {
+    boxShadow: `inset 0 0 3px 1px #${color}, inset -.5em 0 2em -.5em #${color}44`,
+    backgroundColor: `#${color}08`,
+    padding: '.1em 0 .1em .3em',
+  };
+  return (
+    <div key={name} title={name} style={style}>
+      <small style={{ color }}>&lt;{name} &gt;</small>
+      {children}
+      <small style={{ color }}>&lt;/{name} &gt;</small>
+    </div>
+  );
 }

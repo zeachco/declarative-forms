@@ -48,7 +48,7 @@ export class DeclarativeFormContext implements FormContext {
     this.labels = labels || {};
     this.values = values || {};
 
-    this.translators = translators = [];
+    this.translators = translators || [];
   }
 
   public getDecorator(path: string): DecoratorsForPath {

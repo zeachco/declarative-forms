@@ -2,6 +2,7 @@ import React from 'react';
 import {
   DeclarativeFormContext,
   Node,
+  NodeProps,
   SchemaNodeComponent,
   SchemaNodeDefinitionLegacy,
 } from '../framework';
@@ -16,6 +17,14 @@ const context = new DeclarativeFormContext({
     region: StringNode,
     list: ListNode,
     polymorphic: PolyNode,
+    // BusinessDetailsSoleProp(node: NodeProps) {
+    //   return (
+    //     <div>
+    //       <h3>hahahaha I intercepted BusinessDetailsSoleProp</h3>
+    //       {JSON.stringify(node)}
+    //     </div>
+    //   );
+    // },
   },
   validators: {
     Presence: PresenceValidator,

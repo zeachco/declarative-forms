@@ -31,6 +31,9 @@ const schema: SchemaNodeDefinitionLegacy = {
 
 const legacyConfigWrappedInNodes = new Node(context, '', schema);
 
+(window as any).config = legacyConfigWrappedInNodes;
+(window as any).context = context;
+
 export function App() {
   return (
     <div>

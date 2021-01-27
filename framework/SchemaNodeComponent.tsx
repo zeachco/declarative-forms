@@ -19,14 +19,17 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
   node.children.forEach((childNode: Node) => {
     const key = childNode.path;
 
-    const pluginName =
-      context.plugins[
-        childNode.schema.kind as keyof DeclarativeFormContext['plugins']
-      ]
-        ?.toString()
-        .split('(')[0]
-        .replace('function ', '') || childNode.schema?.kind;
-    jsx.push(<div key={pluginName}>&lt;{pluginName} /&gt;</div>);
+    // Allows to show components being used
+    if (context.debug) {
+      const pluginName =
+        context.plugins[
+          childNode.schema.kind as keyof DeclarativeFormContext['plugins']
+        ]
+          ?.toString()
+          .split('(')[0]
+          .replace('function ', '') || childNode.schema?.kind;
+      jsx.push(<div key={pluginName}>&lt;{pluginName} /&gt;</div>);
+    }
 
     if (!childNode.schema) {
       jsx.push(<div key={key}>"{key}" has no schema</div>);

@@ -17,6 +17,7 @@ export class DeclarativeFormContext implements FormContext {
   public labels: FormContext['labels'];
   public values: FormContext['values'];
   public translators: FormContext['translators'];
+  public debug = false;
 
   constructor({
     plugins = {},

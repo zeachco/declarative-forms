@@ -19,7 +19,7 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
 
   node.attributes.forEach((attribute) => {
     const childNode: Node = node.children[attribute];
-    const key = childNode.path;
+    const keyName = childNode.schema.kind;
 
     const Plugin = node.isList
       ? context.plugins.list
@@ -30,17 +30,22 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
       childNode.schema?.kind;
 
     if (Plugin) {
-      jsx.push(<Plugin key={key} context={context} node={childNode} />);
+      jsx.push(<Plugin key={keyName} context={context} node={childNode} />);
+    } else {
+      childNode.attributes.forEach((key) => {
+        const child = childNode.children[key];
+        jsx.push(
+          <SchemaNodeComponent key={keyName} context={context} node={child} />
+        );
+      });
     }
 
-    childNode.attributes.forEach((key) => {
-      const child = childNode.children[key];
-      jsx.push(
-        <SchemaNodeComponent key={child.path} context={context} node={child} />
-      );
-    });
-
-    if (context.debug) jsx = [<DebugPath name={pluginName}>{jsx}</DebugPath>];
+    if (context.debug)
+      jsx = [
+        <DebugPath node={node} name={pluginName}>
+          {jsx}
+        </DebugPath>,
+      ];
   });
 
   const { Before, After, Replace, Wrap } = context.getDecorator(node.path);
@@ -51,7 +56,13 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
   return <React.Fragment>{jsx}</React.Fragment>;
 }
 
-function DebugPath({ children = null as React.ReactNode, name = 'unknown' }) {
+interface DebugProps {
+  children: React.ReactChild;
+  name: string;
+  node: Node;
+}
+
+function DebugPath({ children, name, node }: DebugProps) {
   const color = Math.floor(Math.random() * 16777215).toString(16);
   const style = {
     boxShadow: `inset 0 0 3px 1px #${color}, inset -.5em 0 2em -.5em #${color}44`,
@@ -60,7 +71,9 @@ function DebugPath({ children = null as React.ReactNode, name = 'unknown' }) {
   };
   return (
     <div key={name} title={name} style={style}>
-      <small style={{ color }}>&lt;{name} &gt;</small>
+      <small style={{ color }}>
+        &lt;{name} <span color="white">path="{node.path}"</span> &gt;
+      </small>
       {children}
       <small style={{ color }}>&lt;/{name} &gt;</small>
     </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import {
   DeclarativeFormContext,
   Node,
+  NodeProps,
   SchemaNodeComponent,
   SchemaNodeDefinitionLegacy,
 } from '../framework';
@@ -20,7 +21,7 @@ const context = new DeclarativeFormContext({
     date: StringNode,
     region: StringNode,
     list: ListNode,
-    // BusinessDetailsSoleProp(node: NodeProps) {
+    // BusinessDetailsSoleProp({ node }: NodeProps) {
     //   return (
     //     <div>
     //       <h3>hahahaha I intercepted BusinessDetailsSoleProp</h3>
@@ -45,17 +46,12 @@ const legacyConfigWrappedInNodes = new Node(context, '', schema);
 
 export function App() {
   const [debug, setDebug] = React.useState(context.debug);
-  context.debug = debug;
 
   return (
     <div>
       <label>
         Debug:
-        <input
-          type="checkbox"
-          value={context.debug ? 'checked' : 'unchecked'}
-          onChange={handleSwitch}
-        />
+        <input type="checkbox" checked={debug} onChange={handleSwitch} />
       </label>
       <hr />
       <SchemaNodeComponent
@@ -67,7 +63,8 @@ export function App() {
   );
 
   function handleSwitch() {
-    setDebug(!context.debug);
+    context.debug = !debug;
+    setDebug(context.debug);
   }
 }
 

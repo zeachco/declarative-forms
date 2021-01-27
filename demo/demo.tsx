@@ -2,11 +2,10 @@ import React from 'react';
 import {
   DeclarativeFormContext,
   Node,
-  NodeProps,
   SchemaNodeComponent,
   SchemaNodeDefinitionLegacy,
 } from '../framework';
-import { ListNode, PolyNode, StringNode } from './plugins';
+import { ListNode, StringNode } from './plugins';
 import { SCHEMA } from './schema';
 import { SCHEMA_SANDBOX } from './schemaSandbox';
 import {
@@ -21,7 +20,6 @@ const context = new DeclarativeFormContext({
     date: StringNode,
     region: StringNode,
     list: ListNode,
-    polymorphic: PolyNode,
     // BusinessDetailsSoleProp(node: NodeProps) {
     //   return (
     //     <div>
@@ -44,9 +42,6 @@ const schema: SchemaNodeDefinitionLegacy = {
 };
 
 const legacyConfigWrappedInNodes = new Node(context, '', schema);
-
-(window as any).config = legacyConfigWrappedInNodes;
-(window as any).context = context;
 
 export function App() {
   const [debug, setDebug] = React.useState(context.debug);
@@ -75,3 +70,7 @@ export function App() {
     setDebug(!context.debug);
   }
 }
+
+// for debugger
+(window as any).config = legacyConfigWrappedInNodes;
+(window as any).context = context;

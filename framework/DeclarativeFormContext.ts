@@ -1,3 +1,4 @@
+import { frameworkPlugins, frameworkValidators } from '.';
 import { ReactComponent, ValidatorFn } from './types';
 
 export interface FormContext {
@@ -14,9 +15,6 @@ interface DecoratorsForPath {
   Wrap?: ReactComponent;
   Replace?: ReactComponent;
 }
-
-const frameworkPlugins: FormContext['plugins'] = {};
-const frameworkValidators: FormContext['validators'] = {};
 
 export class DeclarativeFormContext implements FormContext {
   public plugins: FormContext['plugins'];

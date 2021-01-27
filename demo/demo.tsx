@@ -8,6 +8,7 @@ import {
 } from '../framework';
 import { ListNode, PolyNode, StringNode } from './plugins';
 import { SCHEMA } from './schema';
+import { SCHEMA_SANDBOX } from './schemaSandbox';
 import { FormatValidator, PresenceValidator } from './validators';
 
 const context = new DeclarativeFormContext({
@@ -34,7 +35,7 @@ const context = new DeclarativeFormContext({
 
 const schema: SchemaNodeDefinitionLegacy = {
   kind: 'group',
-  attributes: SCHEMA,
+  attributes: SCHEMA_SANDBOX || SCHEMA,
 };
 
 const legacyConfigWrappedInNodes = new Node(context, '', schema);
@@ -43,7 +44,7 @@ const legacyConfigWrappedInNodes = new Node(context, '', schema);
 (window as any).context = context;
 
 export function App() {
-  const [debug, setDebug] = React.useState(false);
+  const [debug, setDebug] = React.useState(context.debug);
   context.debug = debug;
 
   return (

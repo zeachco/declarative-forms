@@ -11,23 +11,15 @@ export class Node<T = never> {
   public children: Map<string, Node<T>>;
   public schema: SchemaNodeDefinition;
   public value: NodeValue = null;
+  public isList = false;
 
   constructor(
     public context: DeclarativeFormContext,
     public path: string,
     schema: SchemaNodeDefinitionLegacy
   ) {
-    this.schema = schemaCompatibilityLayer(schema);
     this.value = this.context.values[this.path];
-
-    // autoselect first polymorphic options if undefined
-    if (this.schema.kind === 'polymorphic') {
-      const options = Object.keys(this.schema.attributes || {});
-      if (options.indexOf(this.value) === -1) {
-        this.value = options[0];
-      }
-    }
-
+    this.schema = this.schemaCompatibilityLayer(schema);
     this.children = buildChildren(this.context, this.path, this.schema);
   }
 
@@ -51,28 +43,32 @@ export class Node<T = never> {
 
     return this.errors;
   };
-}
 
-function schemaCompatibilityLayer(
-  schema: SchemaNodeDefinitionLegacy
-): SchemaNodeDefinition {
-  let kind = schema.kind || 'group';
-  let isList = false;
+  // magic happend to be retrocompatible and set some flags
+  // warning, this method have side effets
+  private schemaCompatibilityLayer(
+    schema: SchemaNodeDefinitionLegacy
+  ): SchemaNodeDefinition {
+    let kind = schema.kind || 'group';
 
-  if (typeof kind !== 'string') {
-    if (Array.isArray(kind)) {
-      isList = true;
-      kind = kind[0];
-    } else if (Array.isArray(kind.polymorphic)) {
-      kind = 'polymorphic';
+    if (typeof kind !== 'string') {
+      if (Array.isArray(kind)) {
+        kind = kind[0];
+        this.isList = true;
+      } else if (Array.isArray(kind.polymorphic)) {
+        kind = 'polymorphic';
+        const options = Object.keys(schema.attributes || {});
+        if (options.indexOf(this.value) === -1) {
+          this.value = options[0];
+        }
+      }
     }
-  }
 
-  return {
-    ...schema,
-    kind: kind as NodeKind,
-    isList,
-  };
+    return {
+      ...schema,
+      kind: kind as NodeKind,
+    };
+  }
 }
 
 function buildChildren(

@@ -18,7 +18,6 @@ export interface SchemaNodeDefinitionLegacy {
 
 export interface SchemaNodeDefinition {
   kind: NodeKind;
-  isList: boolean;
   attributes?: Record<string, SchemaNodeDefinition>;
   validators?: Validator[];
   meta?: Record<string, any>;

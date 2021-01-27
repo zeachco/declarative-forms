@@ -1,8 +1,5 @@
 import React from "react";
-import { NodeProps } from "./framework/types";
-import { NodeValue } from "./framework/types";
-import { ReactComponent } from "./framework/types";
-import { NodeKind } from "./framework/types";
+import { NodeProps, NodeValue, SchemaNodeDefinitionLegacy } from "./framework/types";
 import { SchemaNodeDefinition } from "./framework/types";
 import { Validator } from "./framework/types";
 import { ValidatorFn } from "./framework/types";
@@ -18,7 +15,7 @@ const validatorFunctions: Record<string, ValidatorFn> = {
   },
   Format(val, options: Validator) {
     if (!options.format) {
-      return noValidator(val);
+      return '';
     }
     const exp = new RegExp(options.format)
     return exp.test(val) ? '' : `FormatError :: Field does not match expression ${options.format}`
@@ -100,7 +97,7 @@ class Node {
 
   constructor(
     public path: string,
-    schema: SchemaNodeDefinition = {},
+    schema: SchemaNodeDefinitionLegacy = {},
     public value: NodeValue = null,
   ) {
     // compatibility layer
@@ -132,8 +129,10 @@ class Node {
     if (!this.schema.validators) return [];
 
     this.errors = this.schema.validators
-      .map(getValidatorFn)
-      .map(([fn, config]) => fn(this.value, config))
+      .map((config) => {
+        const fn = validatorFunctions[config.name] || noValidator;
+        return fn(this.value, config);
+      })
       .filter(Boolean);
 
     return this.errors;
@@ -149,50 +148,35 @@ class Node {
   }
 }
 
-function getValidatorFn(validatorConfig: Validator) {
-  return [validatorFunctions[validatorConfig.name] || noValidator, validatorConfig]
-}
-
-function getPluginComponent(kind: NodeKind): ReactComponent {
-  return plugins[kind] || UndefinedKindNode
-}
-
 function SchemaNodeComponent({ node }: NodeProps) {
-  // console.log({ node });
-
-  if (!node) {
-    return null;
-  }
-
   const jsx: React.ReactNodeArray = [];
 
   node.children.forEach((childNode: Node) => {
     const key = childNode.path;
+
+    const pluginName = plugins[childNode.schema?.kind]?.toString().split('(')[0].replace('function ', '') || childNode.schema?.kind
+    jsx.push(
+      <div>
+        &lt;{pluginName} /&gt;
+      </div>
+    );
 
     if (!childNode.schema) {
       jsx.push(<div key={key}>"{key}" has no schema</div>);
       return;
     }
 
-    if (!plugins[childNode.schema.kind]) {
-      // console.error({childNode});
-      childNode.children.forEach(child => {
-        jsx.push(<SchemaNodeComponent key={child.path} node={child} />)
-      })
+    const Plugin = plugins[childNode.schema?.kind];
+
+    if (Plugin) {
+      jsx.push (<Plugin key={key} node={childNode} />);
       return;
     }
 
-    const Plugin = getPluginComponent(childNode.schema?.kind);
-    const PluginName = Plugin.toString().split('(')[0].replace('function ', '')
-    // jsx.push (
-    //   <ul key={key} >
-    //     &lt;{PluginName} /&gt;
-    //     <li>
-    //       <Plugin key={key} node={childNode} />
-    //     </li>
-    //   </ul>
-    // );
-    jsx.push (<Plugin key={key} node={childNode} />);
+    childNode.children.forEach(child => {
+      jsx.push(<SchemaNodeComponent key={child.path} node={child} />)
+    })
+    return;
     
   })
 

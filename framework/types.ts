@@ -9,8 +9,15 @@ export interface Validator {
 
 export type ValidatorFn = (val: NodeValue, options: Validator) => string;
 
+export interface SchemaNodeDefinitionLegacy {
+  kind?: NodeKind | [NodeKind] | { polymorphic: string[] };
+  attributes?: Record<string, SchemaNodeDefinition>;
+  validators?: Validator[];
+  meta?: Record<string, any>;
+}
+
 export interface SchemaNodeDefinition {
-  kind?: NodeKind | [NodeKind];
+  kind: NodeKind;
   attributes?: Record<string, SchemaNodeDefinition>;
   validators?: Validator[];
   meta?: Record<string, any>;

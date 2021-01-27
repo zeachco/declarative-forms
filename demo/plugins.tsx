@@ -14,6 +14,7 @@ export function StringNode({ node }: NodeProps) {
   );
 }
 
+// this will be moved internal to framework
 export function ListNode({ node, context }: NodeProps) {
   const { onChange, errors } = useNode(node);
 
@@ -42,6 +43,7 @@ export function ListNode({ node, context }: NodeProps) {
   }
 }
 
+// this will be moved internal to framework
 export function PolyNode({ node, context }: NodeProps) {
   const { onChange, errors } = useNode(node);
 
@@ -61,25 +63,6 @@ export function PolyNode({ node, context }: NodeProps) {
         <strong>{err}</strong>
       ))}
       {subNode && <SchemaNodeComponent context={context} node={subNode} />}
-    </div>
-  );
-}
-
-export function GroupNode({ children, node }: NodeProps) {
-  if (!node) {
-    return null;
-  }
-
-  return (
-    <div
-      style={{
-        boxShadow: 'inset 0 0 6px gray',
-        padding: '.5em',
-        marginBottom: '4px',
-      }}
-    >
-      {node.path}
-      {children}
     </div>
   );
 }

@@ -21,23 +21,19 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
     const childNode: Node = node.children[attribute];
     const key = childNode.path;
 
-    // Allows to show components being used
-    if (context.debug) {
-      const pluginName =
-        context.plugins[
-          childNode.schema.kind as keyof DeclarativeFormContext['plugins']
-        ]
-          ?.toString()
-          .split('(')[0]
-          .replace('function ', '') || childNode.schema?.kind;
-      jsx.push(<div key={pluginName}>&lt;{pluginName} /&gt;</div>);
-    }
-
     const Plugin = node.isList
       ? context.plugins.list
       : context.plugins[
           childNode.schema.kind as keyof DeclarativeFormContext['plugins']
         ];
+
+    // Allows to show components being used
+    if (context.debug) {
+      const pluginName =
+        Plugin?.toString().split('(')[0].replace('function ', '') ||
+        childNode.schema?.kind;
+      jsx.push(<div key={pluginName}>&lt;{pluginName} /&gt;</div>);
+    }
 
     if (Plugin) {
       jsx.push(<Plugin key={key} context={context} node={childNode} />);

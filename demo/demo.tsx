@@ -5,7 +5,7 @@ import {
   SchemaNodeComponent,
   SchemaNodeDefinitionLegacy,
 } from '../framework';
-import { GroupNode, ListNode, PolyNode, StringNode } from './plugins';
+import { ListNode, PolyNode, StringNode } from './plugins';
 import { SCHEMA } from './schema';
 import { FormatValidator, PresenceValidator } from './validators';
 
@@ -16,7 +16,6 @@ const context = new DeclarativeFormContext({
     region: StringNode,
     list: ListNode,
     polymorphic: PolyNode,
-    group: GroupNode,
   },
   validators: {
     Presence: PresenceValidator,

@@ -9,7 +9,11 @@ import {
 import { ListNode, PolyNode, StringNode } from './plugins';
 import { SCHEMA } from './schema';
 import { SCHEMA_SANDBOX } from './schemaSandbox';
-import { FormatValidator, PresenceValidator } from './validators';
+import {
+  formatValidator,
+  lengthValidator,
+  presenceValidator,
+} from './validators';
 
 const context = new DeclarativeFormContext({
   plugins: {
@@ -28,8 +32,9 @@ const context = new DeclarativeFormContext({
     // },
   },
   validators: {
-    Presence: PresenceValidator,
-    Format: FormatValidator,
+    Presence: presenceValidator,
+    Format: formatValidator,
+    Length: lengthValidator,
   },
 });
 

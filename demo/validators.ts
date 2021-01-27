@@ -1,6 +1,6 @@
 import { Validator } from '../framework';
 
-export function PresenceValidator(val: any, _options: Validator) {
+export function presenceValidator(val: any, _options: Validator) {
   return Boolean(val) ? '' : 'PresenceError :: Field must be defined';
 }
 
@@ -11,7 +11,7 @@ function validateRegex(val: any, format: string) {
     : `FormatError :: Field does not match expression ${format}`;
 }
 
-export function FormatValidator(val: any, options: Validator) {
+export function formatValidator(val: any, options: Validator) {
   if (!options.format) {
     return '';
   }
@@ -21,5 +21,15 @@ export function FormatValidator(val: any, options: Validator) {
   }
 
   console.warn('unsupported options in FormatValidator');
+  return '';
+}
+
+export function lengthValidator(val: string, { maximum, minimum }: Validator) {
+  if (maximum && val.length > maximum) {
+    return 'LengthValidator :: value is too long, must be at most ${maximum} character';
+  }
+  if (minimum && val.length < minimum) {
+    return 'LengthValidator :: value is too short, must be at least ${minimum} character';
+  }
   return '';
 }

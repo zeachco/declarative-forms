@@ -1,4 +1,4 @@
-import { DeclarativeFormContext } from './DeclarativeFormContext';
+import { NodeContext } from './NodeGlobalContext';
 import {
   NodeKind,
   NodeValue,
@@ -15,7 +15,7 @@ export class Node {
   public attributes: string[] = [];
 
   constructor(
-    public context: DeclarativeFormContext,
+    public context: NodeContext,
     public path: string,
     schema: SchemaNodeDefinitionLegacy
   ) {
@@ -75,7 +75,7 @@ export class Node {
 }
 
 function buildChildren(
-  context: DeclarativeFormContext,
+  context: NodeContext,
   path: string,
   schema: SchemaNodeDefinition
 ) {

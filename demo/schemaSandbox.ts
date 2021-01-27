@@ -72,94 +72,6 @@ export const SCHEMA_SANDBOX = {
               },
             ],
           },
-          personalDetails: {
-            kind: 'PersonalDetailsSoleProp',
-            attributes: {
-              firstName: {
-                kind: 'string',
-                meta: {
-                  group: 'name_line',
-                  allowAutocomplete: 'true',
-                },
-                validators: [
-                  {
-                    name: 'Presence',
-                  },
-                ],
-              },
-              lastName: {
-                kind: 'string',
-                meta: {
-                  group: 'name_line',
-                  allowAutocomplete: 'true',
-                },
-                validators: [
-                  {
-                    name: 'Presence',
-                  },
-                ],
-              },
-              dateOfBirth: {
-                kind: 'string',
-                validators: [
-                  {
-                    name: 'Presence',
-                  },
-                  {
-                    name: 'Format',
-                    format:
-                      '(?-mix:\\A(19|20)[0-9]{2}-(01|02|03|04|05|06|07|08|09|10|11|12)-(0[1-9]|(1|2)[0-9]|(30|31))\\z)',
-                  },
-                ],
-              },
-              ssnLast4: {
-                kind: 'string',
-                validators: [
-                  {
-                    name: 'Presence',
-                  },
-                ],
-              },
-            },
-            validators: [
-              {
-                name: 'Presence',
-              },
-            ],
-          },
-          productDetails: {
-            kind: 'ProductDetails',
-            attributes: {
-              mccId: {
-                kind: 'integer',
-                validators: [
-                  {
-                    name: 'Presence',
-                  },
-                ],
-              },
-              productDescription: {
-                kind: 'string',
-                meta: {
-                  multiline: true,
-                },
-                validators: [
-                  {
-                    name: 'Presence',
-                  },
-                  {
-                    name: 'Length',
-                    maximum: 500,
-                  },
-                ],
-              },
-            },
-            validators: [
-              {
-                name: 'Presence',
-              },
-            ],
-          },
           billingDetails: {
             kind: 'SimpleBillingDetails',
             attributes: {
@@ -188,41 +100,6 @@ export const SCHEMA_SANDBOX = {
                     name: 'Presence',
                   },
                 ],
-              },
-            },
-            validators: [
-              {
-                name: 'Presence',
-              },
-            ],
-          },
-          bankAccountDetails: {
-            kind: 'BankAccountDetails',
-            attributes: {
-              routingNumber: {
-                kind: 'string',
-                meta: {
-                  group: 'bank_line',
-                },
-                validators: [
-                  {
-                    name: 'Presence',
-                  },
-                ],
-              },
-              accountNumber: {
-                kind: 'string',
-                meta: {
-                  group: 'bank_line',
-                },
-                validators: [
-                  {
-                    name: 'Presence',
-                  },
-                ],
-              },
-              shopifyBalance: {
-                kind: 'boolean',
               },
             },
             validators: [

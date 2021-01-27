@@ -4,6 +4,8 @@ export type ReactComponent = any;
 
 export interface Validator {
   name: string;
+  maximum?: number;
+  minimum?: number;
   format?:
     | string
     | {

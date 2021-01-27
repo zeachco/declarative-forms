@@ -10,4 +10,4 @@ export {
 } from './types';
 export { SchemaNodeComponent, NodeProps } from './SchemaNodeComponent';
 export { useNode } from './hook';
-export { DeclarativeFormContext } from './DeclarativeFormContext';
+export { NodeContext as DeclarativeFormContext } from './NodeGlobalContext';

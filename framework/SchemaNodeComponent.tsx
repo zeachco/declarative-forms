@@ -1,10 +1,10 @@
 import React from 'react';
-import { DeclarativeFormContext } from './DeclarativeFormContext';
+import { NodeContext } from './NodeGlobalContext';
 
 import { Node } from './Node';
 
 export interface NodeProps {
-  context: DeclarativeFormContext;
+  context: NodeContext;
   node: Node;
   children?: React.ReactNode;
 }

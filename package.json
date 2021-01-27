@@ -12,12 +12,13 @@
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
-    "dev": "parcel index.html"
+    "dev": "rimraf .cache dist && parcel index.html"
   },
   "devDependencies": {
     "parcel-bundler": "^1.12.4",
     "prettier": "^2.2.1",
     "react-scripts-ts": "latest",
+    "rimraf": "^3.0.2",
     "typescript": "^4.1.3"
   }
 }

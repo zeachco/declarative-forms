@@ -293,7 +293,8 @@
    * Defaults to false.
    */
     "editor.formatOnPaste": true,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "git.ignoreLimitWarning": true
   /**
    * Enable format on save.
    * Defaults to true.

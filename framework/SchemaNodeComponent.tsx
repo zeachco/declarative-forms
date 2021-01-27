@@ -52,5 +52,10 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
     return;
   });
 
-  return <div>{jsx}</div>;
+  const { Before, After, Replace, Wrap } = context.getDecorator(node.path);
+  if (Replace) jsx.splice(0, jsx.length, <Replace key={node.path} />);
+  if (Before) jsx.unshift(<Before key="_before" />);
+  if (After) jsx.push(<After key="_after" />);
+  if (Wrap) return <Wrap>{jsx}</Wrap>;
+  return <React.Fragment>{jsx}</React.Fragment>;
 }

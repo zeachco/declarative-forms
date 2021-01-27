@@ -8,6 +8,13 @@ export interface FormContext {
   translators: any[];
 }
 
+interface DecoratorsForPath {
+  Before?: ReactComponent;
+  After?: ReactComponent;
+  Wrap?: ReactComponent;
+  Replace?: ReactComponent;
+}
+
 const frameworkPlugins: FormContext['plugins'] = {};
 const frameworkValidators: FormContext['validators'] = {};
 
@@ -18,6 +25,8 @@ export class DeclarativeFormContext implements FormContext {
   public values: FormContext['values'];
   public translators: FormContext['translators'];
   public debug = false;
+
+  private decoratorsByPath: Record<string, DecoratorsForPath> = {};
 
   constructor({
     plugins = {},
@@ -40,5 +49,9 @@ export class DeclarativeFormContext implements FormContext {
     this.values = values || {};
 
     this.translators = translators = [];
+  }
+
+  public getDecorator(path: string): DecoratorsForPath {
+    return this.decoratorsByPath[path] || [];
   }
 }

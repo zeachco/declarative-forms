@@ -1,4 +1,4 @@
-export type NodeKind<T = string> = "polymorphic" | "string" | "list" | T;
+export type NodeKind = 'polymorphic' | 'string' | 'list' | 'group';
 export type NodeValue = any;
 export type ReactComponent = any;
 
@@ -10,7 +10,7 @@ export interface Validator {
 export type ValidatorFn = (val: NodeValue, options: Validator) => string;
 
 export interface SchemaNodeDefinitionLegacy {
-  kind?: NodeKind | [NodeKind] | { polymorphic: string[] };
+  kind: NodeKind | [NodeKind] | { polymorphic: string[] };
   attributes?: Record<string, SchemaNodeDefinition>;
   validators?: Validator[];
   meta?: Record<string, any>;
@@ -18,11 +18,8 @@ export interface SchemaNodeDefinitionLegacy {
 
 export interface SchemaNodeDefinition {
   kind: NodeKind;
+  isList: boolean;
   attributes?: Record<string, SchemaNodeDefinition>;
   validators?: Validator[];
   meta?: Record<string, any>;
-}
-
-export interface NodeProps {
-  node: Node;
 }

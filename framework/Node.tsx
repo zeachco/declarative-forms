@@ -6,12 +6,13 @@ import {
   SchemaNodeDefinitionLegacy,
 } from './types';
 
-export class Node<T = never> {
+export class Node {
   public errors: string[] = [];
-  public children: Map<string, Node<T>>;
+  public children: Record<string, Node>;
   public schema: SchemaNodeDefinition;
   public value: NodeValue = null;
   public isList = false;
+  public attributes: string[] = [];
 
   constructor(
     public context: DeclarativeFormContext,
@@ -21,6 +22,7 @@ export class Node<T = never> {
     this.value = this.context.values[this.path];
     this.schema = this.schemaCompatibilityLayer(schema);
     this.children = buildChildren(this.context, this.path, this.schema);
+    this.attributes = Object.keys(this.children);
   }
 
   onChange = (value: any) => {
@@ -77,10 +79,10 @@ function buildChildren(
   path: string,
   schema: SchemaNodeDefinition
 ) {
-  const children = new Map<string, Node>();
+  const children: Node['children'] = {};
   for (let key in schema.attributes) {
     const subPath = path ? [path, key].join('.') : key;
-    children.set(key, new Node(context, subPath, schema.attributes[key]));
+    children[key] = new Node(context, subPath, schema.attributes[key]);
   }
   return children;
 }

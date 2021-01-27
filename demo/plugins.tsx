@@ -19,9 +19,10 @@ export function ListNode({ node, context }: NodeProps) {
 
   const jsx: React.ReactNodeArray = ['[ListNode...]'];
 
-  node.children.forEach((val, key) => {
-    jsx.push(<pre key={key}>{JSON.stringify({ [key]: val })}</pre>);
-  });
+  for (const key in node.children) {
+    const child = node.children[key];
+    jsx.push(<pre key={key}>{JSON.stringify({ [key]: child })}</pre>);
+  }
 
   return (
     <div>
@@ -45,11 +46,12 @@ export function PolyNode({ node, context }: NodeProps) {
   const { onChange, errors } = useNode(node);
 
   const optionsJsx: React.ReactNodeArray = [];
-  node.children.forEach((_, key) => {
-    optionsJsx.push(<option key={key}>{key}</option>);
-  });
 
-  const subNode = node.children.get(node.value);
+  for (const key in node.children) {
+    optionsJsx.push(<option key={key}>{key}</option>);
+  }
+
+  const subNode = node.children[node.value];
 
   return (
     <div>
@@ -59,6 +61,25 @@ export function PolyNode({ node, context }: NodeProps) {
         <strong>{err}</strong>
       ))}
       {subNode && <SchemaNodeComponent context={context} node={subNode} />}
+    </div>
+  );
+}
+
+export function GroupNode({ children, node }: NodeProps) {
+  if (!node) {
+    return null;
+  }
+
+  return (
+    <div
+      style={{
+        boxShadow: 'inset 0 0 6px gray',
+        padding: '.5em',
+        marginBottom: '4px',
+      }}
+    >
+      {node.path}
+      {children}
     </div>
   );
 }

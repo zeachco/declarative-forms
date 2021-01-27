@@ -6,6 +6,7 @@ import { Node } from './Node';
 export interface NodeProps {
   context: DeclarativeFormContext;
   node: Node;
+  children?: React.ReactNode;
 }
 
 export function SchemaNodeComponent({ node, context }: NodeProps) {
@@ -16,7 +17,8 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
 
   const jsx: React.ReactNodeArray = [];
 
-  node.children.forEach((childNode: Node) => {
+  node.attributes.forEach((attribute) => {
+    const childNode: Node = node.children[attribute];
     const key = childNode.path;
 
     // Allows to show components being used
@@ -36,19 +38,29 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
       return;
     }
 
-    const Plugin =
-      context.plugins[
-        childNode.schema.kind as keyof DeclarativeFormContext['plugins']
-      ];
+    const Plugin = node.isList
+      ? context.plugins.list
+      : context.plugins[
+          childNode.schema.kind as keyof DeclarativeFormContext['plugins']
+        ];
 
     if (Plugin) {
       jsx.push(<Plugin key={key} context={context} node={childNode} />);
       return;
     }
 
-    childNode.children.forEach((child) => {
+    const Group = context.plugins.group;
+
+    childNode.attributes.forEach((key) => {
+      const child = childNode.children[key];
       jsx.push(
-        <SchemaNodeComponent key={child.path} context={context} node={child} />
+        <Group node={child} context={context}>
+          <SchemaNodeComponent
+            key={child.path}
+            context={context}
+            node={child}
+          />
+        </Group>
       );
     });
     return;

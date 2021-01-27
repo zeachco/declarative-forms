@@ -292,7 +292,8 @@
    * Enable format on paste.
    * Defaults to false.
    */
-    "editor.formatOnPaste": true
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true
   /**
    * Enable format on save.
    * Defaults to true.

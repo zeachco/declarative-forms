@@ -1,7 +1,9 @@
 import React from 'react';
 import {
   DeclarativeFormContext,
+  getNodeChildren,
   Node,
+  NodeProps,
   SchemaNodeComponent,
   SchemaNodeDefinitionLegacy,
 } from '../framework';
@@ -19,14 +21,15 @@ const context = new DeclarativeFormContext({
     string: StringNode,
     date: StringNode,
     region: StringNode,
-    // BusinessDetailsSoleProp({ node }: NodeProps) {
-    //   return (
-    //     <div>
-    //       <h3>hahahaha I intercepted BusinessDetailsSoleProp</h3>
-    //       {JSON.stringify(node)}
-    //     </div>
-    //   );
-    // },
+    BusinessDetailsSoleProp({ node, context }: NodeProps) {
+      return (
+        <div key={'BusinessDetailsSoleProp'}>
+          <h3>hahahaha I intercepted BusinessDetailsSoleProp</h3>
+          {JSON.stringify(node)}
+          {getNodeChildren({ node, context })}
+        </div>
+      );
+    },
   },
   validators: {
     Presence: presenceValidator,

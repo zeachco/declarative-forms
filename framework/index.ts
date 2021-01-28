@@ -12,7 +12,11 @@ export {
   SchemaNodeDefinitionLegacy,
   SchemaNodeDefinition,
 } from './types';
-export { SchemaNodeComponent, NodeProps } from './SchemaNodeComponent';
+export {
+  SchemaNodeComponent,
+  NodeProps,
+  getNodeChildren,
+} from './SchemaNodeComponent';
 export { useNode } from './hook';
 export { DeclarativeFormContext } from './DeclarativeFormContext';
 

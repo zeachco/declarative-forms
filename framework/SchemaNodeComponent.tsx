@@ -10,6 +10,37 @@ export interface NodeProps {
   children?: React.ReactNode;
 }
 
+export function getNodeChildren({ node, context }: NodeProps) {
+  let jsx: React.ReactNodeArray = [];
+  node.attributes.forEach((attribute) => {
+    const childNode: Node = node.children[attribute];
+
+    const Plugin = getPlugin(context, childNode);
+
+    if (Plugin) {
+      jsx.push(
+        <Plugin
+          key={'child_' + childNode.path}
+          context={context}
+          node={childNode}
+        />
+      );
+    } else {
+      childNode.attributes.forEach((key) => {
+        const child = childNode.children[key];
+        jsx.push(
+          <SchemaNodeComponent
+            key={'child_' + childNode.path}
+            context={context}
+            node={child}
+          />
+        );
+      });
+    }
+  });
+  return jsx;
+}
+
 export function SchemaNodeComponent({ node, context }: NodeProps) {
   if (!context || !node) {
     console.warn('missing node or context for SchemaNodeComponent');
@@ -28,32 +59,11 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
       .split('(')[0]
       .replace('function ', '') || node.schema.kind;
 
-  node.attributes.forEach((attribute) => {
-    const childNode: Node = node.children[attribute];
+  jsx.push(...getNodeChildren({ node, context }));
 
-    const Plugin = getPlugin(context, childNode);
-
-    if (Plugin) {
-      jsx.push(
-        <Plugin key={childNode.path} context={context} node={childNode} />
-      );
-    } else {
-      childNode.attributes.forEach((key) => {
-        const child = childNode.children[key];
-        jsx.push(
-          <SchemaNodeComponent
-            key={childNode.path}
-            context={context}
-            node={child}
-          />
-        );
-      });
-    }
-
-    if (context.debug) {
-      jsx = [<DebugPath node={node} name={pluginName} children={jsx} />];
-    }
-  });
+  if (context.debug) {
+    jsx = [<DebugPath node={node} name={pluginName} children={jsx} />];
+  }
 
   const { Before, After, Replace, Wrap } = context.getDecorator(node.path);
   if (Replace) jsx = [<Replace key={node.path} />];

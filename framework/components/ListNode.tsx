@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNode } from '../hook';
-import { Node } from '../Node';
-import { NodeProps } from '../SchemaNodeComponent';
+import { SchemaNode } from '../SchemaNode';
+import { NodeProps } from './RootNode';
 
 // this will be moved internal to framework
 export function ListNode({ node, context }: NodeProps) {
@@ -28,6 +28,6 @@ export function ListNode({ node, context }: NodeProps) {
 
   function handleAddNew() {
     const subPath = [node.path, node.value.length].join('.');
-    onChange(node.value.push(new Node(context, subPath, node.schema)));
+    onChange(node.value.push(new SchemaNode(context, subPath, node.schema)));
   }
 }

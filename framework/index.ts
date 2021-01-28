@@ -1,8 +1,10 @@
 import { ListNode } from './components/ListNode';
 import { PolymorphicNode } from './components/PolymorphicNode';
 import { FormContext } from './DeclarativeFormContext';
+
+export { RootNode, NodeProps, getNodeChildren } from './components/RootNode';
 export { FormContext };
-export { Node } from './Node';
+export { SchemaNode } from './SchemaNode';
 export {
   NodeKind,
   NodeValue,
@@ -12,11 +14,6 @@ export {
   SchemaNodeDefinitionLegacy,
   SchemaNodeDefinition,
 } from './types';
-export {
-  SchemaNodeComponent,
-  NodeProps,
-  getNodeChildren,
-} from './SchemaNodeComponent';
 export { useNode } from './hook';
 export { DeclarativeFormContext } from './DeclarativeFormContext';
 

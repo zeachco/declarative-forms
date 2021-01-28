@@ -1,5 +1,5 @@
 import React from 'react';
-import { Node } from './Node';
+import { Node } from './SchemaNode';
 
 export function useNode(node: Node) {
   if (!node) {

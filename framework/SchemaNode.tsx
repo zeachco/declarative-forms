@@ -6,12 +6,13 @@ import {
   SchemaNodeDefinitionLegacy,
 } from './types';
 
-export class Node {
+export class SchemaNode {
   public errors: string[] = [];
-  public children: Record<string, Node>;
+  public children: Record<string, SchemaNode>;
   public schema: SchemaNodeDefinition;
   public value: NodeValue = null;
   public isList = false;
+  public isVariant = false;
   public attributes: string[] = [];
 
   constructor(
@@ -23,6 +24,10 @@ export class Node {
     this.schema = this.schemaCompatibilityLayer(schema);
     this.children = buildChildren(this.context, this.path, this.schema);
     this.attributes = Object.keys(this.children);
+  }
+
+  public get uid() {
+    return [this.path, this.schema.kind, ...this.attributes].join('_');
   }
 
   onChange = (value: any) => {
@@ -79,10 +84,10 @@ function buildChildren(
   path: string,
   schema: SchemaNodeDefinition
 ) {
-  const children: Node['children'] = {};
+  const children: SchemaNode['children'] = {};
   for (let key in schema.attributes) {
     const subPath = path ? [path, key].join('.') : key;
-    children[key] = new Node(context, subPath, schema.attributes[key]);
+    children[key] = new SchemaNode(context, subPath, schema.attributes[key]);
   }
   return children;
 }

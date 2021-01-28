@@ -1,14 +1,14 @@
 import React from 'react';
 import { useNode } from '../hook';
-import { NodeProps, SchemaNodeComponent } from '../SchemaNodeComponent';
+import { NodeProps, RootNode } from './RootNode';
 
 export function PolymorphicNode({ node, context }: NodeProps) {
-  const { onChange, errors, currentNode } = useNode(node);
-  const current = currentNode();
+  const { onChange, errors } = useNode(node);
+  const variant = node.children[node.value];
 
   return (
-    <div>
-      <label>{node.path}:</label>
+    <React.Fragment>
+      <label>{node.path}: </label>
       <select onChange={onChange}>
         {node.attributes.map((key) => (
           <option key={key}>{key}</option>
@@ -17,7 +17,7 @@ export function PolymorphicNode({ node, context }: NodeProps) {
       {errors.map((err) => (
         <strong>{err}</strong>
       ))}
-      {current && <SchemaNodeComponent context={context} node={current} />}
-    </div>
+      {variant && <RootNode context={context} node={variant} />}
+    </React.Fragment>
   );
 }

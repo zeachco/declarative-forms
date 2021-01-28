@@ -1,5 +1,5 @@
 import React from 'react';
-import { Node, NodeProps, SchemaNodeComponent, useNode } from '../framework';
+import { NodeProps, useNode } from '../framework';
 
 export function StringNode({ node }: NodeProps) {
   const { onChange, errors } = useNode(node);

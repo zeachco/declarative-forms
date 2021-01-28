@@ -56,12 +56,12 @@ export function App() {
   const [debug, setDebug] = React.useState(context.debug);
 
   return (
-    <div className={debug ? 'debug' : ''}>
-      <label>
-        Debug:
-        <input type="checkbox" checked={debug} onChange={handleSwitch} />
+    <div>
+      <label className="debug">
+        <input type="checkbox" checked={debug} onChange={handleSwitch} /> Show
+        groups
       </label>
-      <hr />
+
       <RootNode
         context={context}
         node={legacyConfigWrappedInNodes}

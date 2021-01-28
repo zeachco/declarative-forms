@@ -1,3 +1,12 @@
-h1, p {
+h1,
+p {
   font-family: Lato;
+}
+
+input,
+button,
+select,
+textarea {
+  padding: 0.3em 0.7em;
+  margin: 0.3em 0;
 }

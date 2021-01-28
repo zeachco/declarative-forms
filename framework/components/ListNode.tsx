@@ -1,23 +1,20 @@
 import React from 'react';
 import { useNode } from '../hook';
 import { SchemaNode } from '../SchemaNode';
-import { NodeProps } from './RootNode';
+import { NodeProps, RootNode } from './RootNode';
 
-// this will be moved internal to framework
 export function ListNode({ node, context }: NodeProps) {
   const { onChange, errors } = useNode(node);
 
-  const jsx: React.ReactNodeArray = ['[ListNode...]'];
+  const jsx: React.ReactNodeArray = [];
 
-  for (const key in node.children) {
-    const child = node.children[key];
-    jsx.push(<pre key={key}>{JSON.stringify({ [key]: child })}</pre>);
-  }
+  node.value.forEach((subNode: SchemaNode) => {
+    jsx.push(<RootNode key={subNode.uid} context={context} node={subNode} />);
+  });
 
   return (
     <div>
       <label>{node.path}: </label>
-
       {errors.map((err) => (
         <strong key={err}>{err}</strong>
       ))}
@@ -28,6 +25,7 @@ export function ListNode({ node, context }: NodeProps) {
 
   function handleAddNew() {
     const subPath = [node.path, node.value.length].join('.');
-    onChange(node.value.push(new SchemaNode(context, subPath, node.schema)));
+    node.value.push(new SchemaNode(context, subPath, node.schema));
+    onChange(node.value);
   }
 }

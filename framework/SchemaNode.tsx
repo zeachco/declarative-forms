@@ -62,6 +62,9 @@ export class SchemaNode {
       if (Array.isArray(kind)) {
         kind = kind[0];
         this.isList = true;
+        if (!Array.isArray(this.value)) {
+          this.value = [];
+        }
       } else if (Array.isArray(kind.polymorphic)) {
         kind = 'polymorphic';
         const options = Object.keys(schema.attributes || {});

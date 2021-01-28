@@ -16,27 +16,36 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
     return null;
   }
 
+  let jsx: React.ReactNodeArray = [];
+  const Plugin = getPlugin(context, node);
+  if (Plugin) {
+    jsx.push(<Plugin key={node.path} context={context} node={node} />);
+  }
+
   const pluginName =
     getPlugin(context, node)
       ?.toString()
       .split('(')[0]
       .replace('function ', '') || node.schema.kind;
 
-  let jsx: React.ReactNodeArray = [];
-
   node.attributes.forEach((attribute) => {
     const childNode: Node = node.children[attribute];
-    const keyName = childNode.schema.kind;
 
     const Plugin = getPlugin(context, childNode);
 
     if (Plugin) {
-      jsx.push(<Plugin key={keyName} context={context} node={childNode} />);
+      jsx.push(
+        <Plugin key={childNode.path} context={context} node={childNode} />
+      );
     } else {
       childNode.attributes.forEach((key) => {
         const child = childNode.children[key];
         jsx.push(
-          <SchemaNodeComponent key={keyName} context={context} node={child} />
+          <SchemaNodeComponent
+            key={childNode.path}
+            context={context}
+            node={child}
+          />
         );
       });
     }
@@ -54,8 +63,8 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
   return <React.Fragment>{jsx}</React.Fragment>;
 }
 
-function getPlugin(context: DeclarativeFormContext, n: Node): ReactComponent {
-  return n.isList ? context.plugins.list : context.plugins[n.schema.kind];
+function getPlugin(ctx: DeclarativeFormContext, node: Node): ReactComponent {
+  return node.isList ? ctx.plugins.list : ctx.plugins[node.schema.kind];
 }
 
 interface DebugProps {
@@ -72,7 +81,7 @@ function DebugPath({ children, node, name = '' }: DebugProps) {
     padding: '.1em 0 .1em .3em',
   };
   return (
-    <div key={name} title={name} style={style}>
+    <div key={'debug_' + node.path} title={name} style={style}>
       <small style={{ color }}>
         &lt;{name} path="{node.path}" kind="{node.schema.kind}" &gt;
       </small>

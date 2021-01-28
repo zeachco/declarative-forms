@@ -25,7 +25,7 @@ function SimpleBillingDetails({ node, children }: NodeProps) {
       style={{ padding: '1em', border: '1px dashed black' }}
     >
       <h3>hahahaha I intercepted SimpleBillingDetails</h3>
-      <p>{children}</p>
+      {children}
       <small>path: {node.path}</small>
     </div>
   );

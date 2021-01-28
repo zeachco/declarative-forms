@@ -5,10 +5,27 @@ export function presenceValidator(val: any, _options: Validator) {
 }
 
 function validateRegex(val: any, format: string) {
-  const exp = new RegExp(format);
+  let exp = new RegExp('.*');
+  try {
+    exp = new RegExp(rubyRegexFromStackOverflow(format));
+  } catch {
+    exp = new RegExp(format);
+  }
   return exp.test(val)
     ? ''
     : `FormatError :: Field does not match expression ${format}`;
+}
+
+function rubyRegexFromStackOverflow(str: string) {
+  return str
+    .replace('\\A', '^')
+    .replace('\\Z', '$')
+    .replace('\\z', '$')
+    .replace(/^\//, '')
+    .replace(/\/[a-z]*$/, '')
+    .replace(/\(\?#.+\)/, '')
+    .replace(/\(\?-\w+:/, '(')
+    .replace(/\s/, '');
 }
 
 export function formatValidator(val: any, options: Validator) {

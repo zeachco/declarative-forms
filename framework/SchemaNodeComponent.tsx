@@ -2,6 +2,7 @@ import React from 'react';
 import { DeclarativeFormContext } from './DeclarativeFormContext';
 
 import { Node } from './Node';
+import { ReactComponent } from './types';
 
 export interface NodeProps {
   context: DeclarativeFormContext;
@@ -15,15 +16,19 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
     return null;
   }
 
+  const pluginName =
+    getPlugin(context, node)
+      ?.toString()
+      .split('(')[0]
+      .replace('function ', '') || node.schema.kind;
+
   let jsx: React.ReactNodeArray = [];
 
   node.attributes.forEach((attribute) => {
     const childNode: Node = node.children[attribute];
     const keyName = childNode.schema.kind;
 
-    const Plugin = node.isList
-      ? context.plugins.list
-      : context.plugins[childNode.schema.kind];
+    const Plugin = getPlugin(context, childNode);
 
     if (Plugin) {
       jsx.push(<Plugin key={keyName} context={context} node={childNode} />);
@@ -37,10 +42,6 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
     }
 
     if (context.debug) {
-      const pluginName = Plugin?.toString()
-        .split('(')[0]
-        .replace('function ', '');
-
       jsx = [<DebugPath node={node} name={pluginName} children={jsx} />];
     }
   });
@@ -51,6 +52,10 @@ export function SchemaNodeComponent({ node, context }: NodeProps) {
   if (After) jsx.push(<After key="_after" />);
   if (Wrap) return <Wrap>{jsx}</Wrap>;
   return <React.Fragment>{jsx}</React.Fragment>;
+}
+
+function getPlugin(context: DeclarativeFormContext, n: Node): ReactComponent {
+  return n.isList ? context.plugins.list : context.plugins[n.schema.kind];
 }
 
 interface DebugProps {
@@ -69,8 +74,7 @@ function DebugPath({ children, node, name = '' }: DebugProps) {
   return (
     <div key={name} title={name} style={style}>
       <small style={{ color }}>
-        &lt;{name}{' '}
-        <span color="white">path="{[node.path, name].join('.')}"</span> &gt;
+        &lt;{name} path="{node.path}" kind="{node.schema.kind}" &gt;
       </small>
       {children}
       <small style={{ color }}>&lt;/{name} &gt;</small>

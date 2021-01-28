@@ -1,3 +1,4 @@
+import { ListNode } from './components/ListNode';
 import { PolymorphicNode } from './components/PolymorphicNode';
 import { FormContext } from './DeclarativeFormContext';
 export { FormContext };
@@ -18,6 +19,7 @@ export { DeclarativeFormContext } from './DeclarativeFormContext';
 export const frameworkPlugins: FormContext['plugins'] = {
   // librairy plugins
   polymorphic: PolymorphicNode,
+  list: ListNode,
 };
 
 export const frameworkValidators: FormContext['validators'] = {

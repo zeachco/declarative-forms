@@ -4,9 +4,10 @@ import { NodeProps, useNode } from '../../framework';
 
 export function PolarisStringNode({ node, ...props }: NodeProps) {
   const { onChange, errors, validate } = useNode(node);
+  const label = node.path.split('.'); // hack instead of i18n
   return (
     <TextField
-      label={node.path}
+      label={label[label.length - 1]}
       value={node.value}
       onChange={handleChange}
       onBlur={handleBlur}

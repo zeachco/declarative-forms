@@ -28,7 +28,7 @@ export function DebugNode({ children, node, name = '' }: DebugProps) {
   return (
     <div key={'debug_' + node.path} title={name} style={style}>
       <small style={{ color }}>
-        &lt;{name} path="{node.path}" &gt;
+        &lt;{name} path="{node.path}" depth="{node.depth}" &gt;
       </small>
       {children}
       <small style={{ color }}>&lt;/{name} &gt;</small>

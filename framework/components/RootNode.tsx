@@ -65,13 +65,18 @@ export function RootNode({ node, context }: NodeProps) {
     ReplaceArgs,
     Wrap,
     WrapArgs,
+    Pack,
+    PackArgs,
   } = context.getDecorator(node.path);
   const mergeProps = getPropsMerger({ node, context });
 
+  // wrap contains only the node
+  // while pack contain the node and it's decorators siblings
   if (Replace) jsx = [<Replace {...mergeProps('r_', ReplaceArgs)} />];
+  if (Wrap) return <Wrap children={jsx} {...mergeProps('w_', WrapArgs)} />;
   if (Before) jsx.unshift(<Before {...mergeProps('b_', BeforeArgs)} />);
   if (After) jsx.push(<After {...mergeProps('a_', AfterArgs)} />);
-  if (Wrap) return <Wrap.Node children={jsx} {...mergeProps('w_', WrapArgs)} />;
+  if (Pack) return <Pack children={jsx} {...mergeProps('p_', PackArgs)} />;
   return <React.Fragment>{jsx}</React.Fragment>;
 }
 

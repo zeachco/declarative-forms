@@ -23,10 +23,12 @@ interface DecoratorsForPath {
   Before?: ReactComponent;
   After?: ReactComponent;
   Wrap?: ReactComponent;
+  Pack?: ReactComponent;
   Replace?: ReactComponent;
   BeforeArgs?: object;
   AfterArgs?: object;
   WrapArgs?: object;
+  PackArgs?: object;
   ReplaceArgs?: object;
 }
 

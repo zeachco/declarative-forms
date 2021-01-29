@@ -7,10 +7,8 @@ import {
   SchemaNodeDefinitionLegacy,
   useNode,
 } from '../framework';
-import { getFunctionName } from '../framework/utils';
 import { StringNode } from './plugins';
 import { SCHEMA } from './schema';
-import { SCHEMA_SANDBOX } from './schemaSandbox';
 import {
   formatValidator,
   lengthValidator,
@@ -37,9 +35,6 @@ const context = new DeclarativeFormContext({
     date: StringNode,
     region: StringNode,
     SimpleBillingDetails,
-    AdditionalOwner2({ node }: NodeProps) {
-      return <div>input</div>;
-    },
   },
   validators: {
     Presence: presenceValidator,
@@ -50,7 +45,7 @@ const context = new DeclarativeFormContext({
 
 const schema: SchemaNodeDefinitionLegacy = {
   kind: 'group',
-  attributes: SCHEMA_SANDBOX || SCHEMA,
+  attributes: SCHEMA,
 };
 
 const legacyConfigWrappedInNodes = new SchemaNode(context, '', schema);

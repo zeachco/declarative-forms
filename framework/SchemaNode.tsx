@@ -51,6 +51,22 @@ export class SchemaNode {
     return this.errors;
   };
 
+  public addListItem() {
+    if (!Array.isArray(this.value)) {
+      this.value = [];
+    }
+    const subPath = [this.path, this.value.length].join('.');
+    this.value.push(new SchemaNode(this.context, subPath, this.schema));
+  }
+
+  // TODO reshift children nodes
+  public removeListItem(index: number) {
+    if (!Array.isArray(this.value)) {
+      this.value = [];
+    }
+    this.value.splice(index, 1);
+  }
+
   // magic happend to be retrocompatible and set some flags
   // warning, this method have side effets
   private schemaCompatibilityLayer(

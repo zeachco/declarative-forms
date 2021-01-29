@@ -4,12 +4,23 @@ import { SchemaNode } from '../SchemaNode';
 import { NodeProps, RootNode } from './RootNode';
 
 export function ListNode({ node, context }: NodeProps) {
-  const { onChange, errors } = useNode(node);
+  const { validate, errors } = useNode(node);
 
   const jsx: React.ReactNodeArray = [];
 
-  node.value.forEach((subNode: SchemaNode) => {
-    jsx.push(<RootNode key={subNode.uid} context={context} node={subNode} />);
+  node.value.forEach((subNode: SchemaNode, index: number) => {
+    const handleDelete = () => {
+      node.removeListItem(index);
+      validate();
+    };
+    jsx.push(
+      <div>
+        <button style={{ float: 'right' }} onClick={handleDelete}>
+          X
+        </button>
+        <RootNode key={subNode.uid} context={context} node={subNode} />
+      </div>
+    );
   });
 
   return (
@@ -19,13 +30,12 @@ export function ListNode({ node, context }: NodeProps) {
         <strong key={err}>{err}</strong>
       ))}
       {jsx}
-      <button onClick={handleAddNew}>Add node</button>
+      <button onClick={handleAdd}>Add node</button>
     </div>
   );
 
-  function handleAddNew() {
-    const subPath = [node.path, node.value.length].join('.');
-    node.value.push(new SchemaNode(context, subPath, node.schema));
-    onChange(node.value);
+  function handleAdd() {
+    node.addListItem();
+    validate();
   }
 }

@@ -37,6 +37,9 @@ const context = new DeclarativeFormContext({
     date: StringNode,
     region: StringNode,
     SimpleBillingDetails,
+    AdditionalOwner2({ node }: NodeProps) {
+      return <div>input</div>;
+    },
   },
   validators: {
     Presence: presenceValidator,

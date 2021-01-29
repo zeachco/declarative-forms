@@ -31,7 +31,7 @@ export function decorate(context: DeclarativeFormContext) {
   context
     .where((node) => node.depth === 3)
     .replaceWith(
-      ({ children }) => (
+      ({ children }: NodeProps) => (
         <Page>
           <Card>
             <Page>

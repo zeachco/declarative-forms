@@ -24,6 +24,7 @@ const context = new DeclarativeFormContext({
   decorate,
   plugins: {
     string: PolarisStringNode,
+    integer: PolarisStringNode, // HACK
   },
   validators: {
     Format: formatValidator,
@@ -45,7 +46,7 @@ export function App() {
   const [json, setJson] = React.useState<any>({});
 
   return (
-    <AppProvider>
+    <AppProvider i18n={undefined as any}>
       <Frame
         topBar={
           <Card>

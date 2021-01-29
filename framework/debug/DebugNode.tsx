@@ -7,8 +7,17 @@ interface DebugProps {
   node: SchemaNode;
 }
 
+const increment = 0.01;
+let index = increment * 10;
+
+function getNextColor() {
+  index += increment;
+  if (index >= 1 - increment * 10) index = increment * 10;
+  return Math.floor(index * 16777215).toString(16);
+}
+
 export function DebugNode({ children, node, name = '' }: DebugProps) {
-  const color = Math.floor(Math.random() * 16777215).toString(16);
+  const color = getNextColor();
   const style = {
     boxShadow: `inset 0 0 3px 1px #${color}, inset -.5em 0 2em -.5em #${color}44`,
     backgroundColor: `#${color}08`,

@@ -1,3 +1,13 @@
+import {
+  AppProvider,
+  Checkbox,
+  FormLayout,
+  Frame,
+  Page,
+  Card,
+} from '@shopify/polaris';
+import '@shopify/polaris/dist/styles.css';
+
 import React from 'react';
 import {
   DeclarativeFormContext,
@@ -6,16 +16,19 @@ import {
   SchemaNode,
   SchemaNodeDefinitionLegacy,
 } from '../framework';
+import { PolarisPolymorphicNode } from './components/PolarisPolyNode';
+import { PolarisStringNode } from './components/PolarisStringNode';
 import { formatValidator, lengthValidator } from './formatValidator';
-import { BillingDetails, StringNode } from './plugins';
+import { BillingDetails } from './plugins';
 import { SCHEMA } from './schema';
 
 const context = new DeclarativeFormContext({
   plugins: {
-    string: StringNode,
-    date: StringNode,
-    region: StringNode,
+    string: PolarisStringNode,
+    date: PolarisStringNode,
+    region: PolarisStringNode,
     SimpleBillingDetails: BillingDetails,
+    polymorphic: PolarisPolymorphicNode,
   },
   validators: {
     Format: formatValidator,
@@ -86,26 +99,41 @@ export function App() {
   const [json, setJson] = React.useState<any>({});
 
   return (
-    <div>
-      <label className="debug">
-        <input type="checkbox" checked={debug} onChange={handleSwitch} /> Show
-        groups
-      </label>
+    <AppProvider>
+      <Frame
+        topBar={
+          <Card>
+            <Page>
+              <FormLayout>
+                <Checkbox
+                  label="Debug structure"
+                  checked={debug}
+                  onChange={handleSwitch}
+                />
+              </FormLayout>
+            </Page>
+          </Card>
+        }
+      >
+        <Page title="Demo">
+          <div>
+            <RootNode
+              context={context}
+              node={legacyConfigWrappedInNodes}
+              key={debug.toString()}
+            />
 
-      <RootNode
-        context={context}
-        node={legacyConfigWrappedInNodes}
-        key={debug.toString()}
-      />
-
-      <hr />
-      <button onClick={handleSubmit}>Submit</button>
-      <pre>{JSON.stringify(json, null, 1)}</pre>
-    </div>
+            <hr />
+            <button onClick={handleSubmit}>Submit</button>
+            <pre>{JSON.stringify(json, null, 1)}</pre>
+          </div>
+        </Page>
+      </Frame>
+    </AppProvider>
   );
 
-  function handleSwitch() {
-    context.debug = !debug;
+  function handleSwitch(checked: boolean) {
+    context.debug = checked;
     setDebug(context.debug);
   }
 

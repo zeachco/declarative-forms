@@ -13,10 +13,6 @@ export interface NodeProps {
 }
 
 export function RootNode({ node, context }: NodeProps) {
-  if (!context || !node) {
-    throw new Error('missing node or context for SchemaNodeComponent');
-  }
-
   const { errors } = useNode(node);
 
   const Plugin = getPlugin(context, node);
@@ -35,7 +31,7 @@ export function RootNode({ node, context }: NodeProps) {
   if (Plugin) {
     jsx.push(
       <Plugin
-        key={node.uid}
+        key={'plugin_' + node.uid}
         context={context}
         node={node}
         children={nodeChildren}
@@ -61,10 +57,11 @@ export function RootNode({ node, context }: NodeProps) {
   }
 
   const { Before, After, Replace, Wrap } = context.getDecorator(node.path);
-  if (Replace) jsx = [<Replace key={'replace_' + node.uid} node={node} />];
-  if (Before) jsx.unshift(<Before key={'before_' + node.uid} />);
-  if (After) jsx.push(<After key={'after_' + node.uid} />);
-  if (Wrap) return <Wrap>{jsx}</Wrap>;
+  const props = { node: { node }, context: { context } };
+  if (Replace) jsx = [<Replace key={'replace_' + node.uid} {...props} />];
+  if (Before) jsx.unshift(<Before key={'before_' + node.uid} {...props} />);
+  if (After) jsx.push(<After key={'after_' + node.uid} {...props} />);
+  if (Wrap) return <Wrap {...props} children={jsx} />;
   return <React.Fragment>{jsx}</React.Fragment>;
 }
 

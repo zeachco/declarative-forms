@@ -10,6 +10,7 @@ export function PolymorphicNode({ node, context }: NodeProps) {
     <React.Fragment>
       <label>{node.path}: </label>
       <select onChange={onChange}>
+        <option key={'none'}>none</option>
         {node.attributes.map((key) => (
           <option key={key}>{key}</option>
         ))}

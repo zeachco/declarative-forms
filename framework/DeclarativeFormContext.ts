@@ -1,11 +1,17 @@
 import { frameworkPlugins, frameworkValidators } from '.';
-import { ReactComponent, ValidatorFn } from './types';
+import { FormatterFn, ReactComponent, ValidatorFn } from './types';
 
 export interface FormContext {
   plugins: Record<string, ReactComponent>;
   validators: Record<string, ValidatorFn>;
   values: Record<string, any>;
   labels: Record<string, string>;
+  formatters:
+    | {
+        local: FormatterFn;
+        remote: FormatterFn;
+      }
+    | Record<string, FormatterFn>;
   translators: any[];
 }
 
@@ -22,6 +28,7 @@ export class DeclarativeFormContext implements FormContext {
   public labels: FormContext['labels'];
   public values: FormContext['values'];
   public translators: FormContext['translators'];
+  public formatters: FormContext['formatters'];
   public debug = false;
 
   private decoratorsByPath: Record<string, DecoratorsForPath> = {};
@@ -31,6 +38,7 @@ export class DeclarativeFormContext implements FormContext {
     validators = {},
     labels = {},
     values = {},
+    formatters = {},
     translators = [],
   }: Partial<FormContext>) {
     this.plugins = {
@@ -45,6 +53,7 @@ export class DeclarativeFormContext implements FormContext {
 
     this.labels = labels || {};
     this.values = values || {};
+    this.formatters = formatters || {};
 
     this.translators = translators || [];
   }

@@ -2,7 +2,7 @@ import { ListNode } from './components/ListNode';
 import { PolymorphicNode } from './components/PolymorphicNode';
 import { FormContext } from './DeclarativeFormContext';
 
-export { RootNode, NodeProps, getNodeChildren } from './components/RootNode';
+export { RootNode, NodeProps } from './components/RootNode';
 export { FormContext };
 export { SchemaNode } from './SchemaNode';
 export {
@@ -13,6 +13,7 @@ export {
   ValidatorFn,
   SchemaNodeDefinitionLegacy,
   SchemaNodeDefinition,
+  FormatterFn,
 } from './types';
 export { useNode } from './hook';
 export { DeclarativeFormContext } from './DeclarativeFormContext';

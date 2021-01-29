@@ -20,7 +20,9 @@ export class SchemaNode {
     public path: string,
     schema: SchemaNodeDefinitionLegacy
   ) {
-    this.value = this.context.values[this.path];
+    const formatter = this.context.formatters['local'];
+    const value = this.context.values[this.path];
+    this.value = formatter ? formatter(value) : value;
     this.schema = this.schemaCompatibilityLayer(schema);
     this.children = buildChildren(this.context, this.path, this.schema);
     this.attributes = Object.keys(this.children);
@@ -30,14 +32,14 @@ export class SchemaNode {
     return [this.path, this.schema.kind, ...this.attributes].join('_');
   }
 
-  onChange = (value: any) => {
+  public onChange = (value: any) => {
     // supports native event as well
     this.value =
       value?.target?.value === undefined ? value : value?.target?.value;
     this.validate();
   };
 
-  validate = () => {
+  public validate = () => {
     if (!this.schema.validators) return [];
 
     this.errors = this.schema.validators
@@ -50,6 +52,22 @@ export class SchemaNode {
 
     return this.errors;
   };
+
+  public data(): Record<string, any> {
+    if (this.isList) {
+      return this.value.map((item: SchemaNode) => item.data());
+    } else {
+      if (this.attributes) {
+        Object.keys(this.attributes).reduce((acc, key) => {
+          acc[key] = this.children[key].data();
+          return acc;
+        }, {} as any);
+      }
+    }
+    const formatter = this.context.formatters['remote'];
+
+    return formatter ? formatter(this.value) : this.value;
+  }
 
   public addListItem() {
     if (!Array.isArray(this.value)) {

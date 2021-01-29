@@ -1,6 +1,7 @@
 export type NodeKind = string;
 export type NodeValue = any;
 export type ReactComponent = any;
+export type FormatterFn = (value: any, kind: string) => any;
 
 export interface Validator {
   name: string;

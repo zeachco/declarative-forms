@@ -62,12 +62,12 @@ export function App() {
         }
       >
         <Page title="Demo">
-          <div>
+          <FormLayout>
             <RootNode context={context} node={node} key={debug.toString()} />
             <hr />
             <button onClick={handleSubmit}>Submit</button>
             <pre>{JSON.stringify(json, null, 1)}</pre>
-          </div>
+          </FormLayout>
         </Page>
       </Frame>
     </AppProvider>

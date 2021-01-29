@@ -5,53 +5,21 @@ import {
   RootNode,
   SchemaNode,
   SchemaNodeDefinitionLegacy,
-  useNode,
 } from '../framework';
-import { StringNode } from './plugins';
+import { formatValidator, lengthValidator } from './formatValidator';
+import { BillingDetails, StringNode } from './plugins';
 import { SCHEMA } from './schema';
-import {
-  formatValidator,
-  lengthValidator,
-  presenceValidator,
-} from './validators';
-
-function SimpleBillingDetails({ node, children }: NodeProps) {
-  return (
-    <div
-      key={'BusinessDetailsSoleProp'}
-      style={{ padding: '1em', border: '1px dashed black' }}
-    >
-      <h3>hahahaha I intercepted SimpleBillingDetails</h3>
-      {children}
-      <small>path: {node.path}</small>
-    </div>
-  );
-}
 
 const context = new DeclarativeFormContext({
   plugins: {
     string: StringNode,
     date: StringNode,
     region: StringNode,
-    SimpleBillingDetails,
+    SimpleBillingDetails: BillingDetails,
   },
   validators: {
-    Presence: presenceValidator,
     Format: formatValidator,
     Length: lengthValidator,
-  },
-  formatters: {
-    remote(value: any, kind: string) {
-      switch (kind) {
-        case 'number':
-          return parseInt(value) || 0;
-        case 'boolean':
-          return Boolean(value);
-        case 'string':
-        default:
-          return value;
-      }
-    },
   },
 });
 
@@ -62,8 +30,60 @@ const schema: SchemaNodeDefinitionLegacy = {
 
 const legacyConfigWrappedInNodes = new SchemaNode(context, '', schema);
 
+const BeforeArgs = { country: 'CA' };
+const AfterArgs = { country: 'US' };
+
+context.decoratorsByPath['legalEntity.Corporation.personalDetails.ssnLast4'] = {
+  Before: ({ node, children, country }: NodeProps & typeof BeforeArgs) => {
+    return (
+      <div style={{ padding: 3, backgroundColor: '#ff0000aa' }}>
+        <p>before ssnLast4 node, for country {country}</p>
+        {children}
+        <p>path: {node.path}</p>
+      </div>
+    );
+  },
+  BeforeArgs,
+  After: ({ node, children, country }: NodeProps & typeof BeforeArgs) => {
+    return (
+      <div style={{ margin: 1, padding: 2, backgroundColor: '#ff00ffaa' }}>
+        <p>after ssnLast4 node, for country {country}</p>
+        {children}
+        <p>path: {node.path}</p>
+      </div>
+    );
+  },
+  AfterArgs,
+};
+
+context.decoratorsByPath[
+  'legalEntity.Corporation.personalDetails.dateOfBirth'
+] = {
+  Before: ({ node, children, country }: NodeProps & typeof BeforeArgs) => {
+    return (
+      <div style={{ padding: 3, backgroundColor: '#ff0000aa' }}>
+        <p>before dateOfBirth node, for country {country}</p>
+        {children}
+        <p>path: {node.path}</p>
+      </div>
+    );
+  },
+  BeforeArgs,
+  After: ({ node, children, country }: NodeProps & typeof BeforeArgs) => {
+    return (
+      <div style={{ margin: 1, padding: 2, backgroundColor: '#ff00ffaa' }}>
+        <p>after dateOfBirth node, for country {country}</p>
+        {children}
+        <p>path: {node.path}</p>
+      </div>
+    );
+  },
+  AfterArgs,
+};
+
 export function App() {
   const [debug, setDebug] = React.useState(context.debug);
+  const [json, setJson] = React.useState<any>({});
 
   return (
     <div>
@@ -77,12 +97,20 @@ export function App() {
         node={legacyConfigWrappedInNodes}
         key={debug.toString()}
       />
+
+      <hr />
+      <button onClick={handleSubmit}>Submit</button>
+      <pre>{JSON.stringify(json, null, 1)}</pre>
     </div>
   );
 
   function handleSwitch() {
     context.debug = !debug;
     setDebug(context.debug);
+  }
+
+  function handleSubmit() {
+    setJson(legacyConfigWrappedInNodes.data());
   }
 }
 

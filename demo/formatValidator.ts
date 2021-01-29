@@ -1,9 +1,5 @@
 import { Validator } from '../framework';
 
-export function presenceValidator(val: any, _options: Validator) {
-  return Boolean(val) ? '' : 'PresenceError :: Field must be defined';
-}
-
 function validateRegex(val: any, format: string) {
   let exp = new RegExp('.*');
   try {

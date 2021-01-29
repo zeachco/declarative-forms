@@ -12,8 +12,8 @@ export class SchemaNode {
   public schema: SchemaNodeDefinition;
   public value: NodeValue = null;
   public isList = false;
-  public isVariant = false;
   public attributes: string[] = [];
+  public depth: number;
 
   constructor(
     public context: DeclarativeFormContext,
@@ -22,10 +22,14 @@ export class SchemaNode {
   ) {
     const formatter = this.context.formatters['local'];
     const value = this.context.values[this.path];
-    this.value = formatter ? formatter(value) : value;
+    this.value = value;
     this.schema = this.schemaCompatibilityLayer(schema);
+    if (formatter) {
+      this.value = formatter(value, this.schema.kind);
+    }
     this.children = buildChildren(this.context, this.path, this.schema);
     this.attributes = Object.keys(this.children);
+    this.depth = this.path.split('.').length;
   }
 
   public get uid() {
@@ -33,9 +37,7 @@ export class SchemaNode {
   }
 
   public onChange = (value: any) => {
-    // supports native event as well
-    this.value =
-      value?.target?.value === undefined ? value : value?.target?.value;
+    this.value = value;
     this.validate();
   };
 
@@ -54,19 +56,25 @@ export class SchemaNode {
   };
 
   public data(): Record<string, any> {
+    if (this.schema.kind === 'polymorphic') {
+      return this.attributes.reduce((acc, key) => {
+        if ((key = this.value)) {
+          acc[key] = this.children[key].data();
+        }
+        return acc;
+      }, {} as any);
+    }
     if (this.isList) {
       return this.value.map((item: SchemaNode) => item.data());
-    } else {
-      if (this.attributes) {
-        Object.keys(this.attributes).reduce((acc, key) => {
-          acc[key] = this.children[key].data();
-          return acc;
-        }, {} as any);
-      }
+    } else if (this.attributes.length) {
+      return this.attributes.reduce((acc, key) => {
+        acc[key] = this.children[key].data();
+        return acc;
+      }, {} as any);
     }
     const formatter = this.context.formatters['remote'];
 
-    return formatter ? formatter(this.value) : this.value;
+    return formatter ? formatter(this.value, this.schema.kind) : this.value;
   }
 
   public addListItem() {

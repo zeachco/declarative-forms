@@ -1,5 +1,5 @@
 import React from 'react';
-import { SchemaNode } from './SchemaNode';
+import { SchemaNode } from '../SchemaNode';
 
 export function useNode(node: SchemaNode) {
   if (!node) {
@@ -18,8 +18,8 @@ export function useNode(node: SchemaNode) {
     validate() {
       changeState({
         ...state,
+        errors: node.validate(),
       });
-      node.validate();
     },
   });
   return state;

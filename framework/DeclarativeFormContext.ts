@@ -1,4 +1,8 @@
-import { frameworkPlugins, frameworkValidators } from '.';
+import {
+  frameworkPlugins,
+  frameworkValidators,
+  frameworkFormatters,
+} from './defaults';
 import { FormatterFn, ReactComponent, ValidatorFn } from './types';
 
 export interface FormContext {
@@ -20,6 +24,10 @@ interface DecoratorsForPath {
   After?: ReactComponent;
   Wrap?: ReactComponent;
   Replace?: ReactComponent;
+  BeforeArgs?: object;
+  AfterArgs?: object;
+  WrapArgs?: object;
+  ReplaceArgs?: object;
 }
 
 export class DeclarativeFormContext implements FormContext {
@@ -53,12 +61,15 @@ export class DeclarativeFormContext implements FormContext {
 
     this.labels = labels || {};
     this.values = values || {};
-    this.formatters = formatters || {};
+    this.formatters = {
+      ...frameworkFormatters,
+      ...formatters,
+    };
 
     this.translators = translators || [];
   }
 
   public getDecorator(path: string): DecoratorsForPath {
-    return this.decoratorsByPath[path] || [];
+    return this.decoratorsByPath[path] || {};
   }
 }

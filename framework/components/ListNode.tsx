@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNode } from '../hook';
+import { useNode } from '../utilities/hook';
 import { SchemaNode } from '../SchemaNode';
 import { NodeProps, RootNode } from './RootNode';
 

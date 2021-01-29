@@ -1,10 +1,10 @@
 import React from 'react';
 import { DeclarativeFormContext } from '../DeclarativeFormContext';
-import { useNode } from '../hook';
+import { useNode } from '../utilities/hook';
 import { SchemaNode } from '../SchemaNode';
 import { ReactComponent } from '../types';
-import { getFunctionName } from '../utils';
-import { DebugNode } from './DebugNode';
+import { getFunctionName } from '../debug/utils';
+import { DebugNode } from '../debug/DebugNode';
 
 export interface NodeProps {
   context: DeclarativeFormContext;
@@ -56,13 +56,31 @@ export function RootNode({ node, context }: NodeProps) {
     ];
   }
 
-  const { Before, After, Replace, Wrap } = context.getDecorator(node.path);
-  const props = { node: { node }, context: { context } };
-  if (Replace) jsx = [<Replace key={'replace_' + node.uid} {...props} />];
-  if (Before) jsx.unshift(<Before key={'before_' + node.uid} {...props} />);
-  if (After) jsx.push(<After key={'after_' + node.uid} {...props} />);
-  if (Wrap) return <Wrap {...props} children={jsx} />;
+  const {
+    Before,
+    BeforeArgs,
+    After,
+    AfterArgs,
+    Replace,
+    ReplaceArgs,
+    Wrap,
+    WrapArgs,
+  } = context.getDecorator(node.path);
+  const mergeProps = getPropsMerger({ node, context });
+
+  if (Replace) jsx = [<Replace {...mergeProps('r_', ReplaceArgs)} />];
+  if (Before) jsx.unshift(<Before {...mergeProps('b_', BeforeArgs)} />);
+  if (After) jsx.push(<After {...mergeProps('a_', AfterArgs)} />);
+  if (Wrap) return <Wrap.Node children={jsx} {...mergeProps('w_', WrapArgs)} />;
   return <React.Fragment>{jsx}</React.Fragment>;
+}
+
+function getPropsMerger(props: NodeProps) {
+  return (key: string, slotProps: object = {}) => ({
+    key,
+    ...slotProps,
+    ...props,
+  });
 }
 
 function getPlugin(

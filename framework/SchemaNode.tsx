@@ -1,4 +1,5 @@
 import { DeclarativeFormContext } from './DeclarativeFormContext';
+import { Decorator } from './Decorator';
 import {
   NodeKind,
   NodeValue,
@@ -14,6 +15,7 @@ export class SchemaNode {
   public isList = false;
   public attributes: string[] = [];
   public depth: number;
+  public decorator: Decorator | null = null;
 
   constructor(
     public context: DeclarativeFormContext,
@@ -30,6 +32,23 @@ export class SchemaNode {
     this.children = buildChildren(this.context, this.path, this.schema);
     this.attributes = Object.keys(this.children);
     this.depth = this.path.split('.').length;
+
+    const node = this;
+    const decorator = this.context.decorators.find((d: Decorator) =>
+      d.test(node)
+    );
+    if (decorator) {
+      this.decorator = decorator;
+    }
+  }
+
+  private saveDecorators(node: SchemaNode) {
+    const decorator = node.context.decorators.find((d: Decorator) =>
+      d.test(node)
+    );
+    if (decorator) {
+      this.decorator = decorator;
+    }
   }
 
   public get uid() {

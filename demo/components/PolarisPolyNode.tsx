@@ -12,6 +12,7 @@ export function PolarisPolymorphicNode({ node, context }: NodeProps) {
         label={node.path}
         onChange={handleChange}
         options={node.attributes}
+        value={node.value}
       />
       {errors.map((err) => (
         <strong>{err}</strong>

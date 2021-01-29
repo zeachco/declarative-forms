@@ -1,4 +1,4 @@
-import { Validator } from '../framework';
+import { Validator } from '../../framework';
 
 function validateRegex(val: any, format: string) {
   let exp = new RegExp('.*');

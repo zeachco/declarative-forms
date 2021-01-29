@@ -56,27 +56,16 @@ export function RootNode({ node, context }: NodeProps) {
     ];
   }
 
-  const {
-    Before,
-    BeforeArgs,
-    After,
-    AfterArgs,
-    Replace,
-    ReplaceArgs,
-    Wrap,
-    WrapArgs,
-    Pack,
-    PackArgs,
-  } = context.getDecorator(node.path);
-  const mergeProps = getPropsMerger({ node, context });
+  const { Before, After, Replace, Wrap, Pack } = node.decorator || {};
+  const mergeProps = getPropsMerger({ node, context, children: jsx });
 
-  // wrap contains only the node
-  // while pack contain the node and it's decorators siblings
-  if (Replace) jsx = [<Replace {...mergeProps('r_', ReplaceArgs)} />];
-  if (Wrap) return <Wrap children={jsx} {...mergeProps('w_', WrapArgs)} />;
-  if (Before) jsx.unshift(<Before {...mergeProps('b_', BeforeArgs)} />);
-  if (After) jsx.push(<After {...mergeProps('a_', AfterArgs)} />);
-  if (Pack) return <Pack children={jsx} {...mergeProps('p_', PackArgs)} />;
+  if (Replace?.Node)
+    jsx = [<Replace.Node {...mergeProps('r_', Replace.props)} />];
+  if (Wrap?.Node) jsx = [<Wrap.Node {...mergeProps('w_', Wrap.props)} />];
+  if (Before?.Node)
+    jsx.unshift(<Before.Node {...mergeProps('b_', Before.props)} />);
+  if (After?.Node) jsx.push(<After.Node {...mergeProps('a_', After.props)} />);
+  if (Pack?.Node) return <Pack.Node {...mergeProps('p_', Pack.props)} />;
   return <React.Fragment>{jsx}</React.Fragment>;
 }
 

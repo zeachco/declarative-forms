@@ -1,3 +1,4 @@
+import { Decorator } from './Decorator';
 import {
   frameworkPlugins,
   frameworkValidators,
@@ -7,6 +8,7 @@ import { FormatterFn, ReactComponent, ValidatorFn } from './types';
 
 export interface FormContext {
   plugins: Record<string, ReactComponent>;
+  decorate?: (context: DeclarativeFormContext) => void;
   validators: Record<string, ValidatorFn>;
   values: Record<string, any>;
   labels: Record<string, string>;
@@ -19,19 +21,6 @@ export interface FormContext {
   translators: any[];
 }
 
-interface DecoratorsForPath {
-  Before?: ReactComponent;
-  After?: ReactComponent;
-  Wrap?: ReactComponent;
-  Pack?: ReactComponent;
-  Replace?: ReactComponent;
-  BeforeArgs?: object;
-  AfterArgs?: object;
-  WrapArgs?: object;
-  PackArgs?: object;
-  ReplaceArgs?: object;
-}
-
 export class DeclarativeFormContext implements FormContext {
   public plugins: FormContext['plugins'];
   public validators: FormContext['plugins'];
@@ -40,11 +29,11 @@ export class DeclarativeFormContext implements FormContext {
   public translators: FormContext['translators'];
   public formatters: FormContext['formatters'];
   public debug = false;
-
-  private decoratorsByPath: Record<string, DecoratorsForPath> = {};
+  public decorators: Decorator[] = [];
 
   constructor({
     plugins = {},
+    decorate = () => {},
     validators = {},
     labels = {},
     values = {},
@@ -69,9 +58,13 @@ export class DeclarativeFormContext implements FormContext {
     };
 
     this.translators = translators || [];
+
+    decorate(this);
   }
 
-  public getDecorator(path: string): DecoratorsForPath {
-    return this.decoratorsByPath[path] || {};
+  public where(fn: Decorator['test']) {
+    const decorator = new Decorator(fn);
+    this.decorators.push(decorator);
+    return decorator;
   }
 }

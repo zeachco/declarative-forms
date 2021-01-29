@@ -1,6 +1,11 @@
 import React from 'react';
-import { Card, FormLayout, Page, TextField } from '@shopify/polaris';
-import { DeclarativeFormContext, NodeProps, SchemaNode } from '../framework';
+import { Card, Checkbox, FormLayout, Page, TextField } from '@shopify/polaris';
+import {
+  DeclarativeFormContext,
+  NodeProps,
+  SchemaNode,
+  useNode,
+} from '../framework';
 import { PolarisPolymorphicNode } from './components/PolarisPolyNode';
 import { PolarisRangeSlider } from './components/PolarisRangeSlider';
 
@@ -8,6 +13,20 @@ export function decorate(context: DeclarativeFormContext) {
   context
     .where((node) => node.schema.kind === 'polymorphic')
     .replaceWith(PolarisPolymorphicNode, {});
+
+  context
+    .where((node) => node.schema.kind === 'boolean')
+    .replaceWith(({ node }: NodeProps) => {
+      const { onChange, validate } = useNode(node);
+      return (
+        <Checkbox label={node.path} onChange={update} checked={node.value} />
+      );
+
+      function update() {
+        onChange(!node.value);
+        validate();
+      }
+    });
 
   context
     .where((node) => node.depth === 3)

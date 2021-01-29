@@ -18,32 +18,23 @@ export class Decorator {
 
   constructor(public test: TestFunction) {}
 
-  public replaceWith(
-    component: ReactComponent,
-    props: typeof component['Props']
-  ) {
+  public replaceWith(component: ReactComponent, props?: any) {
     return this.store('Replace', component, props);
   }
 
-  public prependWith(
-    component: ReactComponent,
-    props: typeof component['Props']
-  ) {
+  public prependWith(component: ReactComponent, props?: any) {
     return this.store('Before', component, props);
   }
 
-  public appendWith(
-    component: ReactComponent,
-    props: typeof component['Props']
-  ) {
+  public appendWith(component: ReactComponent, props?: any) {
     return this.store('After', component, props);
   }
 
-  public wrapWith(component: ReactComponent, props: typeof component['Props']) {
+  public wrapWith(component: ReactComponent, props?: any) {
     return this.store('Wrap', component, props);
   }
 
-  public packWith(component: ReactComponent, props: typeof component['Props']) {
+  public packWith(component: ReactComponent, props?: any) {
     return this.store('Pack', component, props);
   }
 

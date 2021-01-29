@@ -57,15 +57,28 @@ export function RootNode({ node, context }: NodeProps) {
   }
 
   const { Before, After, Replace, Wrap, Pack } = node.decorator || {};
-  const mergeProps = getPropsMerger({ node, context, children: jsx });
+  const mergeProps = getPropsMerger({ node, context });
 
-  if (Replace?.Node)
-    jsx = [<Replace.Node {...mergeProps('r_', Replace.props)} />];
-  if (Wrap?.Node) jsx = [<Wrap.Node {...mergeProps('w_', Wrap.props)} />];
-  if (Before?.Node)
-    jsx.unshift(<Before.Node {...mergeProps('b_', Before.props)} />);
-  if (After?.Node) jsx.push(<After.Node {...mergeProps('a_', After.props)} />);
-  if (Pack?.Node) return <Pack.Node {...mergeProps('p_', Pack.props)} />;
+  if (Replace?.Node) {
+    const { Node, props } = Replace;
+    jsx = [<Node {...mergeProps('replace_', props)} children={jsx} />];
+  }
+  if (Wrap?.Node) {
+    const { Node, props } = Wrap;
+    jsx = [<Node {...mergeProps('wrap_', props)} children={jsx} />];
+  }
+  if (Before?.Node) {
+    const { Node, props } = Before;
+    jsx.unshift(<Node {...mergeProps('before_', props)} />);
+  }
+  if (After?.Node) {
+    const { Node, props } = After;
+    jsx.push(<Node {...mergeProps('after_', props)} />);
+  }
+  if (Pack?.Node) {
+    const { Node, props } = Pack;
+    return <Node {...mergeProps('pack_', props)} children={jsx} />;
+  }
   return <React.Fragment>{jsx}</React.Fragment>;
 }
 

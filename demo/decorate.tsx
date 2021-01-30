@@ -28,20 +28,20 @@ export function decorate(context: DeclarativeFormContext) {
       }
     });
 
-  context
-    .where((node) => node.depth === 3)
-    .replaceWith(
-      ({ children }: NodeProps) => (
-        <Page>
-          <Card>
-            <Page>
-              <FormLayout>{children}</FormLayout>
-            </Page>
-          </Card>
-        </Page>
-      ),
-      {}
-    );
+  // context
+  //   .where((node) => node.depth === 3)
+  //   .replaceWith(
+  //     ({ children }: NodeProps) => (
+  //       <Page>
+  //         <Card>
+  //           <Page>
+  //             <FormLayout>{children}</FormLayout>
+  //           </Page>
+  //         </Card>
+  //       </Page>
+  //     ),
+  //     {}
+  //   );
 
   context
     .where((node: SchemaNode) => /ownershipPercentage$/.test(node.path))

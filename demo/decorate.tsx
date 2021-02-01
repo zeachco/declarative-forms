@@ -12,7 +12,14 @@ import { PolarisRangeSlider } from './components/PolarisRangeSlider';
 export function decorate(context: DeclarativeFormContext) {
   context
     .where((node) => node.schema.kind === 'polymorphic')
-    .replaceWith(PolarisPolymorphicNode, {});
+    // .packWith(({ children, node }: NodeProps) => {
+    //   return (
+    //     <Card title={node.path.split('.').reverse()[0]}>
+    //       <Card.Section>{children}</Card.Section>
+    //     </Card>
+    //   );
+    // })
+    .prependWith(PolarisPolymorphicNode, {});
 
   context
     .where((node) => node.schema.kind === 'boolean')
@@ -28,20 +35,28 @@ export function decorate(context: DeclarativeFormContext) {
       }
     });
 
-  // context
-  //   .where((node) => node.depth === 3)
-  //   .replaceWith(
-  //     ({ children }: NodeProps) => (
-  //       <Page>
-  //         <Card>
-  //           <Page>
-  //             <FormLayout>{children}</FormLayout>
-  //           </Page>
-  //         </Card>
-  //       </Page>
-  //     ),
-  //     {}
-  //   );
+  context
+    .where((node) => node.depth === 3)
+    .wrapWith(({ children, node }: NodeProps) => {
+      return (
+        <Card title={node.path.split('.').reverse()[0]}>
+          <Card.Section>{children}</Card.Section>
+        </Card>
+      );
+    });
+
+  context
+    .where((node) => node.path === 'legalEntity')
+    .replaceWith(
+      ({ children, node }: NodeProps) => (
+        <Card title={node.path.split('.').reverse()[0]}>
+          <Card.Section>
+            <FormLayout>{children}</FormLayout>
+          </Card.Section>
+        </Card>
+      ),
+      {}
+    );
 
   context
     .where((node: SchemaNode) => /ownershipPercentage$/.test(node.path))

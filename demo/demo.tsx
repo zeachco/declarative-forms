@@ -5,6 +5,7 @@ import {
   Frame,
   Page,
   Card,
+  Layout,
 } from '@shopify/polaris';
 import '@shopify/polaris/dist/styles.css';
 
@@ -63,12 +64,17 @@ export function App() {
         }
       >
         <Page title="Demo">
-          <FormLayout>
-            <RootNode context={context} node={node} key={debug.toString()} />
-            <hr />
-            <button onClick={handleSubmit}>Submit</button>
-            <pre>{JSON.stringify(json, null, 1)}</pre>
-          </FormLayout>
+          <Layout>
+            <Layout.Section>
+              <RootNode context={context} node={node} key={debug.toString()} />
+              <Card>
+                <Card.Section>
+                  <button onClick={handleSubmit}>Submit</button>
+                  <pre>{JSON.stringify(json, null, 1)}</pre>
+                </Card.Section>
+              </Card>
+            </Layout.Section>
+          </Layout>
         </Page>
       </Frame>
     </AppProvider>

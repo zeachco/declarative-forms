@@ -12,14 +12,7 @@ import { PolarisRangeSlider } from './components/PolarisRangeSlider';
 export function decorate(context: DeclarativeFormContext) {
   context
     .where((node) => node.schema.kind === 'polymorphic')
-    // .packWith(({ children, node }: NodeProps) => {
-    //   return (
-    //     <Card title={node.path.split('.').reverse()[0]}>
-    //       <Card.Section>{children}</Card.Section>
-    //     </Card>
-    //   );
-    // })
-    .prependWith(PolarisPolymorphicNode, {});
+    .replaceWith(PolarisPolymorphicNode, {});
 
   context
     .where((node) => node.schema.kind === 'boolean')
@@ -47,7 +40,7 @@ export function decorate(context: DeclarativeFormContext) {
 
   context
     .where((node) => node.path === 'legalEntity')
-    .replaceWith(
+    .packWith(
       ({ children, node }: NodeProps) => (
         <Card title={node.path.split('.').reverse()[0]}>
           <Card.Section>
@@ -57,7 +50,6 @@ export function decorate(context: DeclarativeFormContext) {
       ),
       {}
     );
-
   context
     .where((node: SchemaNode) => /ownershipPercentage$/.test(node.path))
     .replaceWith(PolarisRangeSlider, { min: 0, max: 100 });

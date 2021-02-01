@@ -56,26 +56,26 @@ export function RootNode({ node, context }: NodeProps) {
     ];
   }
 
-  const { Before, After, Replace, Wrap, Pack } = node.decorator || {};
+  const { Before, After, Replace, Wrap, Pack } = node.decorator;
   const mergeProps = getPropsMerger({ node, context });
 
-  if (Replace?.Node) {
+  if (Replace) {
     const { Node, props } = Replace;
     jsx = [<Node {...mergeProps('replace_', props)} children={jsx} />];
   }
-  if (Wrap?.Node) {
+  if (Wrap) {
     const { Node, props } = Wrap;
     jsx = [<Node {...mergeProps('wrap_', props)} children={jsx} />];
   }
-  if (Before?.Node) {
+  if (Before) {
     const { Node, props } = Before;
     jsx.unshift(<Node {...mergeProps('before_', props)} />);
   }
-  if (After?.Node) {
+  if (After) {
     const { Node, props } = After;
     jsx.push(<Node {...mergeProps('after_', props)} />);
   }
-  if (Pack?.Node) {
+  if (Pack) {
     const { Node, props } = Pack;
     return <Node {...mergeProps('pack_', props)} children={jsx} />;
   }

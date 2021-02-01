@@ -15,7 +15,7 @@ export class SchemaNode {
   public isList = false;
   public attributes: string[] = [];
   public depth: number;
-  public decorator: Decorator | null = null;
+  public decorator: Partial<Decorator> = {};
 
   constructor(
     public context: DeclarativeFormContext,
@@ -33,13 +33,11 @@ export class SchemaNode {
     this.attributes = Object.keys(this.children);
     this.depth = this.path.split('.').length;
 
-    const node = this;
-    const decorator = this.context.decorators.find((d: Decorator) =>
-      d.test(node)
-    );
-    if (decorator) {
-      this.decorator = decorator;
-    }
+    this.context.decorators.forEach((decorator: Decorator) => {
+      if (decorator.test(this)) {
+        Object.assign(this.decorator, decorator, { test: null });
+      }
+    });
   }
 
   private saveDecorators(node: SchemaNode) {

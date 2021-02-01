@@ -10,11 +10,11 @@ type DecoratorKeys = 'Replace' | 'Before' | 'After' | 'Wrap' | 'Pack';
 type TestFunction = (node: SchemaNode) => boolean;
 
 export class Decorator {
-  public Before: DecoratorSlot = {};
-  public After: DecoratorSlot = {};
-  public Wrap: DecoratorSlot = {};
-  public Pack: DecoratorSlot = {};
-  public Replace: DecoratorSlot = {};
+  public Before: DecoratorSlot | undefined;
+  public After: DecoratorSlot | undefined;
+  public Wrap: DecoratorSlot | undefined;
+  public Pack: DecoratorSlot | undefined;
+  public Replace: DecoratorSlot | undefined;
 
   constructor(public test: TestFunction) {}
 

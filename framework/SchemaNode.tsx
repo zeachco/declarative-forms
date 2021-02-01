@@ -22,6 +22,7 @@ export class SchemaNode {
     public path: string,
     schema: SchemaNodeDefinitionLegacy
   ) {
+    this.depth = this.path.split('.').length;
     const formatter = this.context.formatters['local'];
     const value = this.context.values[this.path];
     this.value = value;
@@ -29,28 +30,12 @@ export class SchemaNode {
     if (formatter) {
       this.value = formatter(value, this.schema.kind);
     }
-    this.children = buildChildren(this.context, this.path, this.schema);
-    this.attributes = Object.keys(this.children);
-    this.depth = this.path.split('.').length;
-
-    this.context.decorators.forEach((decorator: Decorator) => {
-      if (decorator.test(this)) {
-        Object.assign(this.decorator, decorator, { test: null });
-      }
-    });
-  }
-
-  private saveDecorators(node: SchemaNode) {
-    const decorator = node.context.decorators.find((d: Decorator) =>
-      d.test(node)
-    );
-    if (decorator) {
-      this.decorator = decorator;
-    }
+    this.children = this.buildChildren();
+    this.saveDecorators();
   }
 
   public get uid() {
-    return [this.path, this.schema.kind, ...this.attributes].join('_');
+    return [this.path, this.schema.kind].join('_');
   }
 
   public onChange = (value: any) => {
@@ -98,16 +83,46 @@ export class SchemaNode {
     if (!Array.isArray(this.value)) {
       this.value = [];
     }
-    const subPath = [this.path, this.value.length].join('.');
-    this.value.push(new SchemaNode(this.context, subPath, this.schema));
+    this.value.push(new SchemaNode(this.context, '', this.schema));
+    this.buildChildren();
   }
 
-  // TODO reshift children nodes
   public removeListItem(index: number) {
     if (!Array.isArray(this.value)) {
       this.value = [];
     }
     this.value.splice(index, 1);
+    this.buildChildren();
+  }
+
+  private buildChildren() {
+    const children: SchemaNode['children'] = {};
+    if (this.isList) {
+      this.value.forEach(
+        (node: SchemaNode, newIndex: number) =>
+          (node.path = [this.path, newIndex].join('.'))
+      );
+      return this.children;
+    }
+    for (let key in this.schema.attributes) {
+      const subPath = this.path ? [this.path, key].join('.') : key;
+
+      children[key] = new SchemaNode(
+        this.context,
+        subPath,
+        this.schema.attributes[key]
+      );
+    }
+    this.attributes = Object.keys(children);
+    return children;
+  }
+
+  private saveDecorators() {
+    this.context.decorators.forEach((decorator: Decorator) => {
+      if (decorator.test(this)) {
+        Object.assign(this.decorator, decorator, { test: null });
+      }
+    });
   }
 
   // magic happend to be retrocompatible and set some flags
@@ -139,17 +154,4 @@ export class SchemaNode {
       kind: kind as NodeKind,
     };
   }
-}
-
-function buildChildren(
-  context: DeclarativeFormContext,
-  path: string,
-  schema: SchemaNodeDefinition
-) {
-  const children: SchemaNode['children'] = {};
-  for (let key in schema.attributes) {
-    const subPath = path ? [path, key].join('.') : key;
-    children[key] = new SchemaNode(context, subPath, schema.attributes[key]);
-  }
-  return children;
 }

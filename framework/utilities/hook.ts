@@ -8,8 +8,8 @@ export function useNode(node: SchemaNode) {
 
   const [state, changeState] = React.useState({
     errors: [] as string[],
-    onChange(val: any) {
-      node.onChange(val);
+    onChange(value: any) {
+      node.onChange(value);
       changeState({
         ...state,
         errors: node.validate(),

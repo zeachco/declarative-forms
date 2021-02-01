@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Checkbox, FormLayout, Page, TextField } from '@shopify/polaris';
+import { Card, Checkbox, FormLayout, TextField } from '@shopify/polaris';
 import {
   DeclarativeFormContext,
   NodeProps,
@@ -8,11 +8,26 @@ import {
 } from '../framework';
 import { PolarisPolymorphicNode } from './components/PolarisPolyNode';
 import { PolarisRangeSlider } from './components/PolarisRangeSlider';
+import { PeopleListNode } from './components/PeopleListNode';
 
 export function decorate(context: DeclarativeFormContext) {
   context
     .where((node) => node.schema.kind === 'polymorphic')
     .replaceWith(PolarisPolymorphicNode, { wrap: true });
+
+  context
+    .where((node) => node.schema.kind === 'AdditionalOwner' && node.isList)
+    .replaceWith(PeopleListNode);
+
+  context
+    .where((node) => node.schema.kind === 'AdditionalOwner' && !node.isList)
+    .packWith(({ children, node }: NodeProps) => {
+      return (
+        <Card sectioned title={node.path.split('.').reverse()[0]}>
+          <Card.Section>{children}</Card.Section>
+        </Card>
+      );
+    });
 
   context
     .where((node) => node.schema.kind === 'boolean')

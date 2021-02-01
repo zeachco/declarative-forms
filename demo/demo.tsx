@@ -6,6 +6,7 @@ import {
   Page,
   Card,
   Layout,
+  Button,
 } from '@shopify/polaris';
 import '@shopify/polaris/dist/styles.css';
 
@@ -69,7 +70,9 @@ export function App() {
               <RootNode context={context} node={node} key={debug.toString()} />
               <Card>
                 <Card.Section>
-                  <button onClick={handleSubmit}>Submit</button>
+                  <Button primary onClick={handleSubmit}>
+                    Submit
+                  </Button>
                   <pre>{JSON.stringify(json, null, 1)}</pre>
                 </Card.Section>
               </Card>

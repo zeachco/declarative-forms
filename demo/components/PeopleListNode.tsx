@@ -14,7 +14,7 @@ export function PeopleListNode({ node, context }: NodeProps) {
       validate();
     };
     additionnalOwnersJsx.push(
-      <React.Fragment key={subNode.uid}>
+      <React.Fragment key={Math.random()}>
         <RootNode context={context} node={subNode} />
         <Button destructive onClick={handleDelete}>
           X

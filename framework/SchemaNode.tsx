@@ -40,7 +40,7 @@ export class SchemaNode {
 
   public onChange = (value: any) => {
     this.value = value;
-    this.validate();
+    return this.validate();
   };
 
   public validate = () => {
@@ -79,22 +79,30 @@ export class SchemaNode {
     return formatter ? formatter(this.value, this.schema.kind) : this.value;
   }
 
+  // methods specific to list type
   public addListItem() {
-    if (!Array.isArray(this.value)) {
-      this.value = [];
+    if (!this.isList) {
+      throw new Error('node is not a list');
     }
-    this.value.push(new SchemaNode(this.context, '', this.schema));
+    const node = new SchemaNode(this.context, '', this.schema);
+    this.value.push(node);
     this.buildChildren();
+    return node;
   }
 
   public removeListItem(index: number) {
-    if (!Array.isArray(this.value)) {
-      this.value = [];
+    if (!this.isList) {
+      throw new Error('node is not a list');
     }
     this.value.splice(index, 1);
     this.buildChildren();
   }
 
+  public deleteSelf() {
+    new Error('deleteSelf is callable on list node children only');
+  }
+
+  // utilities
   private buildChildren() {
     const children: SchemaNode['children'] = {};
     if (this.isList) {
@@ -106,7 +114,6 @@ export class SchemaNode {
     }
     for (let key in this.schema.attributes) {
       const subPath = this.path ? [this.path, key].join('.') : key;
-
       children[key] = new SchemaNode(
         this.context,
         subPath,

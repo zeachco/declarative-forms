@@ -1,5 +1,11 @@
 import React from 'react';
-import { Card, Checkbox, FormLayout, TextField } from '@shopify/polaris';
+import {
+  Button,
+  Card,
+  Checkbox,
+  FormLayout,
+  TextField,
+} from '@shopify/polaris';
 import {
   DeclarativeFormContext,
   NodeProps,
@@ -23,9 +29,16 @@ export function decorate(context: DeclarativeFormContext) {
     .where((node) => node.schema.kind === 'AdditionalOwner' && !node.isList)
     .packWith(({ children, node }: NodeProps) => {
       return (
-        <Card sectioned title={node.path.split('.').reverse()[0]}>
+        <Card title={node.path}>
           <Card.Section>{children}</Card.Section>
         </Card>
+      );
+    })
+    .appendWith(({ node }: NodeProps) => {
+      return (
+        <Button destructive onClick={node.deleteSelf}>
+          Delete
+        </Button>
       );
     });
 

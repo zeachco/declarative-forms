@@ -14,7 +14,10 @@ import {
 } from '../framework';
 import { PolarisPolymorphicNode } from './components/PolarisPolyNode';
 import { PolarisRangeSlider } from './components/PolarisRangeSlider';
-import { PeopleListNode } from './components/PeopleListNode';
+import {
+  PeopleDeleteButton,
+  PeopleListNode,
+} from './components/PeopleListNode';
 
 export function decorate(context: DeclarativeFormContext) {
   context
@@ -34,13 +37,7 @@ export function decorate(context: DeclarativeFormContext) {
         </Card>
       );
     })
-    .appendWith(({ node }: NodeProps) => {
-      return (
-        <Button destructive onClick={node.deleteSelf}>
-          Delete
-        </Button>
-      );
-    });
+    .appendWith(PeopleDeleteButton);
 
   context
     .where((node) => node.schema.kind === 'boolean')

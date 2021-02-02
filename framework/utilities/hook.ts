@@ -12,7 +12,10 @@ export function useNode(node: SchemaNode) {
     validate,
     removeListItem,
     addListItem,
+    refreshListItems,
   });
+
+  React.useEffect(() => refreshListItems(), [node.value]);
 
   function onChange(value: any) {
     changeState({
@@ -28,23 +31,26 @@ export function useNode(node: SchemaNode) {
     });
   }
 
-  function addListItem() {
-    const child = node.addListItem();
-    child.deleteSelf = () => {
-      removeListItem(+child.path.split('.').reverse()[0]);
-    };
+  function refreshListItems() {
+    if (!node.isList || !Array.isArray(node?.value)) return;
+    node.value.forEach((child: SchemaNode, newIndex: number) => {
+      child.path = [node.path, newIndex].join('.');
+      child.deleteSelf = () => removeListItem(newIndex);
+    });
     changeState({
       ...state,
       errors: node.validate(),
     });
   }
 
+  function addListItem() {
+    node.addListItem();
+    refreshListItems();
+  }
+
   function removeListItem(index: number) {
     node.removeListItem(index);
-    changeState({
-      ...state,
-      errors: node.validate(),
-    });
+    refreshListItems();
   }
 
   return state;

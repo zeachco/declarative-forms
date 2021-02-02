@@ -106,10 +106,9 @@ export class SchemaNode {
   private buildChildren() {
     const children: SchemaNode['children'] = {};
     if (this.isList) {
-      this.value.forEach(
-        (node: SchemaNode, newIndex: number) =>
-          (node.path = [this.path, newIndex].join('.'))
-      );
+      this.value.forEach((node: SchemaNode, newIndex: number) => {
+        node.path = [this.path, newIndex].join('.');
+      });
       return this.children;
     }
     for (let key in this.schema.attributes) {

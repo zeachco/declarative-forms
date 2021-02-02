@@ -8,13 +8,11 @@ export function PeopleListNode({ node, context }: NodeProps) {
 
   const additionnalOwnersJsx: React.ReactNodeArray = [];
 
-  node.value.forEach((subNode: SchemaNode, index: number) => {
+  node.value.forEach((child: SchemaNode) => {
     // HACK to avoid react key collisions when deleting nodes
     const uid = Math.random();
     additionnalOwnersJsx.push(
-      <React.Fragment key={uid}>
-        <RootNode context={context} node={subNode} />
-      </React.Fragment>
+      <RootNode key={uid} context={context} node={child} />
     );
   });
 
@@ -26,5 +24,13 @@ export function PeopleListNode({ node, context }: NodeProps) {
       {additionnalOwnersJsx}
       <Button onClick={addListItem}>Add an owner</Button>
     </div>
+  );
+}
+
+export function PeopleDeleteButton({ node }: NodeProps) {
+  return (
+    <Button destructive onClick={node.deleteSelf}>
+      Delete
+    </Button>
   );
 }

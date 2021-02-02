@@ -4,7 +4,12 @@ import {
   frameworkValidators,
   frameworkFormatters,
 } from './defaults';
-import { FormatterFn, ReactComponent, ValidatorFn } from './types';
+import {
+  FormatterFn,
+  ReactComponent,
+  TranslatorFn,
+  ValidatorFn,
+} from './types';
 
 export interface FormContext {
   plugins: Record<string, ReactComponent>;
@@ -18,7 +23,10 @@ export interface FormContext {
         remote: FormatterFn;
       }
     | Record<string, FormatterFn>;
-  translators: any[];
+  translators: {
+    validators: TranslatorFn;
+    labels: TranslatorFn;
+  };
 }
 
 export class DeclarativeFormContext implements FormContext {

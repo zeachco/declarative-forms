@@ -4,7 +4,15 @@
     "baseUrl": "../../../",
     "rootDir": "../../../",
     "outDir": "../../../build/ts",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "target": "ES2015",
+    "jsx": "react",
+    "strict": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
   "files": [],
   "include": ["."],

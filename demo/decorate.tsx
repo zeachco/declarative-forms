@@ -32,7 +32,7 @@ export function decorate(context: DeclarativeFormContext) {
     .where((node) => node.schema.type === 'AdditionalOwner' && !node.isList)
     .packWith(({ children, node }: NodeProps) => {
       return (
-        <Card title={node.path}>
+        <Card title={node.translate(node.path, 'label')}>
           <Card.Section>{children}</Card.Section>
         </Card>
       );

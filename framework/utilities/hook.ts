@@ -1,5 +1,6 @@
 import React from 'react';
-import { SchemaNode } from '../SchemaNode';
+
+import {SchemaNode} from '../SchemaNode';
 
 export function useNode(node: SchemaNode) {
   if (!node) {
@@ -15,7 +16,8 @@ export function useNode(node: SchemaNode) {
     refreshListItems,
   });
 
-  React.useEffect(() => refreshListItems(), [node.value]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  React.useEffect(refreshListItems, [node.value]);
 
   function onChange(value: any) {
     changeState({

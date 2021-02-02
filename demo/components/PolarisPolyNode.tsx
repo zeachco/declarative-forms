@@ -1,6 +1,7 @@
-import { Card, FormLayout, Select } from '@shopify/polaris';
+import {Card, FormLayout, Select} from '@shopify/polaris';
 import React from 'react';
-import { NodeProps, RootNode, useNode } from '../../framework';
+
+import {NodeProps, RootNode, useNode} from '../../framework';
 
 interface Props {
   wrap: boolean;
@@ -11,7 +12,7 @@ export function PolarisPolymorphicNode({
   context,
   wrap,
 }: NodeProps & Props) {
-  const { onChange, errors } = useNode(node);
+  const {onChange, errors} = useNode(node);
   const variant = node.children[node.value];
   const options = node.attributes.map((key) => ({
     value: key,
@@ -20,17 +21,17 @@ export function PolarisPolymorphicNode({
   }));
   const title = node.translate(node.path, 'label');
   const errorMessages = errors.map((err) => (
-    <strong>{node.translate(err, 'error')}</strong>
+    <strong key={err}>{node.translate(err, 'error')}</strong>
   ));
 
   if (wrap) {
     return (
-      <React.Fragment>
+      <>
         <Card title={title}>
           <Card.Section>
             <FormLayout>
               <Select
-                label={''}
+                label=""
                 onChange={onChange}
                 options={options}
                 value={node.value}
@@ -40,12 +41,12 @@ export function PolarisPolymorphicNode({
           </Card.Section>
         </Card>
         {variant && <RootNode context={context} node={variant} />}
-      </React.Fragment>
+      </>
     );
   }
 
   return (
-    <React.Fragment>
+    <>
       <Select
         label={title}
         onChange={onChange}
@@ -54,6 +55,6 @@ export function PolarisPolymorphicNode({
       />
       {errorMessages}
       {variant && <RootNode context={context} node={variant} />}
-    </React.Fragment>
+    </>
   );
 }

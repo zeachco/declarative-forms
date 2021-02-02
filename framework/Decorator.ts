@@ -1,5 +1,5 @@
-import { SchemaNode } from './SchemaNode';
-import { ReactComponent } from './types';
+import {SchemaNode} from './SchemaNode';
+import {ReactComponent} from './types';
 
 interface DecoratorSlot {
   Node?: ReactComponent;
@@ -41,9 +41,9 @@ export class Decorator {
   private store(
     slotName: DecoratorKeys,
     component: ReactComponent,
-    props: object = {}
+    props: object = {},
   ) {
-    this[slotName] = { Node: component, props };
+    this[slotName] = {Node: component, props};
     return this;
   }
 }

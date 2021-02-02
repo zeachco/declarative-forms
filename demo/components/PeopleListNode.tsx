@@ -1,10 +1,10 @@
-import { Button } from '@shopify/polaris';
+import {Button} from '@shopify/polaris';
 import React from 'react';
 
-import { NodeProps, RootNode, SchemaNode, useNode } from '../../framework';
+import {NodeProps, RootNode, SchemaNode, useNode} from '../../framework';
 
-export function PeopleListNode({ node, context }: NodeProps) {
-  const { errors, addListItem } = useNode(node);
+export function PeopleListNode({node, context}: NodeProps) {
+  const {errors, addListItem} = useNode(node);
 
   const additionnalOwnersJsx: React.ReactNodeArray = [];
 
@@ -12,7 +12,7 @@ export function PeopleListNode({ node, context }: NodeProps) {
     // HACK to avoid react key collisions when deleting nodes
     const uid = Math.random();
     additionnalOwnersJsx.push(
-      <RootNode key={uid} context={context} node={child} />
+      <RootNode key={uid} context={context} node={child} />,
     );
   });
 
@@ -27,7 +27,7 @@ export function PeopleListNode({ node, context }: NodeProps) {
   );
 }
 
-export function PeopleDeleteButton({ node }: NodeProps) {
+export function PeopleDeleteButton({node}: NodeProps) {
   return (
     <Button destructive onClick={node.deleteSelf}>
       Delete

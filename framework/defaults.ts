@@ -1,11 +1,11 @@
-import { BooleanNode } from './components/BooleanNode';
-import { ListNode } from './components/ListNode';
-import { NumericNode } from './components/NumericNode';
-import { PolymorphicNode } from './components/PolymorphicNode';
-import { StringNode } from './components/StringNode';
-import { FormContext } from './DeclarativeFormContext';
-import { localFormatter, remoteFormatter } from './utilities/formatters';
-import { presenceValidator } from './utilities/validators';
+import {BooleanNode} from './components/BooleanNode';
+import {ListNode} from './components/ListNode';
+import {NumericNode} from './components/NumericNode';
+import {PolymorphicNode} from './components/PolymorphicNode';
+import {StringNode} from './components/StringNode';
+import {FormContext} from './DeclarativeFormContext';
+import {localFormatter, remoteFormatter} from './utilities/formatters';
+import {presenceValidator} from './utilities/validators';
 
 export const frameworkPlugins: FormContext['plugins'] = {
   polymorphic: PolymorphicNode,

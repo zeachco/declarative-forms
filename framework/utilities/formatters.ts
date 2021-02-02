@@ -1,6 +1,6 @@
-export const toNumber = (val: any) => +val || 0;
+export const toNumber = (val: any) => Number(val) || 0;
 export const toString = (val: any) => `${val ? val : ''}`;
-export const toBoolean = (val: any) => !!val;
+export const toBoolean = (val: any) => Boolean(val);
 
 const mapByKind = {
   number: toNumber,

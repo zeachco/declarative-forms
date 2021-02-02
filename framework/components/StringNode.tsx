@@ -1,9 +1,11 @@
 import React from 'react';
-import { useNode } from '../utilities/hook';
-import { NodeProps } from './RootNode';
 
-export function StringNode({ node }: NodeProps) {
-  const { onChange, errors, validate } = useNode(node);
+import {useNode} from '../utilities/hook';
+
+import {NodeProps} from './RootNode';
+
+export function StringNode({node}: NodeProps) {
+  const {onChange, errors, validate} = useNode(node);
   return (
     <label>
       {node.translate(node.path, 'label')}:{' '}

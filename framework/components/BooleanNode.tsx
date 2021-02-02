@@ -1,13 +1,19 @@
 import React from 'react';
-import { useNode } from '../utilities/hook';
-import { NodeProps } from './RootNode';
 
-export function BooleanNode({ node }: NodeProps) {
-  const { onChange, errors, validate } = useNode(node);
+import {useNode} from '../utilities/hook';
+
+import {NodeProps} from './RootNode';
+
+export function BooleanNode({node}: NodeProps) {
+  const {onChange, errors, validate} = useNode(node);
   return (
     <label>
       {node.translate(node.path, 'label')}:{' '}
-      <input type="checkbox" onChange={handleChange} checked={!!node.value} />
+      <input
+        type="checkbox"
+        onChange={handleChange}
+        checked={Boolean(node.value)}
+      />
       {errors.map((err) => (
         <strong key={err}>{node.translate(err, 'error')}</strong>
       ))}
@@ -15,7 +21,7 @@ export function BooleanNode({ node }: NodeProps) {
   );
 
   function handleChange(ev: any) {
-    onChange(!!ev.target.checked);
+    onChange(Boolean(ev.target.checked));
     validate();
   }
 }

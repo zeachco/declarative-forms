@@ -1,8 +1,8 @@
-import { FormContext } from './DeclarativeFormContext';
+import {FormContext} from './DeclarativeFormContext';
 
-export { RootNode, NodeProps } from './components/RootNode';
-export { FormContext };
-export { SchemaNode } from './SchemaNode';
+export {RootNode, NodeProps} from './components/RootNode';
+export {FormContext};
+export {SchemaNode} from './SchemaNode';
 export {
   NodeKind,
   NodeValue,
@@ -14,8 +14,8 @@ export {
   FormatterFn,
   TranslatorFn,
 } from './types';
-export { useNode } from './utilities/hook';
-export { DeclarativeFormContext } from './DeclarativeFormContext';
+export {useNode} from './utilities/hook';
+export {DeclarativeFormContext} from './DeclarativeFormContext';
 
 export {
   frameworkPlugins,

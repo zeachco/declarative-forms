@@ -1,9 +1,11 @@
 import React from 'react';
-import { useNode } from '../utilities/hook';
-import { NodeProps } from './RootNode';
 
-export function NumericNode({ node }: NodeProps) {
-  const { onChange, errors, validate } = useNode(node);
+import {useNode} from '../utilities/hook';
+
+import {NodeProps} from './RootNode';
+
+export function NumericNode({node}: NodeProps) {
+  const {onChange, errors, validate} = useNode(node);
   return (
     <label>
       {node.translate(node.path, 'label')}:{' '}
@@ -20,7 +22,7 @@ export function NumericNode({ node }: NodeProps) {
   );
 
   function handleChange(ev: any) {
-    onChange(+ev.target.value);
+    onChange(Number(ev.target.value));
   }
 
   function handleBlur() {

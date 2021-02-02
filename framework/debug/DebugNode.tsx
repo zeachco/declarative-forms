@@ -1,5 +1,6 @@
 import React from 'react';
-import { SchemaNode } from '../SchemaNode';
+
+import {SchemaNode} from '../SchemaNode';
 
 interface DebugProps {
   children: React.ReactNode;
@@ -16,7 +17,7 @@ function getNextColor() {
   return Math.floor(index * 16777215).toString(16);
 }
 
-export function DebugNode({ children, node, name = '' }: DebugProps) {
+export function DebugNode({children, node, name = ''}: DebugProps) {
   const color = getNextColor();
   const style = {
     boxShadow: `inset 0 0 3px 1px #${color}, inset -.5em 0 2em -.5em #${color}44`,
@@ -26,12 +27,13 @@ export function DebugNode({ children, node, name = '' }: DebugProps) {
     borderRadius: '.5em',
   };
   return (
-    <div key={'debug_' + node.path} title={name} style={style}>
-      <small style={{ color }}>
-        &lt;{name} path="{node.path}" depth="{node.depth}" &gt;
+    <div key={`debug_${node.path}`} title={name} style={style}>
+      <small style={{color}}>
+        &lt;{name} path=&quot;{node.path}&quot; depth=&quot;{node.depth}&quot;
+        &gt;
       </small>
       {children}
-      <small style={{ color }}>&lt;/{name} &gt;</small>
+      <small style={{color}}>&lt;/{name} &gt;</small>
     </div>
   );
 }

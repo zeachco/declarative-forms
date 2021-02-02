@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 export type NodeKind = string;
 export type NodeValue = any;
 export type ReactComponent = any;
@@ -20,7 +21,7 @@ export interface Validator {
 export type ValidatorFn = (val: NodeValue, options: Validator) => string;
 
 export interface SchemaNodeDefinitionLegacy {
-  type: NodeKind | NodeKind[] | { polymorphic: string[] };
+  type: NodeKind | NodeKind[] | {polymorphic: string[]};
   attributes?: Record<string, SchemaNodeDefinitionLegacy>;
   validators?: Validator[];
   meta?: Record<string, any>;

@@ -1,15 +1,10 @@
-import { Decorator } from './Decorator';
+import {Decorator} from './Decorator';
 import {
   frameworkPlugins,
   frameworkValidators,
   frameworkFormatters,
 } from './defaults';
-import {
-  FormatterFn,
-  ReactComponent,
-  ValidatorFn,
-  TranslatorFn,
-} from './types';
+import {FormatterFn, ReactComponent, ValidatorFn, TranslatorFn} from './types';
 
 export interface FormContext {
   plugins: Record<string, ReactComponent>;

@@ -1,5 +1,5 @@
-import { DeclarativeFormContext } from './DeclarativeFormContext';
-import { Decorator } from './Decorator';
+import {DeclarativeFormContext} from './DeclarativeFormContext';
+import {Decorator} from './Decorator';
 import {
   NodeKind,
   NodeValue,
@@ -20,10 +20,10 @@ export class SchemaNode {
   constructor(
     public context: DeclarativeFormContext,
     public path: string,
-    schema: SchemaNodeDefinitionLegacy
+    schema: SchemaNodeDefinitionLegacy,
   ) {
     this.depth = this.path.split('.').length;
-    const formatter = this.context.formatters['local'];
+    const formatter = this.context.formatters.local;
     const value = this.context.values[this.path];
     this.value = value;
     this.schema = this.schemaCompatibilityLayer(schema);
@@ -68,7 +68,7 @@ export class SchemaNode {
   public data(): Record<string, any> {
     if (this.schema.type === 'polymorphic') {
       return this.attributes.reduce((acc, key) => {
-        if ((key = this.value)) {
+        if (key === this.value) {
           acc[key] = this.children[key].data();
         }
         return acc;
@@ -82,7 +82,7 @@ export class SchemaNode {
         return acc;
       }, {} as any);
     }
-    const formatter = this.context.formatters['remote'];
+    const formatter = this.context.formatters.remote;
 
     return formatter ? formatter(this.value, this.schema.type) : this.value;
   }
@@ -107,7 +107,7 @@ export class SchemaNode {
   }
 
   public deleteSelf() {
-    new Error('deleteSelf is callable on list node children only');
+    throw new Error('deleteSelf is callable on list node children only');
   }
 
   // utilities
@@ -119,14 +119,17 @@ export class SchemaNode {
       });
       return this.children;
     }
-    for (let key in this.schema.attributes) {
-      const subPath = this.path ? [this.path, key].join('.') : key;
-      children[key] = new SchemaNode(
-        this.context,
-        subPath,
-        this.schema.attributes[key]
-      );
+
+    if (!this.schema.attributes) {
+      return {};
     }
+    this.attributes = Object.keys(this.schema.attributes);
+    this.attributes.forEach((key) => {
+      const attributes = this.schema.attributes || {};
+      const schema = attributes[key] as SchemaNodeDefinition;
+      const subPath = this.path ? [this.path, key].join('.') : key;
+      children[key] = new SchemaNode(this.context, subPath, schema);
+    });
     this.attributes = Object.keys(children);
     return children;
   }
@@ -134,7 +137,7 @@ export class SchemaNode {
   private saveDecorators() {
     this.context.decorators.forEach((decorator: Decorator) => {
       if (decorator.test(this)) {
-        Object.assign(this.decorator, decorator, { test: null });
+        Object.assign(this.decorator, decorator, {test: null});
       }
     });
   }
@@ -142,7 +145,7 @@ export class SchemaNode {
   // magic happend to be retrocompatible and set some flags
   // warning, this method have side effets
   private schemaCompatibilityLayer(
-    schema: SchemaNodeDefinitionLegacy
+    schema: SchemaNodeDefinitionLegacy,
   ): SchemaNodeDefinition {
     let type = schema.type || 'group';
 

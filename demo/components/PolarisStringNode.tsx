@@ -1,13 +1,14 @@
-import { TextField } from '@shopify/polaris';
+import {TextField} from '@shopify/polaris';
 import React from 'react';
-import { NodeProps, useNode } from '../../framework';
 
-export function PolarisStringNode({ node, ...props }: NodeProps & any) {
-  const { onChange, errors, validate } = useNode(node);
+import {NodeProps, useNode} from '../../framework';
+
+export function PolarisStringNode({node, ...props}: NodeProps & any) {
+  const {onChange, errors, validate} = useNode(node);
 
   // HACK to avoid making to components
   if (node.schema.kind === 'integer') {
-    props['type'] = 'number';
+    props.type = 'number';
   }
 
   return (

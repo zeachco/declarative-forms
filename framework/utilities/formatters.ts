@@ -9,14 +9,14 @@ const mapByKind = {
   boolean: toBoolean,
 };
 
-export function localFormatter(val: any, kind: string) {
-  const transform = mapByKind[kind as keyof typeof mapByKind];
+export function localFormatter(val: any, type: string) {
+  const transform = mapByKind[type as keyof typeof mapByKind];
   if (!transform) return val;
   return transform(val);
 }
 
-export function remoteFormatter(val: any, kind: string) {
-  const transform = mapByKind[kind as keyof typeof mapByKind];
+export function remoteFormatter(val: any, type: string) {
+  const transform = mapByKind[type as keyof typeof mapByKind];
   if (!transform) return val;
   return transform(val);
 }

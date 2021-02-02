@@ -21,15 +21,15 @@ import {
 
 export function decorate(context: DeclarativeFormContext) {
   context
-    .where((node) => node.schema.kind === 'polymorphic')
+    .where((node) => node.schema.type === 'polymorphic')
     .replaceWith(PolarisPolymorphicNode, { wrap: true });
 
   context
-    .where((node) => node.schema.kind === 'AdditionalOwner' && node.isList)
+    .where((node) => node.schema.type === 'AdditionalOwner' && node.isList)
     .replaceWith(PeopleListNode);
 
   context
-    .where((node) => node.schema.kind === 'AdditionalOwner' && !node.isList)
+    .where((node) => node.schema.type === 'AdditionalOwner' && !node.isList)
     .packWith(({ children, node }: NodeProps) => {
       return (
         <Card title={node.path}>
@@ -40,7 +40,7 @@ export function decorate(context: DeclarativeFormContext) {
     .appendWith(PeopleDeleteButton);
 
   context
-    .where((node) => node.schema.kind === 'boolean')
+    .where((node) => node.schema.type === 'boolean')
     .replaceWith(({ node }: NodeProps) => {
       const { onChange, validate } = useNode(node);
       return (

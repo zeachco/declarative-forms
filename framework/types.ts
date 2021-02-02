@@ -1,7 +1,7 @@
 export type NodeKind = string;
 export type NodeValue = any;
 export type ReactComponent = any;
-export type FormatterFn = (value: any, kind: string) => any;
+export type FormatterFn = (value: any, type: string) => any;
 
 export interface Validator {
   name: string;
@@ -19,14 +19,14 @@ export interface Validator {
 export type ValidatorFn = (val: NodeValue, options: Validator) => string;
 
 export interface SchemaNodeDefinitionLegacy {
-  kind: NodeKind | NodeKind[] | { polymorphic: string[] };
+  type: NodeKind | NodeKind[] | { polymorphic: string[] };
   attributes?: Record<string, SchemaNodeDefinitionLegacy>;
   validators?: Validator[];
   meta?: Record<string, any>;
 }
 
 export interface SchemaNodeDefinition {
-  kind: NodeKind;
+  type: NodeKind;
   attributes?: Record<string, SchemaNodeDefinition>;
   validators?: Validator[];
   meta?: Record<string, any>;

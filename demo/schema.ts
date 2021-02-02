@@ -1,6 +1,6 @@
 export const SCHEMA = {
   legalEntity: {
-    kind: {
+    type: {
       polymorphic: [
         'SoleProp',
         'Corporation',
@@ -11,13 +11,13 @@ export const SCHEMA = {
     },
     attributes: {
       SoleProp: {
-        kind: 'SoleProp',
+        type: 'SoleProp',
         attributes: {
           businessDetails: {
-            kind: 'BusinessDetailsSoleProp',
+            type: 'BusinessDetailsSoleProp',
             attributes: {
               businessTaxId: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Format',
@@ -26,7 +26,7 @@ export const SCHEMA = {
                 ],
               },
               address: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   allowAutocomplete: 'true',
                 },
@@ -37,7 +37,7 @@ export const SCHEMA = {
                 ],
               },
               city: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                   allowAutocomplete: 'true',
@@ -49,7 +49,7 @@ export const SCHEMA = {
                 ],
               },
               postalCode: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                   allowAutocomplete: 'true',
@@ -61,7 +61,7 @@ export const SCHEMA = {
                 ],
               },
               provinceCode: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   allowAutocomplete: 'true',
                 },
@@ -79,10 +79,10 @@ export const SCHEMA = {
             ],
           },
           personalDetails: {
-            kind: 'PersonalDetailsSoleProp',
+            type: 'PersonalDetailsSoleProp',
             attributes: {
               firstName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                   allowAutocomplete: 'true',
@@ -94,7 +94,7 @@ export const SCHEMA = {
                 ],
               },
               lastName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                   allowAutocomplete: 'true',
@@ -106,7 +106,7 @@ export const SCHEMA = {
                 ],
               },
               dateOfBirth: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -119,7 +119,7 @@ export const SCHEMA = {
                 ],
               },
               ssnLast4: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -134,10 +134,10 @@ export const SCHEMA = {
             ],
           },
           productDetails: {
-            kind: 'ProductDetails',
+            type: 'ProductDetails',
             attributes: {
               mccId: {
-                kind: 'integer',
+                type: 'integer',
                 validators: [
                   {
                     name: 'Presence',
@@ -145,7 +145,7 @@ export const SCHEMA = {
                 ],
               },
               productDescription: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   multiline: true,
                 },
@@ -167,10 +167,10 @@ export const SCHEMA = {
             ],
           },
           billingDetails: {
-            kind: 'SimpleBillingDetails',
+            type: 'SimpleBillingDetails',
             attributes: {
               statementDescriptor: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'billing_line',
                 },
@@ -185,7 +185,7 @@ export const SCHEMA = {
                 ],
               },
               phoneNumber: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'billing_line',
                 },
@@ -203,10 +203,10 @@ export const SCHEMA = {
             ],
           },
           bankAccountDetails: {
-            kind: 'BankAccountDetails',
+            type: 'BankAccountDetails',
             attributes: {
               routingNumber: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'bank_line',
                 },
@@ -217,7 +217,7 @@ export const SCHEMA = {
                 ],
               },
               accountNumber: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'bank_line',
                 },
@@ -228,7 +228,7 @@ export const SCHEMA = {
                 ],
               },
               shopifyBalance: {
-                kind: 'boolean',
+                type: 'boolean',
               },
             },
             validators: [
@@ -240,13 +240,13 @@ export const SCHEMA = {
         },
       },
       Corporation: {
-        kind: 'Corporation',
+        type: 'Corporation',
         attributes: {
           businessDetails: {
-            kind: 'BusinessDetailsCompany',
+            type: 'BusinessDetailsCompany',
             attributes: {
               businessName: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -254,7 +254,7 @@ export const SCHEMA = {
                 ],
               },
               businessTaxId: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -266,7 +266,7 @@ export const SCHEMA = {
                 ],
               },
               address: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   allowAutocomplete: 'true',
                 },
@@ -277,7 +277,7 @@ export const SCHEMA = {
                 ],
               },
               city: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                   allowAutocomplete: 'true',
@@ -289,7 +289,7 @@ export const SCHEMA = {
                 ],
               },
               postalCode: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                   allowAutocomplete: 'true',
@@ -301,7 +301,7 @@ export const SCHEMA = {
                 ],
               },
               provinceCode: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   allowAutocomplete: 'true',
                 },
@@ -319,10 +319,10 @@ export const SCHEMA = {
             ],
           },
           personalDetails: {
-            kind: 'PersonalDetailsCompany',
+            type: 'PersonalDetailsCompany',
             attributes: {
               firstName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                   allowAutocomplete: 'true',
@@ -334,7 +334,7 @@ export const SCHEMA = {
                 ],
               },
               lastName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                   allowAutocomplete: 'true',
@@ -346,7 +346,7 @@ export const SCHEMA = {
                 ],
               },
               jobTitle: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -354,7 +354,7 @@ export const SCHEMA = {
                 ],
               },
               dateOfBirth: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -367,7 +367,7 @@ export const SCHEMA = {
                 ],
               },
               ssnLast4: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -379,7 +379,7 @@ export const SCHEMA = {
                 ],
               },
               address: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -387,7 +387,7 @@ export const SCHEMA = {
                 ],
               },
               city: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                 },
@@ -398,7 +398,7 @@ export const SCHEMA = {
                 ],
               },
               postalCode: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                 },
@@ -409,10 +409,10 @@ export const SCHEMA = {
                 ],
               },
               region: {
-                kind: 'Region',
+                type: 'Region',
                 attributes: {
                   country: {
-                    kind: 'string',
+                    type: 'string',
                     validators: [
                       {
                         name: 'Presence',
@@ -420,7 +420,7 @@ export const SCHEMA = {
                     ],
                   },
                   provinceCode: {
-                    kind: 'string',
+                    type: 'string',
                   },
                 },
                 validators: [
@@ -437,10 +437,10 @@ export const SCHEMA = {
             ],
           },
           people: {
-            kind: ['AdditionalOwner'],
+            type: ['AdditionalOwner'],
             attributes: {
               firstName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                 },
@@ -451,7 +451,7 @@ export const SCHEMA = {
                 ],
               },
               lastName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                 },
@@ -462,7 +462,7 @@ export const SCHEMA = {
                 ],
               },
               email: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -470,7 +470,7 @@ export const SCHEMA = {
                 ],
               },
               ownershipPercentage: {
-                kind: 'integer',
+                type: 'integer',
                 validators: [
                   {
                     name: 'Presence',
@@ -488,10 +488,10 @@ export const SCHEMA = {
             },
           },
           productDetails: {
-            kind: 'ProductDetails',
+            type: 'ProductDetails',
             attributes: {
               mccId: {
-                kind: 'integer',
+                type: 'integer',
                 validators: [
                   {
                     name: 'Presence',
@@ -499,7 +499,7 @@ export const SCHEMA = {
                 ],
               },
               productDescription: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   multiline: true,
                 },
@@ -521,10 +521,10 @@ export const SCHEMA = {
             ],
           },
           billingDetails: {
-            kind: 'SimpleBillingDetails',
+            type: 'SimpleBillingDetails',
             attributes: {
               statementDescriptor: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'billing_line',
                 },
@@ -539,7 +539,7 @@ export const SCHEMA = {
                 ],
               },
               phoneNumber: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'billing_line',
                 },
@@ -557,10 +557,10 @@ export const SCHEMA = {
             ],
           },
           bankAccountDetails: {
-            kind: 'BankAccountDetails',
+            type: 'BankAccountDetails',
             attributes: {
               routingNumber: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'bank_line',
                 },
@@ -571,7 +571,7 @@ export const SCHEMA = {
                 ],
               },
               accountNumber: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'bank_line',
                 },
@@ -582,7 +582,7 @@ export const SCHEMA = {
                 ],
               },
               shopifyBalance: {
-                kind: 'boolean',
+                type: 'boolean',
               },
             },
             validators: [
@@ -594,13 +594,13 @@ export const SCHEMA = {
         },
       },
       LLC: {
-        kind: 'LLC',
+        type: 'LLC',
         attributes: {
           businessDetails: {
-            kind: 'BusinessDetailsCompany',
+            type: 'BusinessDetailsCompany',
             attributes: {
               businessName: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -608,7 +608,7 @@ export const SCHEMA = {
                 ],
               },
               businessTaxId: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -620,7 +620,7 @@ export const SCHEMA = {
                 ],
               },
               address: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   allowAutocomplete: 'true',
                 },
@@ -631,7 +631,7 @@ export const SCHEMA = {
                 ],
               },
               city: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                   allowAutocomplete: 'true',
@@ -643,7 +643,7 @@ export const SCHEMA = {
                 ],
               },
               postalCode: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                   allowAutocomplete: 'true',
@@ -655,7 +655,7 @@ export const SCHEMA = {
                 ],
               },
               provinceCode: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   allowAutocomplete: 'true',
                 },
@@ -673,10 +673,10 @@ export const SCHEMA = {
             ],
           },
           personalDetails: {
-            kind: 'PersonalDetailsCompany',
+            type: 'PersonalDetailsCompany',
             attributes: {
               firstName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                   allowAutocomplete: 'true',
@@ -688,7 +688,7 @@ export const SCHEMA = {
                 ],
               },
               lastName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                   allowAutocomplete: 'true',
@@ -700,7 +700,7 @@ export const SCHEMA = {
                 ],
               },
               jobTitle: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -708,7 +708,7 @@ export const SCHEMA = {
                 ],
               },
               dateOfBirth: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -721,7 +721,7 @@ export const SCHEMA = {
                 ],
               },
               ssnLast4: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -733,7 +733,7 @@ export const SCHEMA = {
                 ],
               },
               address: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -741,7 +741,7 @@ export const SCHEMA = {
                 ],
               },
               city: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                 },
@@ -752,7 +752,7 @@ export const SCHEMA = {
                 ],
               },
               postalCode: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                 },
@@ -763,10 +763,10 @@ export const SCHEMA = {
                 ],
               },
               region: {
-                kind: 'Region',
+                type: 'Region',
                 attributes: {
                   country: {
-                    kind: 'string',
+                    type: 'string',
                     validators: [
                       {
                         name: 'Presence',
@@ -774,7 +774,7 @@ export const SCHEMA = {
                     ],
                   },
                   provinceCode: {
-                    kind: 'string',
+                    type: 'string',
                   },
                 },
                 validators: [
@@ -791,10 +791,10 @@ export const SCHEMA = {
             ],
           },
           people: {
-            kind: ['AdditionalOwner'],
+            type: ['AdditionalOwner'],
             attributes: {
               firstName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                 },
@@ -805,7 +805,7 @@ export const SCHEMA = {
                 ],
               },
               lastName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                 },
@@ -816,7 +816,7 @@ export const SCHEMA = {
                 ],
               },
               email: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -824,7 +824,7 @@ export const SCHEMA = {
                 ],
               },
               ownershipPercentage: {
-                kind: 'integer',
+                type: 'integer',
                 validators: [
                   {
                     name: 'Presence',
@@ -842,10 +842,10 @@ export const SCHEMA = {
             },
           },
           productDetails: {
-            kind: 'ProductDetails',
+            type: 'ProductDetails',
             attributes: {
               mccId: {
-                kind: 'integer',
+                type: 'integer',
                 validators: [
                   {
                     name: 'Presence',
@@ -853,7 +853,7 @@ export const SCHEMA = {
                 ],
               },
               productDescription: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   multiline: true,
                 },
@@ -875,10 +875,10 @@ export const SCHEMA = {
             ],
           },
           billingDetails: {
-            kind: 'SimpleBillingDetails',
+            type: 'SimpleBillingDetails',
             attributes: {
               statementDescriptor: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'billing_line',
                 },
@@ -893,7 +893,7 @@ export const SCHEMA = {
                 ],
               },
               phoneNumber: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'billing_line',
                 },
@@ -911,10 +911,10 @@ export const SCHEMA = {
             ],
           },
           bankAccountDetails: {
-            kind: 'BankAccountDetails',
+            type: 'BankAccountDetails',
             attributes: {
               routingNumber: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'bank_line',
                 },
@@ -925,7 +925,7 @@ export const SCHEMA = {
                 ],
               },
               accountNumber: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'bank_line',
                 },
@@ -936,7 +936,7 @@ export const SCHEMA = {
                 ],
               },
               shopifyBalance: {
-                kind: 'boolean',
+                type: 'boolean',
               },
             },
             validators: [
@@ -948,13 +948,13 @@ export const SCHEMA = {
         },
       },
       Partnership: {
-        kind: 'Partnership',
+        type: 'Partnership',
         attributes: {
           businessDetails: {
-            kind: 'BusinessDetailsCompany',
+            type: 'BusinessDetailsCompany',
             attributes: {
               businessName: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -962,7 +962,7 @@ export const SCHEMA = {
                 ],
               },
               businessTaxId: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -974,7 +974,7 @@ export const SCHEMA = {
                 ],
               },
               address: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   allowAutocomplete: 'true',
                 },
@@ -985,7 +985,7 @@ export const SCHEMA = {
                 ],
               },
               city: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                   allowAutocomplete: 'true',
@@ -997,7 +997,7 @@ export const SCHEMA = {
                 ],
               },
               postalCode: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                   allowAutocomplete: 'true',
@@ -1009,7 +1009,7 @@ export const SCHEMA = {
                 ],
               },
               provinceCode: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   allowAutocomplete: 'true',
                 },
@@ -1027,10 +1027,10 @@ export const SCHEMA = {
             ],
           },
           personalDetails: {
-            kind: 'PersonalDetailsCompany',
+            type: 'PersonalDetailsCompany',
             attributes: {
               firstName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                   allowAutocomplete: 'true',
@@ -1042,7 +1042,7 @@ export const SCHEMA = {
                 ],
               },
               lastName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                   allowAutocomplete: 'true',
@@ -1054,7 +1054,7 @@ export const SCHEMA = {
                 ],
               },
               jobTitle: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -1062,7 +1062,7 @@ export const SCHEMA = {
                 ],
               },
               dateOfBirth: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -1075,7 +1075,7 @@ export const SCHEMA = {
                 ],
               },
               ssnLast4: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -1087,7 +1087,7 @@ export const SCHEMA = {
                 ],
               },
               address: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -1095,7 +1095,7 @@ export const SCHEMA = {
                 ],
               },
               city: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                 },
@@ -1106,7 +1106,7 @@ export const SCHEMA = {
                 ],
               },
               postalCode: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                 },
@@ -1117,10 +1117,10 @@ export const SCHEMA = {
                 ],
               },
               region: {
-                kind: 'Region',
+                type: 'Region',
                 attributes: {
                   country: {
-                    kind: 'string',
+                    type: 'string',
                     validators: [
                       {
                         name: 'Presence',
@@ -1128,7 +1128,7 @@ export const SCHEMA = {
                     ],
                   },
                   provinceCode: {
-                    kind: 'string',
+                    type: 'string',
                   },
                 },
                 validators: [
@@ -1145,10 +1145,10 @@ export const SCHEMA = {
             ],
           },
           people: {
-            kind: ['AdditionalOwner'],
+            type: ['AdditionalOwner'],
             attributes: {
               firstName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                 },
@@ -1159,7 +1159,7 @@ export const SCHEMA = {
                 ],
               },
               lastName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                 },
@@ -1170,7 +1170,7 @@ export const SCHEMA = {
                 ],
               },
               email: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -1178,7 +1178,7 @@ export const SCHEMA = {
                 ],
               },
               ownershipPercentage: {
-                kind: 'integer',
+                type: 'integer',
                 validators: [
                   {
                     name: 'Presence',
@@ -1196,10 +1196,10 @@ export const SCHEMA = {
             },
           },
           productDetails: {
-            kind: 'ProductDetails',
+            type: 'ProductDetails',
             attributes: {
               mccId: {
-                kind: 'integer',
+                type: 'integer',
                 validators: [
                   {
                     name: 'Presence',
@@ -1207,7 +1207,7 @@ export const SCHEMA = {
                 ],
               },
               productDescription: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   multiline: true,
                 },
@@ -1229,10 +1229,10 @@ export const SCHEMA = {
             ],
           },
           billingDetails: {
-            kind: 'SimpleBillingDetails',
+            type: 'SimpleBillingDetails',
             attributes: {
               statementDescriptor: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'billing_line',
                 },
@@ -1247,7 +1247,7 @@ export const SCHEMA = {
                 ],
               },
               phoneNumber: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'billing_line',
                 },
@@ -1265,10 +1265,10 @@ export const SCHEMA = {
             ],
           },
           bankAccountDetails: {
-            kind: 'BankAccountDetails',
+            type: 'BankAccountDetails',
             attributes: {
               routingNumber: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'bank_line',
                 },
@@ -1279,7 +1279,7 @@ export const SCHEMA = {
                 ],
               },
               accountNumber: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'bank_line',
                 },
@@ -1290,7 +1290,7 @@ export const SCHEMA = {
                 ],
               },
               shopifyBalance: {
-                kind: 'boolean',
+                type: 'boolean',
               },
             },
             validators: [
@@ -1302,13 +1302,13 @@ export const SCHEMA = {
         },
       },
       Nonprofit: {
-        kind: 'Nonprofit',
+        type: 'Nonprofit',
         attributes: {
           businessDetails: {
-            kind: 'BusinessDetailsCompany',
+            type: 'BusinessDetailsCompany',
             attributes: {
               businessName: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -1316,7 +1316,7 @@ export const SCHEMA = {
                 ],
               },
               businessTaxId: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -1328,7 +1328,7 @@ export const SCHEMA = {
                 ],
               },
               address: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   allowAutocomplete: 'true',
                 },
@@ -1339,7 +1339,7 @@ export const SCHEMA = {
                 ],
               },
               city: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                   allowAutocomplete: 'true',
@@ -1351,7 +1351,7 @@ export const SCHEMA = {
                 ],
               },
               postalCode: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                   allowAutocomplete: 'true',
@@ -1363,7 +1363,7 @@ export const SCHEMA = {
                 ],
               },
               provinceCode: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   allowAutocomplete: 'true',
                 },
@@ -1381,10 +1381,10 @@ export const SCHEMA = {
             ],
           },
           personalDetails: {
-            kind: 'PersonalDetailsCompany',
+            type: 'PersonalDetailsCompany',
             attributes: {
               firstName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                   allowAutocomplete: 'true',
@@ -1396,7 +1396,7 @@ export const SCHEMA = {
                 ],
               },
               lastName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                   allowAutocomplete: 'true',
@@ -1408,7 +1408,7 @@ export const SCHEMA = {
                 ],
               },
               jobTitle: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -1416,7 +1416,7 @@ export const SCHEMA = {
                 ],
               },
               dateOfBirth: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -1429,7 +1429,7 @@ export const SCHEMA = {
                 ],
               },
               ssnLast4: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -1441,7 +1441,7 @@ export const SCHEMA = {
                 ],
               },
               address: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -1449,7 +1449,7 @@ export const SCHEMA = {
                 ],
               },
               city: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                 },
@@ -1460,7 +1460,7 @@ export const SCHEMA = {
                 ],
               },
               postalCode: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'city_line',
                 },
@@ -1471,10 +1471,10 @@ export const SCHEMA = {
                 ],
               },
               region: {
-                kind: 'Region',
+                type: 'Region',
                 attributes: {
                   country: {
-                    kind: 'string',
+                    type: 'string',
                     validators: [
                       {
                         name: 'Presence',
@@ -1482,7 +1482,7 @@ export const SCHEMA = {
                     ],
                   },
                   provinceCode: {
-                    kind: 'string',
+                    type: 'string',
                   },
                 },
                 validators: [
@@ -1499,10 +1499,10 @@ export const SCHEMA = {
             ],
           },
           people: {
-            kind: ['AdditionalOwner'],
+            type: ['AdditionalOwner'],
             attributes: {
               firstName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                 },
@@ -1513,7 +1513,7 @@ export const SCHEMA = {
                 ],
               },
               lastName: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'name_line',
                 },
@@ -1524,7 +1524,7 @@ export const SCHEMA = {
                 ],
               },
               email: {
-                kind: 'string',
+                type: 'string',
                 validators: [
                   {
                     name: 'Presence',
@@ -1532,7 +1532,7 @@ export const SCHEMA = {
                 ],
               },
               ownershipPercentage: {
-                kind: 'integer',
+                type: 'integer',
                 validators: [
                   {
                     name: 'Presence',
@@ -1550,10 +1550,10 @@ export const SCHEMA = {
             },
           },
           productDetails: {
-            kind: 'ProductDetails',
+            type: 'ProductDetails',
             attributes: {
               mccId: {
-                kind: 'integer',
+                type: 'integer',
                 validators: [
                   {
                     name: 'Presence',
@@ -1561,7 +1561,7 @@ export const SCHEMA = {
                 ],
               },
               productDescription: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   multiline: true,
                 },
@@ -1583,10 +1583,10 @@ export const SCHEMA = {
             ],
           },
           billingDetails: {
-            kind: 'SimpleBillingDetails',
+            type: 'SimpleBillingDetails',
             attributes: {
               statementDescriptor: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'billing_line',
                 },
@@ -1601,7 +1601,7 @@ export const SCHEMA = {
                 ],
               },
               phoneNumber: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'billing_line',
                 },
@@ -1619,10 +1619,10 @@ export const SCHEMA = {
             ],
           },
           bankAccountDetails: {
-            kind: 'BankAccountDetails',
+            type: 'BankAccountDetails',
             attributes: {
               routingNumber: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'bank_line',
                 },
@@ -1633,7 +1633,7 @@ export const SCHEMA = {
                 ],
               },
               accountNumber: {
-                kind: 'string',
+                type: 'string',
                 meta: {
                   group: 'bank_line',
                 },
@@ -1644,7 +1644,7 @@ export const SCHEMA = {
                 ],
               },
               shopifyBalance: {
-                kind: 'boolean',
+                type: 'boolean',
               },
             },
             validators: [

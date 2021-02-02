@@ -35,11 +35,9 @@ const context = new DeclarativeFormContext({
 });
 
 const schema: SchemaNodeDefinitionLegacy = {
-  kind: 'group',
+  type: 'group',
   attributes: SCHEMA,
 };
-
-// decorate(context);
 
 const node = new SchemaNode(context, '', schema);
 

@@ -21,7 +21,7 @@ export function RootNode({ node, context }: NodeProps) {
 
   node.attributes.forEach((key) => {
     const child = node.children[key];
-    if (node.schema.kind !== 'polymorphic') {
+    if (node.schema.type !== 'polymorphic') {
       nodeChildren.push(
         <RootNode key={child.uid} context={context} node={child} />
       );
@@ -44,7 +44,7 @@ export function RootNode({ node, context }: NodeProps) {
   if (context.debug) {
     const pluginName = getFunctionName(
       getPlugin(context, node),
-      node.schema.kind
+      node.schema.type
     );
     jsx = [
       <DebugNode
@@ -94,5 +94,5 @@ function getPlugin(
   ctx: DeclarativeFormContext,
   node: SchemaNode
 ): ReactComponent {
-  return node.isList ? ctx.plugins.list : ctx.plugins[node.schema.kind];
+  return node.isList ? ctx.plugins.list : ctx.plugins[node.schema.type];
 }

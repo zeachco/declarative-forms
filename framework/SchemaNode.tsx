@@ -28,14 +28,14 @@ export class SchemaNode {
     this.value = value;
     this.schema = this.schemaCompatibilityLayer(schema);
     if (formatter) {
-      this.value = formatter(value, this.schema.kind);
+      this.value = formatter(value, this.schema.type);
     }
     this.children = this.buildChildren();
     this.saveDecorators();
   }
 
   public get uid() {
-    return [this.path, this.schema.kind].join('_');
+    return [this.path, this.schema.type].join('_');
   }
 
   public onChange = (value: any) => {
@@ -58,7 +58,7 @@ export class SchemaNode {
   };
 
   public data(): Record<string, any> {
-    if (this.schema.kind === 'polymorphic') {
+    if (this.schema.type === 'polymorphic') {
       return this.attributes.reduce((acc, key) => {
         if ((key = this.value)) {
           acc[key] = this.children[key].data();
@@ -76,7 +76,7 @@ export class SchemaNode {
     }
     const formatter = this.context.formatters['remote'];
 
-    return formatter ? formatter(this.value, this.schema.kind) : this.value;
+    return formatter ? formatter(this.value, this.schema.type) : this.value;
   }
 
   // methods specific to list type
@@ -136,17 +136,17 @@ export class SchemaNode {
   private schemaCompatibilityLayer(
     schema: SchemaNodeDefinitionLegacy
   ): SchemaNodeDefinition {
-    let kind = schema.kind || 'group';
+    let type = schema.type || 'group';
 
-    if (typeof kind !== 'string') {
-      if (Array.isArray(kind)) {
-        kind = kind[0];
+    if (typeof type !== 'string') {
+      if (Array.isArray(type)) {
+        type = type[0];
         this.isList = true;
         if (!Array.isArray(this.value)) {
           this.value = [];
         }
-      } else if (Array.isArray(kind.polymorphic)) {
-        kind = 'polymorphic';
+      } else if (Array.isArray(type.polymorphic)) {
+        type = 'polymorphic';
         const options = Object.keys(schema.attributes || {});
         if (options.indexOf(this.value) === -1) {
           this.value = options[0];
@@ -157,7 +157,7 @@ export class SchemaNode {
     return {
       ...schema,
       attributes: schema.attributes as SchemaNodeDefinition['attributes'],
-      kind: kind as NodeKind,
+      type: type as NodeKind,
     };
   }
 }

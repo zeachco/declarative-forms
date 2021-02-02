@@ -13,15 +13,15 @@ export function PolarisPolymorphicNode({
 }: NodeProps & Props) {
   const { onChange, errors } = useNode(node);
   const variant = node.children[node.value];
-  const options = node.attributes.map((key) =>
-    node.translate([node.path, key].join('.'), 'label')
-  );
+  const options = node.attributes.map((key) => ({
+    value: key,
+    label: node.translate([node.path, key].join('.'), 'label'),
+    disabled: key === node.value,
+  }));
   const title = node.translate(node.path, 'label');
   const errorMessages = errors.map((err) => (
     <strong>{node.translate(err, 'error')}</strong>
   ));
-
-  console.log(options);
 
   if (wrap) {
     return (
@@ -31,7 +31,7 @@ export function PolarisPolymorphicNode({
             <FormLayout>
               <Select
                 label={''}
-                onChange={handleChange}
+                onChange={onChange}
                 options={options}
                 value={node.value}
               />
@@ -48,7 +48,7 @@ export function PolarisPolymorphicNode({
     <React.Fragment>
       <Select
         label={title}
-        onChange={handleChange}
+        onChange={onChange}
         options={options}
         value={node.value}
       />
@@ -56,8 +56,4 @@ export function PolarisPolymorphicNode({
       {variant && <RootNode context={context} node={variant} />}
     </React.Fragment>
   );
-
-  function handleChange(value: string) {
-    onChange(value);
-  }
 }

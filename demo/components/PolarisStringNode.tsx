@@ -14,18 +14,10 @@ export function PolarisStringNode({ node, ...props }: NodeProps & any) {
     <TextField
       label={node.translate(node.path, 'label')}
       value={node.value}
-      onChange={handleChange}
-      onBlur={handleBlur}
+      onChange={onChange}
+      onBlur={validate}
       error={errors.map((err) => node.translate(err, 'error')).join('. ')}
       {...props}
     />
   );
-
-  function handleChange(value: string) {
-    onChange(value);
-  }
-
-  function handleBlur() {
-    validate();
-  }
 }

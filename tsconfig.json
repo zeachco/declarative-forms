@@ -1,9 +1,5 @@
 {
-  "extends": "../../../config/typescript/tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": "../../../",
-    "rootDir": "../../../",
-    "outDir": "../../../build/ts",
     "resolveJsonModule": true,
     "target": "ES2015",
     "jsx": "react",

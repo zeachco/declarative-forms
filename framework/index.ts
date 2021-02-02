@@ -12,6 +12,7 @@ export {
   SchemaNodeDefinitionLegacy,
   SchemaNodeDefinition,
   FormatterFn,
+  TranslatorFn,
 } from './types';
 export { useNode } from './utilities/hook';
 export { DeclarativeFormContext } from './DeclarativeFormContext';

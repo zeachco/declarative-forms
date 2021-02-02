@@ -44,7 +44,11 @@ export function decorate(context: DeclarativeFormContext) {
     .replaceWith(({ node }: NodeProps) => {
       const { onChange, validate } = useNode(node);
       return (
-        <Checkbox label={node.path} onChange={update} checked={node.value} />
+        <Checkbox
+          label={node.translate(node.path, 'label')}
+          onChange={update}
+          checked={node.value}
+        />
       );
 
       function update() {
@@ -57,7 +61,7 @@ export function decorate(context: DeclarativeFormContext) {
     .where((node) => node.depth === 3)
     .wrapWith(({ children, node }: NodeProps) => {
       return (
-        <Card title={node.path.split('.').reverse()[0]}>
+        <Card title={node.translate(node.path, 'label')}>
           <Card.Section>{children}</Card.Section>
         </Card>
       );
@@ -66,9 +70,6 @@ export function decorate(context: DeclarativeFormContext) {
   context
     .where((node: SchemaNode) => /ownershipPercentage$/.test(node.path))
     .replaceWith(PolarisRangeSlider, { min: 0, max: 100 });
-
-  const BeforeArgs = { country: 'CA' };
-  const AfterArgs = { country: 'US' };
 
   context
     .where((node: SchemaNode) =>

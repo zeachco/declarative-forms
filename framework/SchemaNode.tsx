@@ -57,6 +57,14 @@ export class SchemaNode {
     return this.errors;
   };
 
+  public translate(key: string, mode: 'label' | 'error'): string {
+    const translator = this.context.translators[mode];
+    if (!translator) {
+      return '';
+    }
+    return translator(key) || '';
+  }
+
   public data(): Record<string, any> {
     if (this.schema.type === 'polymorphic') {
       return this.attributes.reduce((acc, key) => {

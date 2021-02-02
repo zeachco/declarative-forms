@@ -13,22 +13,29 @@ export function PolarisPolymorphicNode({
 }: NodeProps & Props) {
   const { onChange, errors } = useNode(node);
   const variant = node.children[node.value];
+  const options = node.attributes.map((key) =>
+    node.translate([node.path, key].join('.'), 'label')
+  );
+  const title = node.translate(node.path, 'label');
+  const errorMessages = errors.map((err) => (
+    <strong>{node.translate(err, 'error')}</strong>
+  ));
+
+  console.log(options);
 
   if (wrap) {
     return (
       <React.Fragment>
-        <Card title={node.path.split('.').reverse()[0]}>
+        <Card title={title}>
           <Card.Section>
             <FormLayout>
               <Select
-                label={node.path}
+                label={''}
                 onChange={handleChange}
-                options={node.attributes}
+                options={options}
                 value={node.value}
               />
-              {errors.map((err) => (
-                <strong>{err}</strong>
-              ))}
+              {errorMessages}
             </FormLayout>
           </Card.Section>
         </Card>
@@ -40,14 +47,12 @@ export function PolarisPolymorphicNode({
   return (
     <React.Fragment>
       <Select
-        label={node.path}
+        label={title}
         onChange={handleChange}
-        options={node.attributes}
+        options={options}
         value={node.value}
       />
-      {errors.map((err) => (
-        <strong>{err}</strong>
-      ))}
+      {errorMessages}
       {variant && <RootNode context={context} node={variant} />}
     </React.Fragment>
   );

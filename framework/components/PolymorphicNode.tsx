@@ -8,14 +8,14 @@ export function PolymorphicNode({ node, context }: NodeProps) {
 
   return (
     <React.Fragment>
-      <label>{node.path}: </label>
+      <label>{node.translate(node.path, 'label')}: </label>
       <select onChange={handleChange}>
         {node.attributes.map((key) => (
           <option key={key}>{key}</option>
         ))}
       </select>
       {errors.map((err) => (
-        <strong>{err}</strong>
+        <strong key={err}>{node.translate(err, 'error')}</strong>
       ))}
       {variant && <RootNode context={context} node={variant} />}
     </React.Fragment>

@@ -6,10 +6,10 @@ export function BooleanNode({ node }: NodeProps) {
   const { onChange, errors, validate } = useNode(node);
   return (
     <label>
-      {node.path}:{' '}
+      {node.translate(node.path, 'label')}:{' '}
       <input type="checkbox" onChange={handleChange} checked={!!node.value} />
       {errors.map((err) => (
-        <strong key={err}>{err}</strong>
+        <strong key={err}>{node.translate(err, 'error')}</strong>
       ))}
     </label>
   );

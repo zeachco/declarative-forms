@@ -19,7 +19,7 @@ export function PeopleListNode({ node, context }: NodeProps) {
   return (
     <div>
       {errors.map((err) => (
-        <strong key={err}>{err}</strong>
+        <strong key={err}>{node.translate(err, 'error')}</strong>
       ))}
       {additionnalOwnersJsx}
       <Button onClick={addListItem}>Add an owner</Button>

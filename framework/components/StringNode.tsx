@@ -6,10 +6,10 @@ export function StringNode({ node }: NodeProps) {
   const { onChange, errors, validate } = useNode(node);
   return (
     <label>
-      {node.path}:{' '}
+      {node.translate(node.path, 'label')}:{' '}
       <input value={node.value} onChange={handleChange} onBlur={handleBlur} />
       {errors.map((err) => (
-        <strong key={err}>{err}</strong>
+        <strong key={err}>{node.translate(err, 'error')}</strong>
       ))}
     </label>
   );

@@ -7,8 +7,8 @@ import {
 import {
   FormatterFn,
   ReactComponent,
-  TranslatorFn,
   ValidatorFn,
+  TranslatorFn,
 } from './types';
 
 export interface FormContext {
@@ -24,8 +24,8 @@ export interface FormContext {
       }
     | Record<string, FormatterFn>;
   translators: {
-    validators: TranslatorFn;
-    labels: TranslatorFn;
+    label?: TranslatorFn;
+    error?: TranslatorFn;
   };
 }
 
@@ -46,7 +46,7 @@ export class DeclarativeFormContext implements FormContext {
     labels = {},
     values = {},
     formatters = {},
-    translators = [],
+    translators = {},
   }: Partial<FormContext>) {
     this.plugins = {
       ...frameworkPlugins,

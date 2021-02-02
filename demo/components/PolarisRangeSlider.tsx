@@ -3,15 +3,18 @@ import React from 'react';
 import { NodeProps, useNode } from '../../framework';
 
 export function PolarisRangeSlider({ node, ...props }: NodeProps) {
-  const { onChange } = useNode(node);
+  const { onChange, errors } = useNode(node);
   return (
-    <RangeSlider
-      label={node.path}
-      value={node.value}
-      onChange={handleChange}
-      output
-      {...props}
-    />
+    <React.Fragment>
+      <RangeSlider
+        label={node.translate(node.path, 'label')}
+        value={node.value || 0}
+        onChange={onChange}
+        output
+        {...props}
+      />
+      {errors.map((e) => node.translate(e, 'error'))}
+    </React.Fragment>
   );
 
   function handleChange(val: number) {

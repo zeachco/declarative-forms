@@ -25,9 +25,9 @@ export function ListNode({ node, context }: NodeProps) {
 
   return (
     <div>
-      <label>{node.path}: </label>
+      <label>{node.translate(node.path, 'label')}: </label>
       {errors.map((err) => (
-        <strong key={err}>{err}</strong>
+        <strong key={err}>{node.translate(err, 'error')}</strong>
       ))}
       {jsx}
       <button onClick={handleAdd}>Add node</button>

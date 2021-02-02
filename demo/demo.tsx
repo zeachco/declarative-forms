@@ -19,6 +19,7 @@ import {
 } from '../framework';
 import { PolarisStringNode } from './components/PolarisStringNode';
 import { formatValidator, lengthValidator } from './plugins/validators';
+import { translateError, translateLabel } from './plugins/translators';
 import { SCHEMA } from './schema';
 import { decorate } from './decorate';
 
@@ -31,6 +32,10 @@ const context = new DeclarativeFormContext({
   validators: {
     Format: formatValidator,
     Length: lengthValidator,
+  },
+  translators: {
+    label: translateLabel,
+    error: translateError,
   },
 });
 

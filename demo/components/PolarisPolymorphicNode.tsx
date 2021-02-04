@@ -4,24 +4,20 @@ import React from 'react';
 import {NodeProps, RootNode, useNode} from '../../framework';
 
 interface Props {
-  wrap: boolean;
+  wrap?: boolean;
 }
 
-export function PolarisPolymorphicNode({
-  node,
-  context,
-  wrap,
-}: NodeProps & Props) {
+export function PolarisPolymorphicNode({node, wrap}: NodeProps & Props) {
   const {onChange, errors} = useNode(node);
   const variant = node.children[node.value];
   const options = node.attributes.map((key) => ({
     value: key,
-    label: node.translate([node.path, key].join('.'), 'label'),
+    label: node.translate('label'),
     disabled: key === node.value,
   }));
-  const title = node.translate(node.path, 'label');
-  const errorMessages = errors.map((err) => (
-    <strong key={err}>{node.translate(err, 'error')}</strong>
+  const title = node.translate('label');
+  const errorMessages = errors.map((error) => (
+    <strong key={error}>{node.translate('error', {error})}</strong>
   ));
 
   if (wrap) {
@@ -40,7 +36,7 @@ export function PolarisPolymorphicNode({
             </FormLayout>
           </Card.Section>
         </Card>
-        {variant && <RootNode context={context} node={variant} />}
+        {variant && <RootNode node={variant} />}
       </>
     );
   }
@@ -54,7 +50,7 @@ export function PolarisPolymorphicNode({
         value={node.value}
       />
       {errorMessages}
-      {variant && <RootNode context={context} node={variant} />}
+      {variant && <RootNode node={variant} />}
     </>
   );
 }

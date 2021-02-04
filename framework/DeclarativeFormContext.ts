@@ -1,27 +1,12 @@
-import {Decorator} from './Decorator';
 import {
   frameworkPlugins,
   frameworkValidators,
   frameworkFormatters,
 } from './defaults';
-import {FormatterFn, ReactComponent, ValidatorFn, TranslatorFn} from './types';
+import {Decorator, FormContext} from './types';
 
-export interface FormContext {
-  plugins: Record<string, ReactComponent>;
-  decorate?: (context: DeclarativeFormContext) => void;
-  validators: Record<string, ValidatorFn>;
-  values: Record<string, any>;
-  labels: Record<string, string>;
-  formatters:
-    | {
-        local: FormatterFn;
-        remote: FormatterFn;
-      }
-    | Record<string, FormatterFn>;
-  translators: {
-    label?: TranslatorFn;
-    error?: TranslatorFn;
-  };
+interface WithDecoratorFn {
+  decorate(ctx: DeclarativeFormContext): void;
 }
 
 export class DeclarativeFormContext implements FormContext {
@@ -42,7 +27,7 @@ export class DeclarativeFormContext implements FormContext {
     values = {},
     formatters = {},
     translators = {},
-  }: Partial<FormContext>) {
+  }: Partial<FormContext & WithDecoratorFn>) {
     this.plugins = {
       ...frameworkPlugins,
       ...plugins,
@@ -62,7 +47,7 @@ export class DeclarativeFormContext implements FormContext {
 
     this.translators = translators || [];
 
-    decorate(this);
+    decorate(this as FormContext);
   }
 
   public where(fn: Decorator['test']) {

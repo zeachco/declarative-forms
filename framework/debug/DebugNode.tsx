@@ -1,11 +1,9 @@
 import React from 'react';
 
-import {SchemaNode} from '../SchemaNode';
+import {NodeProps} from '../types';
 
-interface DebugProps {
-  children: React.ReactNode;
+interface DebugProps extends NodeProps {
   name: string;
-  node: SchemaNode;
 }
 
 const increment = 0.01;

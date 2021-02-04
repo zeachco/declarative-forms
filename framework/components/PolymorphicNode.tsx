@@ -1,27 +1,28 @@
 import React from 'react';
 
+import {NodeProps} from '../types';
 import {useNode} from '../utilities/hook';
 
-import {NodeProps, RootNode} from './RootNode';
+import {RootNode} from './RootNode';
 
-export function PolymorphicNode({node, context}: NodeProps) {
+export function PolymorphicNode({node}: NodeProps) {
   const {onChange, errors} = useNode(node);
   const variant = node.children[node.value];
 
   return (
     <>
       <label>
-        {node.translate(node.path, 'label')}:{' '}
+        {node.translate('label')}:{' '}
         <select onChange={handleChange}>
           {node.attributes.map((key) => (
             <option key={key}>{key}</option>
           ))}
         </select>{' '}
       </label>
-      {errors.map((err) => (
-        <strong key={err}>{node.translate(err, 'error')}</strong>
+      {errors.map((error) => (
+        <strong key={error}>{node.translate('error', {error})}</strong>
       ))}
-      {variant && <RootNode context={context} node={variant} />}
+      {variant && <RootNode node={variant} />}
     </>
   );
 

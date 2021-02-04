@@ -1,17 +1,16 @@
 import React from 'react';
 
+import {NodeProps} from '../types';
 import {useNode} from '../utilities/hook';
-
-import {NodeProps} from './RootNode';
 
 export function StringNode({node}: NodeProps) {
   const {onChange, errors, validate} = useNode(node);
   return (
     <label>
-      {node.translate(node.path, 'label')}:{' '}
+      {node.translate('label')}:{' '}
       <input value={node.value} onChange={handleChange} onBlur={handleBlur} />
-      {errors.map((err) => (
-        <strong key={err}>{node.translate(err, 'error')}</strong>
+      {errors.map((error) => (
+        <strong key={error}>{node.translate('error', {error})}</strong>
       ))}
     </label>
   );

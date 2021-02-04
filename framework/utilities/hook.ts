@@ -1,13 +1,13 @@
-import React from 'react';
+import {useEffect, useState} from 'react';
 
-import {SchemaNode} from '../SchemaNode';
+import {SchemaNode} from '../types';
 
 export function useNode(node: SchemaNode) {
   if (!node) {
     throw new Error('no Node provided in useNode hook');
   }
 
-  const [state, changeState] = React.useState({
+  const [state, changeState] = useState({
     errors: [] as string[],
     onChange,
     validate,
@@ -17,7 +17,7 @@ export function useNode(node: SchemaNode) {
   });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  React.useEffect(refreshListItems, [node.value]);
+  useEffect(refreshListItems, [node.value]);
 
   function onChange(value: any) {
     changeState({

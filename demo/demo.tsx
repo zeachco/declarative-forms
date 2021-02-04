@@ -8,30 +8,29 @@ import {
   Layout,
   Button,
 } from '@shopify/polaris';
-import '@shopify/polaris/dist/styles.css';
+import '@shopify/polaris/dist/styles.css
 
 import React from 'react';
+
 import {
   DeclarativeFormContext,
   RootNode,
   SchemaNode,
   SchemaNodeDefinitionLegacy,
 } from '../framework';
-import { PolarisStringNode } from './components/PolarisStringNode';
-import { formatValidator, lengthValidator } from './plugins/validators';
-import { translateError, translateLabel } from './plugins/translators';
-import { SCHEMA } from './schema';
-import { decorate } from './decorate';
+
+import {PolarisStringNode} from './components/PolarisStringNode';
+import {PolarisBooleanNode} from './components/PolarisBooleanNode';
+import {translateError, translateLabel} from './plugins/translators';
+import {SCHEMA} from './schema';
+import {decorate} from './decorate';
 
 const context = new DeclarativeFormContext({
   decorate,
   plugins: {
     string: PolarisStringNode,
     integer: PolarisStringNode, // HACK
-  },
-  validators: {
-    Format: formatValidator,
-    Length: lengthValidator,
+    boolean: PolarisBooleanNode,
   },
   translators: {
     label: translateLabel,
@@ -45,6 +44,8 @@ const schema: SchemaNodeDefinitionLegacy = {
 };
 
 const node = new SchemaNode(context, '', schema);
+// for debugger
+(window as any).node = node;
 
 export function App() {
   const [debug, setDebug] = React.useState(context.debug);
@@ -70,7 +71,7 @@ export function App() {
         <Page title="Demo">
           <Layout>
             <Layout.Section>
-              <RootNode context={context} node={node} key={debug.toString()} />
+              <RootNode node={node} key={debug.toString()} />
               <Card>
                 <Card.Section>
                   <Button primary onClick={handleSubmit}>
@@ -95,7 +96,3 @@ export function App() {
     setJson(node.data());
   }
 }
-
-// for debugger
-(window as any).node = node;
-(window as any).context = context;

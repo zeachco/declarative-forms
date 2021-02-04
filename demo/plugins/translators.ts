@@ -1,6 +1,8 @@
-export function translateLabel(path: string) {
+import {SchemaNode} from '../../framework';
+
+export function translateLabel(node: SchemaNode) {
   // HACK poorman translator mock
-  const pathEnd = path.split('.').reverse()[0] || path;
+  const pathEnd = node.path.split('.').reverse()[0] || node.path;
   return (
     pathEnd
       // space camel cased chars
@@ -12,7 +14,7 @@ export function translateLabel(path: string) {
   );
 }
 
-export function translateError(error: string) {
+export function translateError(_: SchemaNode, {error}: {error: string}) {
   // HACK poorman translator mock
   return error.split(/ ?:: ?/)[1] || error;
 }

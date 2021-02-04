@@ -3,7 +3,11 @@ import React from 'react';
 
 import {NodeProps, RootNode, SchemaNode, useNode} from '../../framework';
 
-export function PeopleListNode({node, context}: NodeProps) {
+interface Props {
+  deletable?: boolean;
+}
+
+export function PeopleListNode({node, deletable}: NodeProps & Props) {
   const {errors, addListItem} = useNode(node);
 
   const additionnalOwnersJsx: React.ReactNodeArray = [];
@@ -11,15 +15,18 @@ export function PeopleListNode({node, context}: NodeProps) {
   node.value.forEach((child: SchemaNode) => {
     // HACK to avoid react key collisions when deleting nodes
     const uid = Math.random();
-    additionnalOwnersJsx.push(
-      <RootNode key={uid} context={context} node={child} />,
-    );
+    additionnalOwnersJsx.push(<RootNode key={uid} node={child} />);
+    if (deletable) {
+      additionnalOwnersJsx.push(
+        <PeopleDeleteButton key={`${uid}_delete`} node={child} />,
+      );
+    }
   });
 
   return (
     <div>
-      {errors.map((err) => (
-        <strong key={err}>{node.translate(err, 'error')}</strong>
+      {errors.map((error) => (
+        <strong key={error}>{node.translate('error', {error})}</strong>
       ))}
       {additionnalOwnersJsx}
       <Button onClick={addListItem}>Add an owner</Button>

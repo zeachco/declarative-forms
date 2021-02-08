@@ -1,21 +1,22 @@
-import {Validator} from '../types';
+import {ValidationError, Validator} from '../types';
 
-export function presenceValidator(val: any, _options: Validator) {
+export function presenceValidator(
+  val: any,
+  _options: Validator,
+): ValidationError | null {
   return (Array.isArray(val) ? val.length : val)
-    ? ''
-    : 'Presence :: Field must be defined';
+    ? null
+    : new ValidationError('Presence');
 }
 
-function validateRegex(val: any, format: string) {
+function validateRegex(val: any, format: string): ValidationError | null {
   let exp = new RegExp('.*');
   try {
     exp = new RegExp(rubyRegexFromStackOverflow(format));
   } catch {
     exp = new RegExp(format);
   }
-  return exp.test(val)
-    ? ''
-    : `Format :: Field does not match expression ${format}`;
+  return exp.test(val) ? null : new ValidationError('Format', {format});
 }
 
 function rubyRegexFromStackOverflow(str: string) {
@@ -30,9 +31,12 @@ function rubyRegexFromStackOverflow(str: string) {
     .replace(/\s/, '');
 }
 
-export function formatValidator(val: any, options: Validator) {
+export function formatValidator(
+  val: any,
+  options: Validator,
+): ValidationError | null {
   if (!options.format) {
-    return '';
+    return null;
   }
 
   if (typeof options.format === 'string') {
@@ -41,15 +45,18 @@ export function formatValidator(val: any, options: Validator) {
 
   // eslint-disable-next-line no-console
   console.warn('unsupported options in FormatValidator');
-  return '';
+  return null;
 }
 
-export function lengthValidator(val: string, {maximum, minimum}: Validator) {
+export function lengthValidator(
+  val: string,
+  {maximum, minimum}: Validator,
+): ValidationError | null {
   if (maximum && val.length > maximum) {
-    return `Length :: value is too long, must be at most ${maximum} character`;
+    return new ValidationError(`MaximumLength`, {maximum});
   }
   if (minimum && val.length < minimum) {
-    return `Length :: value is too short, must be at least ${minimum} character`;
+    return new ValidationError(`MinimumLength`, {minimum});
   }
-  return '';
+  return null;
 }

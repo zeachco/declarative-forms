@@ -10,12 +10,16 @@ interface Props {
 export function PolarisPolymorphicNode({node, wrap}: NodeProps & Props) {
   const {onChange, errors} = useNode(node);
   const variant = node.children[node.value];
-  const options = node.attributes.map((key) => ({
-    value: key,
-    label: node.translate('label'),
-    disabled: key === node.value,
-  }));
-  const title = node.translate('label');
+  const options = node.attributes.map((key) => {
+    const child = node.children[key];
+    return {
+      value: key,
+      label: child.translate('path'),
+      disabled: key === node.value,
+    };
+  });
+  const title = node.translate('sectionTitle');
+  const label = node.translate('label');
   const errorMessages = errors.map((error) => (
     <strong key={error}>{node.translate('error', {error})}</strong>
   ));
@@ -27,7 +31,7 @@ export function PolarisPolymorphicNode({node, wrap}: NodeProps & Props) {
           <Card.Section>
             <FormLayout>
               <Select
-                label=""
+                label={label}
                 onChange={onChange}
                 options={options}
                 value={node.value}
@@ -44,7 +48,7 @@ export function PolarisPolymorphicNode({node, wrap}: NodeProps & Props) {
   return (
     <>
       <Select
-        label={title}
+        label={label}
         onChange={onChange}
         options={options}
         value={node.value}

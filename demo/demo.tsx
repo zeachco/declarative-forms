@@ -8,7 +8,7 @@ import {
   Layout,
   Button,
 } from '@shopify/polaris';
-import '@shopify/polaris/dist/styles.css
+import '@shopify/polaris/dist/styles.css';
 
 import React from 'react';
 

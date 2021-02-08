@@ -53,7 +53,7 @@ export function decorate(context: DeclarativeFormContext) {
     .where((node: SchemaNode) =>
       /legalEntity\..*\.personalDetails\.dateOfBirth/.test(node.path),
     )
-    .wrapWith(Card, {subdued: true})
+    .wrapWith(Card, {condensed: true})
     .packWith(FormLayout.Group, {condensed: true})
     .prependWith(TextField, {
       disabled: true,

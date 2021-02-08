@@ -15,6 +15,7 @@ export {
   DecoratorObject,
   FormContext,
   NodeProps,
+  ValidationError,
 } from './types';
 export {useNode} from './utilities/hook';
 export {DeclarativeFormContext} from './DeclarativeFormContext';

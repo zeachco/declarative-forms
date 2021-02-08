@@ -10,7 +10,7 @@ export function PolarisBooleanNode({node}: NodeProps) {
       label={node.translate('label')}
       onChange={update}
       checked={node.value}
-      error={errors}
+      error={errors.length ? errors : ''}
     />
   );
 

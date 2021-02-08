@@ -7,7 +7,10 @@ export type NodeValue = any;
 export type ReactComponent = any;
 export type FormatterFn = (value: any, type: string) => any;
 export type TranslatorFn = (node: SchemaNode, args?: any) => string;
-export type ValidatorFn = (val: NodeValue, options: Validator) => string;
+export type ValidatorFn = (
+  val: NodeValue,
+  options: Validator
+) => ValidationError | null;
 
 // Schema structure
 export interface Validator {
@@ -24,7 +27,7 @@ export interface Validator {
 }
 
 export interface SchemaNodeDefinitionLegacy {
-  type: NodeKind | NodeKind[] | {polymorphic: string[]};
+  type: NodeKind | NodeKind[] | { polymorphic: string[] };
   attributes?: Record<string, SchemaNodeDefinitionLegacy>;
   validators?: Validator[];
   meta?: Record<string, any>;
@@ -121,16 +124,16 @@ export class Decorator {
   private store<T extends Noop>(
     slotName: DecoratorKeys,
     fc: T,
-    props?: DecoratorPropsGetter<T>,
+    props?: DecoratorPropsGetter<T>
   ) {
-    this[slotName] = {Node: fc, props};
+    this[slotName] = { Node: fc, props };
     return this;
   }
 }
 
 // Schema Node
 export class SchemaNode {
-  public errors: string[] = [];
+  public errors: ValidationError[] = [];
   public children: Record<string, SchemaNode>;
   public schema: SchemaNodeDefinition;
   public value: NodeValue = null;
@@ -142,7 +145,7 @@ export class SchemaNode {
   constructor(
     public context: FormContext,
     public path: string,
-    schema: SchemaNodeDefinitionLegacy,
+    schema: SchemaNodeDefinitionLegacy
   ) {
     this.depth = this.path.split('.').length - 1;
     const formatter = this.context.formatters.local;
@@ -180,7 +183,7 @@ export class SchemaNode {
   }
 
   public translate(mode: 'label' | 'error' | string, args?: any): string {
-    const {translators} = this.context;
+    const { translators } = this.context;
     const translator =
       translators[mode as keyof typeof translators] || translators.default;
     if (!translator) {
@@ -261,7 +264,7 @@ export class SchemaNode {
   private saveDecorators() {
     this.context.decorators.forEach((decorator: Decorator) => {
       if (decorator.test(this)) {
-        Object.assign(this.decorator, decorator, {test: null});
+        Object.assign(this.decorator, decorator, { test: null });
       }
     });
   }
@@ -269,7 +272,7 @@ export class SchemaNode {
   // magic happend to be retrocompatible and set some flags
   // warning, this method have side effets
   private schemaCompatibilityLayer(
-    schema: SchemaNodeDefinitionLegacy,
+    schema: SchemaNodeDefinitionLegacy
   ): SchemaNodeDefinition {
     let type = schema.type || 'group';
 
@@ -295,4 +298,8 @@ export class SchemaNode {
       type: type as NodeKind,
     };
   }
+}
+
+export class ValidationError {
+  constructor(public type: string, public data?: Record<string, any>) {}
 }

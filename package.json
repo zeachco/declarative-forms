@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": false,
   "licence": "MIT",
-  "main": "src/index.ts",
+  "main": "dist/index.ts",
   "repository": {},
   "dependencies": {
     "@shopify/polaris": "^6.0.1",
@@ -14,11 +14,11 @@
     "react-dom": "~16.11.0"
   },
   "scripts": {
-    "start": "yarn dev",
+    "start": "rimraf .cache dist && parcel demo/index.html",
+    "build": "rimraf .cache dist && parcel build src/index.ts plugins/basic/inedx.ts plugins/polaris/inedx.ts",
     "_start": "react-scripts-ts start",
-    "build": "react-scripts-ts build",
-    "test": "react-scripts-ts test --env=jsdom",
-    "dev": "rimraf .cache dist && parcel demo/index.html"
+    "_build": "react-scripts-ts build",
+    "test": "react-scripts-ts test --env=jsdom"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.168",

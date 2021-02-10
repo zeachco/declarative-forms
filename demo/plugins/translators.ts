@@ -1,4 +1,4 @@
-import {SchemaNode} from '../../framework';
+import {SchemaNode, ValidationError} from '../../src';
 
 export function translateLabel(node: SchemaNode) {
   // HACK poorman translator mock
@@ -14,7 +14,11 @@ export function translateLabel(node: SchemaNode) {
   );
 }
 
-export function translateError(_: SchemaNode, {error}: {error: string}) {
+interface ErrorOptions {
+  error: ValidationError;
+}
+
+export function translateError(_: SchemaNode, {error}: ErrorOptions) {
   // HACK poorman translator mock
-  return error.split(/ ?:: ?/)[1] || error;
+  return `${error.type}`;
 }

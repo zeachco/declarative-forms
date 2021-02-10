@@ -2,7 +2,8 @@
   "name": "declarative-forms",
   "version": "0.0.0",
   "private": false,
-  "main": "framework/index.ts",
+  "licence": "MIT",
+  "main": "src/index.ts",
   "repository": {},
   "dependencies": {
     "@shopify/polaris": "^6.0.1",
@@ -12,10 +13,11 @@
     "react-dom": "~16.11.0"
   },
   "scripts": {
-    "start": "react-scripts-ts start",
+    "start": "yarn dev",
+    "_start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
-    "dev": "rimraf .cache dist && parcel index.html"
+    "dev": "rimraf .cache dist && parcel demo/index.html"
   },
   "devDependencies": {
     "parcel-bundler": "^1.12.4",

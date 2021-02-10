@@ -1,8 +1,8 @@
-import {BooleanNode} from './components/BooleanNode';
-import {ListNode} from './components/ListNode';
-import {NumericNode} from './components/NumericNode';
-import {PolymorphicNode} from './components/PolymorphicNode';
-import {StringNode} from './components/StringNode';
+import {BooleanNode} from '../plugins/basic/components/BooleanNode';
+import {ListNode} from '../plugins/basic/components/ListNode';
+import {NumericNode} from '../plugins/basic/components/NumericNode';
+import {PolymorphicNode} from '../plugins/basic/components/PolymorphicNode';
+import {StringNode} from '../plugins/basic/components/StringNode';
 import {localFormatter, remoteFormatter} from './utilities/formatters';
 import {
   formatValidator,

@@ -1,4 +1,4 @@
-export const SCHEMA = {
+export const V1 = {
   legalEntity: {
     type: {
       polymorphic: [

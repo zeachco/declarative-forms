@@ -1,7 +1,7 @@
 import React from 'react';
 
-import {NodeProps, SchemaNode} from '../types';
-import {useNode} from '../utilities/hook';
+import {NodeProps, SchemaNode} from '../../../src/types';
+import {useNode} from '../../../src/utilities/hook';
 
 import {RootNode} from './RootNode';
 

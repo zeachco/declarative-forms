@@ -27,7 +27,7 @@ export interface Validator {
 }
 
 export interface SchemaNodeDefinitionLegacy {
-  type: NodeKind | NodeKind[] | { polymorphic: string[] };
+  type: NodeKind | NodeKind[] | {polymorphic: string[]};
   attributes?: Record<string, SchemaNodeDefinitionLegacy>;
   validators?: Validator[];
   meta?: Record<string, any>;
@@ -126,7 +126,7 @@ export class Decorator {
     fc: T,
     props?: DecoratorPropsGetter<T>
   ) {
-    this[slotName] = { Node: fc, props };
+    this[slotName] = {Node: fc, props};
     return this;
   }
 }
@@ -168,22 +168,22 @@ export class SchemaNode {
     return this.validate();
   }
 
-  public validate() {
+  public validate(): ValidationError[] {
     if (!this.schema.validators) return [];
 
     this.errors = this.schema.validators
       .map((config) => {
         const fn = this.context.validators[config.name];
-        if (!fn) return '';
+        if (!fn) return null;
         return fn(this.value, config);
       })
-      .filter(Boolean);
+      .filter(Boolean) as ValidationError[];
 
     return this.errors;
   }
 
   public translate(mode: 'label' | 'error' | string, args?: any): string {
-    const { translators } = this.context;
+    const {translators} = this.context;
     const translator =
       translators[mode as keyof typeof translators] || translators.default;
     if (!translator) {
@@ -264,7 +264,7 @@ export class SchemaNode {
   private saveDecorators() {
     this.context.decorators.forEach((decorator: Decorator) => {
       if (decorator.test(this)) {
-        Object.assign(this.decorator, decorator, { test: null });
+        Object.assign(this.decorator, decorator, {test: null});
       }
     });
   }

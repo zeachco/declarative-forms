@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react';
 
-import {SchemaNode} from '../types';
+import {SchemaNode, ValidationError} from '../types';
 
 export function useNode(node: SchemaNode) {
   if (!node) {
@@ -8,7 +8,7 @@ export function useNode(node: SchemaNode) {
   }
 
   const [state, changeState] = useState({
-    errors: [] as string[],
+    errors: [] as ValidationError[],
     onChange,
     validate,
     removeListItem,

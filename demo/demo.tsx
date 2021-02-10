@@ -17,30 +17,26 @@ import {
   RootNode,
   SchemaNode,
   SchemaNodeDefinitionLegacy,
-} from '../framework';
+} from '../src';
 
-import {PolarisStringNode} from './components/PolarisStringNode';
-import {PolarisBooleanNode} from './components/PolarisBooleanNode';
 import {translateError, translateLabel} from './plugins/translators';
-import {SCHEMA} from './schema';
 import {decorate} from './decorate';
+import {V1} from './v1';
+import {V2} from './v2';
 
 const context = new DeclarativeFormContext({
   decorate,
-  plugins: {
-    string: PolarisStringNode,
-    integer: PolarisStringNode, // HACK
-    boolean: PolarisBooleanNode,
-  },
   translators: {
     label: translateLabel,
+    sectionTitle: translateLabel,
+    path: translateLabel,
     error: translateError,
   },
 });
 
 const schema: SchemaNodeDefinitionLegacy = {
   type: 'group',
-  attributes: SCHEMA,
+  attributes: V1,
 };
 
 const node = new SchemaNode(context, '', schema);

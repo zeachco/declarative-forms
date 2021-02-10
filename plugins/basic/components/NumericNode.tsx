@@ -1,14 +1,19 @@
 import React from 'react';
 
-import {NodeProps} from '../types';
-import {useNode} from '../utilities/hook';
+import {NodeProps} from '../../../src/types';
+import {useNode} from '../../../src/utilities/hook';
 
-export function StringNode({node}: NodeProps) {
+export function NumericNode({node}: NodeProps) {
   const {onChange, errors, validate} = useNode(node);
   return (
     <label>
       {node.translate('label')}:{' '}
-      <input value={node.value} onChange={handleChange} onBlur={handleBlur} />
+      <input
+        type="number"
+        value={node.value}
+        onChange={handleChange}
+        onBlur={handleBlur}
+      />
       {errors.map((error) => (
         <strong key={error}>{node.translate('error', {error})}</strong>
       ))}
@@ -16,7 +21,7 @@ export function StringNode({node}: NodeProps) {
   );
 
   function handleChange(ev: any) {
-    onChange(ev.target.value);
+    onChange(Number(ev.target.value));
   }
 
   function handleBlur() {

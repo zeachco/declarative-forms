@@ -1,9 +1,9 @@
 import React from 'react';
 
-import {useNode} from '../utilities/hook';
-import {NodeProps, ReactComponent, SchemaNode} from '../types';
-import {getFunctionName} from '../debug/utils';
-import {DebugNode} from '../debug/DebugNode';
+import {useNode} from '../../../src/utilities/hook';
+import {NodeProps, ReactComponent, SchemaNode} from '../../../src/types';
+import {getFunctionName} from '../../../src/debug/utils';
+import {DebugNode} from '../../../src/debug/DebugNode';
 
 export function RootNode({node}: NodeProps) {
   const {errors} = useNode(node);

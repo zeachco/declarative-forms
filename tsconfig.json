@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "lib": ["DOM.Iterable", "DOM", "ESNext"],
     "resolveJsonModule": true,
     "target": "ES2015",
     "jsx": "react",
@@ -9,8 +10,5 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
-  },
-  "files": [],
-  "include": ["."],
-  "references": []
+  }
 }

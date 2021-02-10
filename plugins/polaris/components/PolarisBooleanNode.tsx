@@ -1,7 +1,6 @@
 import React from 'react';
 import {Checkbox} from '@shopify/polaris';
-
-import {NodeProps, useNode} from '../../framework';
+import {NodeProps, useNode} from '../../../src';
 
 export function PolarisBooleanNode({node}: NodeProps) {
   const {onChange, validate, errors} = useNode(node);
@@ -10,7 +9,11 @@ export function PolarisBooleanNode({node}: NodeProps) {
       label={node.translate('label')}
       onChange={update}
       checked={node.value}
-      error={errors.length ? errors : ''}
+      error={
+        errors.length
+          ? errors.map((error) => node.translate('error', {error}))
+          : ''
+      }
     />
   );
 

@@ -1,27 +1,28 @@
 import React from 'react';
-import {Card, FormLayout, TextField} from '@shopify/polaris';
+import {Card} from '@shopify/polaris';
 
-import {DeclarativeFormContext, NodeProps, SchemaNode} from '../framework';
-
-import {
-  PolarisPolymorphicNode,
-  PolarisRangeSlider,
-  PeopleDeleteButton,
-  PeopleListNode,
-  PolarisBooleanNode,
-} from './components';
+import {DeclarativeFormContext, NodeProps, SchemaNode} from '../src';
+import {PeopleDeleteButton, PeopleListNode} from './components/PeopleListNode';
+import {PolarisPolymorphicNode} from '../plugins/polaris/components/PolarisPolymorphicNode';
+import {PolarisBooleanNode} from '../plugins/polaris/components/PolarisBooleanNode';
+import {PolarisRangeSlider} from '../plugins/polaris/components/PolarisRangeSlider';
+import {PolarisStringNode} from '../plugins/polaris/components/PolarisStringNode';
 
 export function decorate(context: DeclarativeFormContext) {
   context
-    .where((node) => node.schema.type === 'polymorphic')
+    .where(({schema}) => schema.type === 'polymorphic')
     .replaceWith(PolarisPolymorphicNode, {wrap: true});
 
   context
-    .where((node) => node.schema.type === 'AdditionalOwner' && node.isList)
+    .where(({schema}) => ['string', 'integer'].includes(schema.type))
+    .replaceWith(PolarisStringNode);
+
+  context
+    .where(({schema, isList}) => schema.type === 'AdditionalOwner' && isList)
     .replaceWith(PeopleListNode);
 
   context
-    .where((node) => node.schema.type === 'AdditionalOwner' && !node.isList)
+    .where(({schema, isList}) => schema.type === 'AdditionalOwner' && !isList)
     .packWith(({children, node}: NodeProps) => {
       return (
         <Card title={node.translate('label')}>
@@ -32,11 +33,11 @@ export function decorate(context: DeclarativeFormContext) {
     .appendWith(PeopleDeleteButton);
 
   context
-    .where((node) => node.schema.type === 'boolean')
+    .where(({schema}) => schema.type === 'boolean')
     .replaceWith(PolarisBooleanNode);
 
   context
-    .where((node) => node.depth === 3)
+    .where(({depth}) => depth === 2)
     .wrapWith(({children, node}: NodeProps) => {
       return (
         <Card title={node.translate('label')}>
@@ -46,23 +47,6 @@ export function decorate(context: DeclarativeFormContext) {
     });
 
   context
-    .where((node: SchemaNode) => /ownershipPercentage$/.test(node.path))
+    .where(({path}) => /ownershipPercentage$/.test(path))
     .replaceWith(PolarisRangeSlider, {min: 0, max: 100});
-
-  context
-    .where((node: SchemaNode) =>
-      /legalEntity\..*\.personalDetails\.dateOfBirth/.test(node.path),
-    )
-    .wrapWith(Card, {condensed: true})
-    .packWith(FormLayout.Group, {condensed: true})
-    .prependWith(TextField, {
-      disabled: true,
-      value: 'before',
-      label: 'position',
-    })
-    .appendWith(TextField, {
-      disabled: true,
-      value: 'after',
-      label: 'position',
-    });
 }

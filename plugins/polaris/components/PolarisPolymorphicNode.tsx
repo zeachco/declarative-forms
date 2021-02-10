@@ -1,7 +1,6 @@
 import {Card, FormLayout, Select} from '@shopify/polaris';
 import React from 'react';
-
-import {NodeProps, RootNode, useNode} from '../../framework';
+import {NodeProps, RootNode, useNode} from '../../../src';
 
 interface Props {
   wrap?: boolean;
@@ -21,7 +20,7 @@ export function PolarisPolymorphicNode({node, wrap}: NodeProps & Props) {
   const title = node.translate('sectionTitle');
   const label = node.translate('label');
   const errorMessages = errors.map((error) => (
-    <strong key={error}>{node.translate('error', {error})}</strong>
+    <strong key={error.type}>{node.translate('error', {error})}</strong>
   ));
 
   if (wrap) {

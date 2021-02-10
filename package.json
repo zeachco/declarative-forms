@@ -9,6 +9,7 @@
     "@shopify/polaris": "^6.0.1",
     "@types/react": "^16.8.2",
     "@types/react-dom": "^16.8.0",
+    "lodash": "^4.17.20",
     "react": "~16.11.0",
     "react-dom": "~16.11.0"
   },
@@ -20,6 +21,7 @@
     "dev": "rimraf .cache dist && parcel demo/index.html"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.168",
     "parcel-bundler": "^1.12.4",
     "prettier": "^2.2.1",
     "react-scripts-ts": "latest",

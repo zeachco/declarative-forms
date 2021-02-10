@@ -1,12 +1,10 @@
-import React from 'react';
-import {Card} from '@shopify/polaris';
-
-import {DeclarativeFormContext, NodeProps, SchemaNode} from '../src';
+import {DeclarativeFormContext} from '../src';
 import {PeopleDeleteButton, PeopleListNode} from './components/PeopleListNode';
 import {PolarisPolymorphicNode} from '../plugins/polaris/components/PolarisPolymorphicNode';
 import {PolarisBooleanNode} from '../plugins/polaris/components/PolarisBooleanNode';
 import {PolarisRangeSlider} from '../plugins/polaris/components/PolarisRangeSlider';
 import {PolarisStringNode} from '../plugins/polaris/components/PolarisStringNode';
+import {FormCardContainer} from './components/FormCardContainer';
 
 export function decorate(context: DeclarativeFormContext) {
   context
@@ -23,28 +21,14 @@ export function decorate(context: DeclarativeFormContext) {
 
   context
     .where(({schema, isList}) => schema.type === 'AdditionalOwner' && !isList)
-    .packWith(({children, node}: NodeProps) => {
-      return (
-        <Card title={node.translate('label')}>
-          <Card.Section>{children}</Card.Section>
-        </Card>
-      );
-    })
+    .packWith(FormCardContainer)
     .appendWith(PeopleDeleteButton);
 
   context
     .where(({schema}) => schema.type === 'boolean')
     .replaceWith(PolarisBooleanNode);
 
-  context
-    .where(({depth}) => depth === 2)
-    .wrapWith(({children, node}: NodeProps) => {
-      return (
-        <Card title={node.translate('label')}>
-          <Card.Section>{children}</Card.Section>
-        </Card>
-      );
-    });
+  context.where(({depth, schema}) => depth === 2).wrapWith(FormCardContainer);
 
   context
     .where(({path}) => /ownershipPercentage$/.test(path))

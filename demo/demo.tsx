@@ -7,6 +7,7 @@ import {
   Card,
   Layout,
   Button,
+  Form,
 } from '@shopify/polaris';
 import '@shopify/polaris/dist/styles.css';
 
@@ -23,8 +24,12 @@ import {translateError, translateLabel} from './plugins/translators';
 import {decorate} from './decorate';
 import {V1} from './v1';
 import {V2} from './v2';
+import {FormCardContainer} from './components/FormCardContainer';
+import {PolarisStringNode} from '../plugins/polaris/components/PolarisStringNode';
+import {PolarisBooleanNode} from '../plugins/polaris/components/PolarisBooleanNode';
+import {get} from 'lodash';
 
-const context = new DeclarativeFormContext({
+const context1 = new DeclarativeFormContext({
   decorate,
   translators: {
     label: translateLabel,
@@ -34,17 +39,51 @@ const context = new DeclarativeFormContext({
   },
 });
 
-const schema: SchemaNodeDefinitionLegacy = {
+const labelsForV2 = JSON.parse(V2.labels);
+function translateLabelsForV2(key: string) {
+  return (node: SchemaNode) =>
+    get<string>(labelsForV2, [node.path, key].join('.'), '');
+}
+
+const context2 = new DeclarativeFormContext({
+  decorate(ctx) {
+    ctx
+      .where(({schema}) => schema.type === 'business_address_verification')
+      .wrapWith(FormCardContainer, {});
+
+    ctx
+      .where(({schema}) => ['string', 'integer'].includes(schema.type))
+      .replaceWith(PolarisStringNode);
+    ctx
+      .where(({schema}) => 'boolean' === schema.type)
+      .replaceWith(PolarisBooleanNode);
+  },
+  translators: {
+    label: translateLabelsForV2('label'),
+    sectionTitle: translateLabelsForV2('sectionTitle'),
+    path: translateLabelsForV2('path'),
+    error: translateError,
+  },
+  values: JSON.parse(V2.values),
+});
+
+const schema1: SchemaNodeDefinitionLegacy = {
   type: 'group',
   attributes: V1,
 };
+const schema2: SchemaNodeDefinitionLegacy = {
+  type: V2.kind,
+  attributes: JSON.parse(V2.schema),
+};
 
-const node = new SchemaNode(context, '', schema);
+const node1 = new SchemaNode(context1, '', schema1);
+const node2 = new SchemaNode(context2, '', schema2);
 // for debugger
-(window as any).node = node;
+(window as any).node1 = node1;
+(window as any).node2 = node2;
 
 export function App() {
-  const [debug, setDebug] = React.useState(context.debug);
+  const [debug, setDebug] = React.useState(context1.debug);
   const [json, setJson] = React.useState<any>({});
 
   return (
@@ -65,30 +104,43 @@ export function App() {
         }
       >
         <Page title="Demo">
-          <Layout>
-            <Layout.Section>
-              <RootNode node={node} key={debug.toString()} />
-              <Card>
-                <Card.Section>
-                  <Button primary onClick={handleSubmit}>
-                    Submit
-                  </Button>
-                  <pre>{JSON.stringify(json, null, 1)}</pre>
-                </Card.Section>
-              </Card>
-            </Layout.Section>
-          </Layout>
+          <Form onSubmit={handleSubmit}>
+            <Layout>
+              <Layout.Section oneHalf>
+                <RootNode node={node1} />
+              </Layout.Section>
+              <Layout.Section oneHalf>
+                <RootNode node={node2} />
+              </Layout.Section>
+              <Layout.Section>
+                <Card>
+                  <Card.Section>
+                    <Button primary submit>
+                      Submit
+                    </Button>
+                    <pre>{JSON.stringify(json, null, 1)}</pre>
+                  </Card.Section>
+                </Card>
+              </Layout.Section>
+            </Layout>
+          </Form>
         </Page>
       </Frame>
     </AppProvider>
   );
 
   function handleSwitch(checked: boolean) {
-    context.debug = checked;
-    setDebug(context.debug);
+    context1.debug = checked;
+    context2.debug = checked;
+    setDebug(context1.debug);
   }
 
   function handleSubmit() {
-    setJson(node.data());
+    const data = {
+      v1: node1.data(),
+      v2: node2.data(),
+    };
+    console.log(data);
+    setJson(data);
   }
 }

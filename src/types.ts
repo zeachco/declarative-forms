@@ -60,7 +60,6 @@ export interface FormContext {
     Format?: ValidatorFn;
   };
   values: Record<string, any>;
-  labels: Record<string, string>;
   formatters: Record<string, FormatterFn> & {
     local?: FormatterFn;
     remote?: FormatterFn;

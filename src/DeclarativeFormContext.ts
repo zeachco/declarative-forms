@@ -12,7 +12,6 @@ interface WithDecoratorFn {
 export class DeclarativeFormContext implements FormContext {
   public plugins: FormContext['plugins'];
   public validators: FormContext['plugins'];
-  public labels: FormContext['labels'];
   public values: FormContext['values'];
   public translators: FormContext['translators'];
   public formatters: FormContext['formatters'];
@@ -23,7 +22,6 @@ export class DeclarativeFormContext implements FormContext {
     plugins = {},
     decorate = () => {},
     validators = {},
-    labels = {},
     values = {},
     formatters = {},
     translators = {},
@@ -38,7 +36,6 @@ export class DeclarativeFormContext implements FormContext {
       ...validators,
     };
 
-    this.labels = labels || {};
     this.values = values || {};
     this.formatters = {
       ...frameworkFormatters,

@@ -1,6 +1,6 @@
 import {Card, FormLayout, Select} from '@shopify/polaris';
 import React from 'react';
-import {NodeProps, RootNode, useNode} from '../../../src';
+import {NodeProps, RootNode, useNode} from '../../..';
 
 interface Props {
   wrap?: boolean;

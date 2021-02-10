@@ -25,9 +25,8 @@ import {decorate} from './decorate';
 import {V1} from './v1';
 import {V2} from './v2';
 import {FormCardContainer} from './components/FormCardContainer';
-import {PolarisStringNode} from '../plugins/polaris/components/PolarisStringNode';
-import {PolarisBooleanNode} from '../plugins/polaris/components/PolarisBooleanNode';
 import {get} from 'lodash';
+import {PolarisBooleanNode, PolarisStringNode} from '../src/plugins/polaris';
 
 const context1 = new DeclarativeFormContext({
   decorate,
@@ -47,16 +46,16 @@ function translateLabelsForV2(key: string) {
 
 const context2 = new DeclarativeFormContext({
   decorate(ctx) {
+    Object.assign(ctx.plugins, {
+      string: PolarisStringNode,
+      integer: PolarisStringNode,
+      number: PolarisStringNode,
+      boolean: PolarisBooleanNode,
+    });
+
     ctx
       .where(({schema}) => schema.type === 'business_address_verification')
       .wrapWith(FormCardContainer, {});
-
-    ctx
-      .where(({schema}) => ['string', 'integer'].includes(schema.type))
-      .replaceWith(PolarisStringNode);
-    ctx
-      .where(({schema}) => 'boolean' === schema.type)
-      .replaceWith(PolarisBooleanNode);
   },
   translators: {
     label: translateLabelsForV2('label'),

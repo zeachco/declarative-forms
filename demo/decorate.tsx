@@ -1,19 +1,27 @@
 import {DeclarativeFormContext} from '../src';
-import {PeopleDeleteButton, PeopleListNode} from './components/PeopleListNode';
-import {PolarisPolymorphicNode} from '../plugins/polaris/components/PolarisPolymorphicNode';
-import {PolarisBooleanNode} from '../plugins/polaris/components/PolarisBooleanNode';
-import {PolarisRangeSlider} from '../plugins/polaris/components/PolarisRangeSlider';
-import {PolarisStringNode} from '../plugins/polaris/components/PolarisStringNode';
-import {FormCardContainer} from './components/FormCardContainer';
+import {
+  PeopleDeleteButton,
+  PeopleListNode,
+  FormCardContainer,
+} from './components';
+import {
+  PolarisBooleanNode,
+  PolarisPolymorphicNode,
+  PolarisRangeSlider,
+  PolarisStringNode,
+} from '../src/plugins/polaris';
 
 export function decorate(context: DeclarativeFormContext) {
+  Object.assign(context.plugins, {
+    string: PolarisStringNode,
+    integer: PolarisStringNode,
+    number: PolarisStringNode,
+    boolean: PolarisBooleanNode,
+  });
+
   context
     .where(({schema}) => schema.type === 'polymorphic')
     .replaceWith(PolarisPolymorphicNode, {wrap: true});
-
-  context
-    .where(({schema}) => ['string', 'integer'].includes(schema.type))
-    .replaceWith(PolarisStringNode);
 
   context
     .where(({schema, isList}) => schema.type === 'AdditionalOwner' && isList)
@@ -24,11 +32,7 @@ export function decorate(context: DeclarativeFormContext) {
     .packWith(FormCardContainer)
     .appendWith(PeopleDeleteButton);
 
-  context
-    .where(({schema}) => schema.type === 'boolean')
-    .replaceWith(PolarisBooleanNode);
-
-  context.where(({depth, schema}) => depth === 2).wrapWith(FormCardContainer);
+  context.where(({depth}) => depth === 2).wrapWith(FormCardContainer);
 
   context
     .where(({path}) => /ownershipPercentage$/.test(path))

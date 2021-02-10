@@ -1,7 +1,17 @@
-import {FormContext} from '../../src';
-import {PolarisBooleanNode} from './components/PolarisBooleanNode';
-import {PolarisPolymorphicNode} from './components/PolarisPolymorphicNode';
-import {PolarisStringNode} from './components/PolarisStringNode';
+import {FormContext} from '../..';
+import {
+  PolarisBooleanNode,
+  PolarisPolymorphicNode,
+  PolarisStringNode,
+  PolarisRangeSlider,
+} from './components';
+
+export {
+  PolarisBooleanNode,
+  PolarisPolymorphicNode,
+  PolarisStringNode,
+  PolarisRangeSlider,
+};
 
 export function decorateWithPolarisComponents(context: FormContext) {
   Object.assign(context.plugins, {

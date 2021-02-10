@@ -1,7 +1,7 @@
 import React from 'react';
 
-import {NodeProps} from '../../../src/types';
-import {useNode} from '../../../src/utilities/hook';
+import {NodeProps} from '../../../types';
+import {useNode} from '../../../utilities/hook';
 
 export function BooleanNode({node}: NodeProps) {
   const {onChange, errors, validate} = useNode(node);

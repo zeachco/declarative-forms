@@ -1,7 +1,7 @@
 import React from 'react';
 
-import {NodeProps} from '../../../src/types';
-import {useNode} from '../../../src/utilities/hook';
+import {NodeProps} from '../../../types';
+import {useNode} from '../../../utilities/hook';
 
 export function StringNode({node}: NodeProps) {
   const {onChange, errors, validate} = useNode(node);
@@ -10,7 +10,7 @@ export function StringNode({node}: NodeProps) {
       {node.translate('label')}:{' '}
       <input value={node.value} onChange={handleChange} onBlur={handleBlur} />
       {errors.map((error) => (
-        <strong key={error}>{node.translate('error', {error})}</strong>
+        <strong key={error.type}>{node.translate('error', {error})}</strong>
       ))}
     </label>
   );

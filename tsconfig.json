@@ -10,5 +10,10 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
-  }
+  },
+  "files": [
+    "./src/index.ts",
+    "./src/plugins/polaris/index.ts",
+    "./src/plugins/base/index.ts"
+  ]
 }

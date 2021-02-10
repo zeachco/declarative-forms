@@ -1,6 +1,6 @@
 import {TextField} from '@shopify/polaris';
 import React from 'react';
-import {ValidationError, NodeProps, useNode} from '../../../src';
+import {ValidationError, NodeProps, useNode} from '../../..';
 
 export function PolarisStringNode({node, ...props}: NodeProps & any) {
   const {onChange, errors, validate} = useNode(node);

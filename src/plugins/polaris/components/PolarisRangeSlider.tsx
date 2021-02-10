@@ -1,7 +1,7 @@
 import {RangeSlider} from '@shopify/polaris';
 import React from 'react';
 
-import {NodeProps, useNode} from '../../../src';
+import {NodeProps, useNode} from '../../..';
 
 export function PolarisRangeSlider({node, ...props}: NodeProps) {
   const {onChange, errors} = useNode(node);

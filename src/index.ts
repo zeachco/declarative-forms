@@ -1,4 +1,4 @@
-export {RootNode} from '../plugins/basic/components/RootNode';
+export {RootNode} from './utilities/RootNode';
 export {
   NodeKind,
   NodeValue,

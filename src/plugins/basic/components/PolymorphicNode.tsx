@@ -1,9 +1,9 @@
 import React from 'react';
 
-import {NodeProps} from '../../../src/types';
-import {useNode} from '../../../src/utilities/hook';
+import {NodeProps} from '../../../types';
+import {useNode} from '../../../utilities/hook';
 
-import {RootNode} from './RootNode';
+import {RootNode} from '../../../utilities/RootNode';
 
 export function PolymorphicNode({node}: NodeProps) {
   const {onChange, errors} = useNode(node);

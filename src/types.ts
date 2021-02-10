@@ -152,7 +152,7 @@ export class SchemaNode {
     this.value = value;
     this.schema = this.schemaCompatibilityLayer(schema);
     if (formatter) {
-      this.value = formatter(value, this.schema.type);
+      this.value = formatter(this.value, this.schema.type);
     }
     this.children = this.buildChildren();
     this.saveDecorators();

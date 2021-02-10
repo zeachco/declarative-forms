@@ -28,6 +28,6 @@ export const frameworkValidators: FormContext['validators'] = {
 };
 
 export const frameworkFormatters: FormContext['formatters'] = {
-  // remote: remoteFormatter,
-  // local: localFormatter,
+  remote: remoteFormatter,
+  local: localFormatter,
 };

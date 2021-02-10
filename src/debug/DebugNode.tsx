@@ -18,9 +18,9 @@ function getNextColor() {
 export function DebugNode({children, node, name = ''}: DebugProps) {
   const color = getNextColor();
   const style = {
-    boxShadow: `inset 0 0 3px 1px #${color}, inset -.5em 0 2em -.5em #${color}44`,
+    boxShadow: `inset 0 0 3px 1px #${color}, inset -.5em 0 2em -.5em #${color}44, 0 0 1em 1px #${color}44`,
     backgroundColor: `#${color}08`,
-    padding: '.1em 0 .1em .6em',
+    padding: '.2em .6em',
     margin: '.2em',
     borderRadius: '.5em',
   };

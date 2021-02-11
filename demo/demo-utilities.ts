@@ -1,4 +1,6 @@
-import {SchemaNode, ValidationError} from '../../src';
+import {get} from 'lodash';
+import {SchemaNode, ValidationError} from '../src';
+import {V2} from './v2';
 
 export function translateLabel(node: SchemaNode) {
   // HACK poorman translator mock
@@ -21,4 +23,10 @@ interface ErrorOptions {
 export function translateError(_: SchemaNode, {error}: ErrorOptions) {
   // HACK poorman translator mock
   return `${error.type}`;
+}
+
+const labelsForV2 = JSON.parse(V2.labels);
+export function translateLabelsForV2(key: string) {
+  return (node: SchemaNode) =>
+    get<string>(labelsForV2, [node.path, key].join('.'), '');
 }

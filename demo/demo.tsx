@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   AppProvider,
   Checkbox,
@@ -10,26 +11,69 @@ import {
   Form,
 } from '@shopify/polaris';
 import '@shopify/polaris/dist/styles.css';
-
-import React from 'react';
-
 import {
   DeclarativeFormContext,
   RootNode,
   SchemaNode,
   SchemaNodeDefinitionLegacy,
 } from '../src';
-
-import {translateError, translateLabel} from './plugins/translators';
-import {decorate} from './decorate';
 import {V1} from './v1';
 import {V2} from './v2';
 import {FormCardContainer} from './components/FormCardContainer';
-import {get} from 'lodash';
-import {PolarisBooleanNode, PolarisStringNode} from '../src/plugins/polaris';
+import {
+  PolarisBooleanNode,
+  PolarisPolymorphicNode,
+  PolarisRangeSlider,
+  PolarisStringNode,
+} from '../src/plugins/polaris';
+import {PeopleDeleteButton, PeopleListNode} from './components';
+import {
+  translateError,
+  translateLabel,
+  translateLabelsForV2,
+} from './demo-utilities';
 
 const context1 = new DeclarativeFormContext({
-  decorate,
+  decorate(ctx) {
+    Object.assign(ctx.plugins, {
+      string: PolarisStringNode,
+      integer: PolarisStringNode,
+      number: PolarisStringNode,
+      boolean: PolarisBooleanNode,
+    });
+
+    ctx
+      .where(({schema}) => schema.type === 'polymorphic')
+      .replaceWith(PolarisPolymorphicNode, ({depth}) => ({
+        wrap: depth === 0,
+      }));
+
+    // ctx
+    //   .where(({schema, isList}) => schema.type === 'AdditionalOwner' && isList)
+    //   .replaceWith(PeopleListNode);
+
+    // ctx
+    //   .where(({schema, isList}) => schema.type === 'AdditionalOwner' && !isList)
+    //   .packWith(FormCardContainer)
+    //   .appendWith(PeopleDeleteButton);
+
+    // 👆 is the same as 👇
+
+    ctx
+      .where(({path}) => /AdditionalOwner$/.test(path))
+      .replaceWith(PeopleListNode);
+
+    ctx
+      .where(({path}) => /AdditionalOwner\.[0-9]+$/.test(path))
+      .packWith(FormCardContainer)
+      .appendWith(PeopleDeleteButton);
+
+    ctx.where(({depth}) => depth === 2).wrapWith(FormCardContainer);
+
+    ctx
+      .where(({path}) => /ownershipPercentage$/.test(path))
+      .replaceWith(PolarisRangeSlider, {min: 0, max: 100});
+  },
   translators: {
     label: translateLabel,
     sectionTitle: translateLabel,
@@ -37,12 +81,6 @@ const context1 = new DeclarativeFormContext({
     error: translateError,
   },
 });
-
-const labelsForV2 = JSON.parse(V2.labels);
-function translateLabelsForV2(key: string) {
-  return (node: SchemaNode) =>
-    get<string>(labelsForV2, [node.path, key].join('.'), '');
-}
 
 const context2 = new DeclarativeFormContext({
   decorate(ctx) {
@@ -70,6 +108,7 @@ const schema1: SchemaNodeDefinitionLegacy = {
   type: 'group',
   attributes: V1,
 };
+
 const schema2: SchemaNodeDefinitionLegacy = {
   type: V2.kind,
   attributes: JSON.parse(V2.schema),
@@ -85,42 +124,56 @@ export function App() {
   const [debug, setDebug] = React.useState(context1.debug);
   const [json, setJson] = React.useState<any>({});
 
+  const formV1Jsx = (
+    <Layout.Section oneHalf>
+      <RootNode node={node1} />
+    </Layout.Section>
+  );
+
+  const formV2Jsx = (
+    <Layout.Section oneHalf>
+      <RootNode node={node2} />
+    </Layout.Section>
+  );
+
+  const formSubmitJsx = (
+    <Layout.Section>
+      <Card>
+        <Card.Section>
+          <Button primary submit>
+            Submit
+          </Button>
+          <pre>{JSON.stringify(json, null, 1)}</pre>
+        </Card.Section>
+      </Card>
+    </Layout.Section>
+  );
+
   return (
     <AppProvider i18n={undefined as any}>
       <Frame
         topBar={
-          <Card>
-            <Page>
-              <FormLayout>
-                <Checkbox
-                  label="Debug structure"
-                  checked={debug}
-                  onChange={handleSwitch}
-                />
-              </FormLayout>
-            </Page>
-          </Card>
+          <Layout>
+            <Card>
+              <Card.Section>
+                <FormLayout>
+                  <Checkbox
+                    label="Debug structure"
+                    checked={debug}
+                    onChange={handleSwitch}
+                  />
+                </FormLayout>
+              </Card.Section>
+            </Card>
+          </Layout>
         }
       >
         <Page title="Demo">
           <Form onSubmit={handleSubmit}>
             <Layout>
-              <Layout.Section oneHalf>
-                <RootNode node={node1} />
-              </Layout.Section>
-              <Layout.Section oneHalf>
-                <RootNode node={node2} />
-              </Layout.Section>
-              <Layout.Section>
-                <Card>
-                  <Card.Section>
-                    <Button primary submit>
-                      Submit
-                    </Button>
-                    <pre>{JSON.stringify(json, null, 1)}</pre>
-                  </Card.Section>
-                </Card>
-              </Layout.Section>
+              {formV1Jsx}
+              {formV2Jsx}
+              {formSubmitJsx}
             </Layout>
           </Form>
         </Page>
@@ -131,7 +184,7 @@ export function App() {
   function handleSwitch(checked: boolean) {
     context1.debug = checked;
     context2.debug = checked;
-    setDebug(context1.debug);
+    setDebug(checked);
   }
 
   function handleSubmit() {

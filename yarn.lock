@@ -807,10 +807,17 @@
     "@babel/types" "^7.4.4"
     esutils "^2.0.2"
 
-"@babel/runtime@^7.4.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7":
+"@babel/runtime@^7.4.4", "@babel/runtime@^7.8.4":
   version "7.12.5"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.12.5.tgz#410e7e487441e1b360c29be715d870d9b985882e"
   integrity sha512-plcc+hbExy3McchJCEQG3knOsuh3HH+Prx1P6cLIkET/0dLuQDEnrT+s27Axgc9bqfsmNUNHfscgMUdBpC9xfg==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
+"@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7":
+  version "7.12.13"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.12.13.tgz#0a21452352b02542db0ffb928ac2d3ca7cb6d66d"
+  integrity sha512-8+3UMPBrjFa/6TtKi/7sehPKqfAm4g6K+YQjyyFOLUTxzOngcRZTlAVY8sc2CORJYqdHQY8gRPHmn+qo15rCBw==
   dependencies:
     regenerator-runtime "^0.13.4"
 
@@ -907,9 +914,9 @@
     physical-cpu-count "^2.0.0"
 
 "@shopify/polaris-icons@^4.1.0":
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/@shopify/polaris-icons/-/polaris-icons-4.2.0.tgz#1c5b5b16cc7546bb45c6c78387a3e3ea5e26fc07"
-  integrity sha512-e3F9WRDNs4CpC0za9xOrDqFfYDg29WoXSTU7L4n5+RQsJZV1cPCdkuWS41BcfFwZPbjJYOQSrMI/AyZqzaob6w==
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/@shopify/polaris-icons/-/polaris-icons-4.3.0.tgz#78703fb7ce36933184c092d7df25453d061b01c2"
+  integrity sha512-H1GGFwUEYDjW6w/89LyINj18MZgF5n6bF7AcFAF8w6JQJAvcl7oPjFn7dACqECX8CJG/v+2z901O17TS3g6Eow==
 
 "@shopify/polaris-tokens@^2.16.0":
   version "2.18.0"
@@ -919,7 +926,7 @@
     hsluv "^0.1.0"
     tslib "^1.14.1"
 
-"@shopify/polaris@^6.0.1":
+"@shopify/polaris@6.0.1":
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/@shopify/polaris/-/polaris-6.0.1.tgz#c809b23396bd7cc539f788b84c3e7a7702afa882"
   integrity sha512-3uDmySj7IBYc7TXrsq9NZqiMGEBqTh5Mgt7aI0gcDJag8JK7+7rek+k+05DWoERQN7vXUdS8EAo0dFnz0YhYLw==
@@ -967,17 +974,25 @@
     "@types/react" "*"
 
 "@types/react@*":
-  version "17.0.0"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.0.tgz#5af3eb7fad2807092f0046a1302b7823e27919b8"
-  integrity sha512-aj/L7RIMsRlWML3YB6KZiXB3fV2t41+5RBGYF8z+tAKU43Px8C3cYUZsDvf1/+Bm4FK21QWBrDutu8ZJ/70qOw==
+  version "17.0.1"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.1.tgz#eb1f1407dea8da3bc741879c1192aa703ab9975b"
+  integrity sha512-w8t9f53B2ei4jeOqf/gxtc2Sswnc3LBK5s0DyJcg5xd10tMHXts2N31cKjWfH9IC/JvEPa/YF1U4YeP1t4R6HQ==
   dependencies:
     "@types/prop-types" "*"
     csstype "^3.0.2"
 
-"@types/react@^16", "@types/react@^16.8.2", "@types/react@^16.9.12":
+"@types/react@^16", "@types/react@^16.8.2":
   version "16.14.2"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-16.14.2.tgz#85dcc0947d0645349923c04ccef6018a1ab7538c"
   integrity sha512-BzzcAlyDxXl2nANlabtT4thtvbbnhee8hMmH/CcJrISDBVcJS1iOsP1f0OAgSdGE0MsY9tqcrb9YoZcOFv9dbQ==
+  dependencies:
+    "@types/prop-types" "*"
+    csstype "^3.0.2"
+
+"@types/react@^16.9.12":
+  version "16.14.3"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.14.3.tgz#f5210f5deecf35d8794845549c93c2c3ad63aa9c"
+  integrity sha512-zPrXn03hmPYqh9DznqSFQsoRtrQ4aHgnZDO+hMGvsE/PORvDTdJCHQ6XvJV31ic+0LzF73huPFXUb++W6Kri0Q==
   dependencies:
     "@types/prop-types" "*"
     csstype "^3.0.2"

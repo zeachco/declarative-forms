@@ -19,14 +19,6 @@ export function RootNode({node}: NodeProps) {
 
   jsx.push(...nodeChildren, ...errors);
 
-  if (node.context.debug) {
-    jsx = [
-      <DebugNode key={`debug_${node.uid}`} node={node} name={node.type}>
-        {jsx}
-      </DebugNode>,
-    ];
-  }
-
   const {Before, After, Replace, Wrap, Pack} = node.decorator;
   const mergeProps = getPropsMerger(node);
 
@@ -54,6 +46,15 @@ export function RootNode({node}: NodeProps) {
     const {Node, props} = After;
     jsx.push(<Node key={`a_${node.uid}`} {...mergeProps(props)} />);
   }
+
+  if (node.context.debug) {
+    jsx = [
+      <DebugNode key={`debug_${node.uid}`} node={node} name={node.type}>
+        {jsx}
+      </DebugNode>,
+    ];
+  }
+
   if (Pack) {
     const {Node, props} = Pack;
     return (

@@ -18,7 +18,7 @@ export function PeopleListNode({node, deletable}: NodeProps & Props) {
     additionnalOwnersJsx.push(<RootNode key={uid} node={child} />);
     if (deletable) {
       additionnalOwnersJsx.push(
-        <PeopleDeleteButton key={`${uid}_delete`} node={child} />,
+        <PeopleDeleteButton key={`${uid}_delete`} node={child} />
       );
     }
   });
@@ -26,7 +26,7 @@ export function PeopleListNode({node, deletable}: NodeProps & Props) {
   return (
     <div>
       {errors.map((error) => (
-        <strong key={error}>{node.translate('error', {error})}</strong>
+        <strong key={error.type}>{node.translate('error', {error})}</strong>
       ))}
       {additionnalOwnersJsx}
       <Button onClick={addListItem}>Add an owner</Button>

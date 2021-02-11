@@ -48,12 +48,6 @@ export interface NodeProps {
 
 export interface FormContext {
   debug: boolean;
-  plugins: Record<string, ReactComponent> & {
-    polymorphic?: ReactComponent;
-    string?: ReactComponent;
-    integer?: ReactComponent;
-    boolean?: ReactComponent;
-  };
   validators: Record<string, ValidatorFn> & {
     Presence?: ValidatorFn;
     Length?: ValidatorFn;
@@ -130,6 +124,10 @@ export class Decorator {
   }
 }
 
+export class ValidationError {
+  constructor(public type: string, public data?: Record<string, any>) {}
+}
+
 // Schema Node
 export class SchemaNode {
   public errors: ValidationError[] = [];
@@ -139,6 +137,8 @@ export class SchemaNode {
   public isList = false;
   public attributes: string[] = [];
   public depth: number;
+  public type: string = '';
+  public dataPath: string;
   public decorator: Partial<Decorator> = {};
 
   constructor(
@@ -146,20 +146,21 @@ export class SchemaNode {
     public path: string,
     schema: SchemaNodeDefinitionLegacy
   ) {
-    this.depth = this.path.split('.').length - 1;
+    this.dataPath = this.path;
+    this.depth = (this.path && this.path.split('.').length) || 0;
     const formatter = this.context.formatters.local;
     const value = this.context.values[this.path];
     this.value = value;
     this.schema = this.schemaCompatibilityLayer(schema);
     if (formatter) {
-      this.value = formatter(this.value, this.schema.type);
+      this.value = formatter(this.value, this.type);
     }
     this.children = this.buildChildren();
     this.saveDecorators();
   }
 
   public get uid() {
-    return [this.path, this.schema.type].join('_');
+    return [this.path, this.type].join('_');
   }
 
   public onChange(value: any) {
@@ -174,6 +175,7 @@ export class SchemaNode {
       .map((config) => {
         const fn = this.context.validators[config.name];
         if (!fn) return null;
+        console.log('validating', this.path, 'with', fn.name);
         return fn(this.value, config);
       })
       .filter(Boolean) as ValidationError[];
@@ -192,10 +194,12 @@ export class SchemaNode {
   }
 
   public data(): Record<string, any> {
-    if (this.schema.type === 'polymorphic') {
+    if (this.type === 'polymorphic') {
       return this.attributes.reduce((acc, key) => {
         if (key === this.value) {
-          acc[key] = this.children[key].data();
+          Object.assign(acc, this.children[key].data());
+          // FIXME make me less ugly
+          acc[`${this.path.split('.').reverse()[0]}Type`] = this.value;
         }
         return acc;
       }, {} as any);
@@ -208,6 +212,8 @@ export class SchemaNode {
         return acc;
       }, {} as any);
     }
+
+    this.errors = this.validate();
     const formatter = this.context.formatters.remote;
 
     return formatter ? formatter(this.value, this.schema.type) : this.value;
@@ -291,14 +297,12 @@ export class SchemaNode {
       }
     }
 
+    this.type = type as NodeKind;
+
     return {
       ...schema,
       attributes: schema.attributes as SchemaNodeDefinition['attributes'],
-      type: type as NodeKind,
+      type: this.type,
     };
   }
-}
-
-export class ValidationError {
-  constructor(public type: string, public data?: Record<string, any>) {}
 }

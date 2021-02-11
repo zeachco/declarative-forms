@@ -21,10 +21,9 @@ import {V1} from './v1';
 import {V2} from './v2';
 import {FormCardContainer} from './components/FormCardContainer';
 import {
-  PolarisBooleanNode,
+  decorateWithPolarisComponents,
   PolarisPolymorphicNode,
   PolarisRangeSlider,
-  PolarisStringNode,
 } from '../src/plugins/polaris';
 import {PeopleDeleteButton, PeopleListNode} from './components';
 import {
@@ -35,40 +34,24 @@ import {
 
 const context1 = new DeclarativeFormContext({
   decorate(ctx) {
-    Object.assign(ctx.plugins, {
-      string: PolarisStringNode,
-      integer: PolarisStringNode,
-      number: PolarisStringNode,
-      boolean: PolarisBooleanNode,
-    });
+    decorateWithPolarisComponents(ctx);
 
     ctx
-      .where(({schema}) => schema.type === 'polymorphic')
+      .where(({type}) => type === 'polymorphic')
       .replaceWith(PolarisPolymorphicNode, ({depth}) => ({
-        wrap: depth === 0,
+        wrap: depth === 1,
       }));
 
-    // ctx
-    //   .where(({schema, isList}) => schema.type === 'AdditionalOwner' && isList)
-    //   .replaceWith(PeopleListNode);
-
-    // ctx
-    //   .where(({schema, isList}) => schema.type === 'AdditionalOwner' && !isList)
-    //   .packWith(FormCardContainer)
-    //   .appendWith(PeopleDeleteButton);
-
-    // 👆 is the same as 👇
-
     ctx
-      .where(({path}) => /AdditionalOwner$/.test(path))
+      .where(({type, isList}) => type === 'AdditionalOwner' && isList)
       .replaceWith(PeopleListNode);
 
     ctx
-      .where(({path}) => /AdditionalOwner\.[0-9]+$/.test(path))
+      .where(({type, isList}) => type === 'AdditionalOwner' && !isList)
       .packWith(FormCardContainer)
       .appendWith(PeopleDeleteButton);
 
-    ctx.where(({depth}) => depth === 2).wrapWith(FormCardContainer);
+    ctx.where(({depth}) => depth === 3).wrapWith(FormCardContainer);
 
     ctx
       .where(({path}) => /ownershipPercentage$/.test(path))
@@ -84,16 +67,9 @@ const context1 = new DeclarativeFormContext({
 
 const context2 = new DeclarativeFormContext({
   decorate(ctx) {
-    Object.assign(ctx.plugins, {
-      string: PolarisStringNode,
-      integer: PolarisStringNode,
-      number: PolarisStringNode,
-      boolean: PolarisBooleanNode,
-    });
+    decorateWithPolarisComponents(ctx);
 
-    ctx
-      .where(({schema}) => schema.type === 'business_address_verification')
-      .wrapWith(FormCardContainer, {});
+    ctx.where(({depth}) => depth === 0).wrapWith(FormCardContainer, {});
   },
   translators: {
     label: translateLabelsForV2('label'),
@@ -194,5 +170,20 @@ export function App() {
     };
     console.log(data);
     setJson(data);
+
+    const errors = [
+      {
+        message: "Postal/ZIP code can't be blank",
+        field: ['legalEntity', 'businessDetails', 'postalCode'],
+      },
+    ];
+
+    const a = {
+      [['legalEntity', 'businessDetails', 'postalCode'].join('.')]: '',
+    };
+
+    // errors[this.path]
+
+    // node2.setErrors(errors);
   }
 }

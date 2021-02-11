@@ -1,8 +1,4 @@
-import {
-  frameworkPlugins,
-  frameworkValidators,
-  frameworkFormatters,
-} from './defaults';
+import {frameworkValidators, frameworkFormatters} from './defaults';
 import {Decorator, FormContext} from './types';
 
 interface WithDecoratorFn {
@@ -10,8 +6,7 @@ interface WithDecoratorFn {
 }
 
 export class DeclarativeFormContext implements FormContext {
-  public plugins: FormContext['plugins'];
-  public validators: FormContext['plugins'];
+  public validators: FormContext['validators'];
   public values: FormContext['values'];
   public translators: FormContext['translators'];
   public formatters: FormContext['formatters'];
@@ -19,18 +14,12 @@ export class DeclarativeFormContext implements FormContext {
   public decorators: Decorator[] = [];
 
   constructor({
-    plugins = {},
     decorate = () => {},
     validators = {},
     values = {},
     formatters = {},
     translators = {},
   }: Partial<FormContext & WithDecoratorFn>) {
-    this.plugins = {
-      ...frameworkPlugins,
-      ...plugins,
-    };
-
     this.validators = {
       ...frameworkValidators,
       ...validators,

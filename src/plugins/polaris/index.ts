@@ -13,12 +13,12 @@ export {
   PolarisRangeSlider,
 };
 
-export function decorateWithPolarisComponents(context: FormContext) {
-  Object.assign(context.plugins, {
-    string: PolarisStringNode,
-    number: PolarisStringNode,
-    integer: PolarisStringNode,
-    boolean: PolarisBooleanNode,
-    polymorphic: PolarisPolymorphicNode,
-  });
+export function decorateWithPolarisComponents(ctx: FormContext) {
+  ctx
+    .where(({type}) => 'polymorphic' === type)
+    .replaceWith(PolarisPolymorphicNode);
+  ctx.where(({type}) => 'boolean' === type).replaceWith(PolarisBooleanNode);
+  ctx
+    .where(({type}) => ['string', 'number', 'integer'].includes(type))
+    .replaceWith(PolarisStringNode);
 }

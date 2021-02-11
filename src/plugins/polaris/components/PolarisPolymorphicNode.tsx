@@ -14,7 +14,6 @@ export function PolarisPolymorphicNode({node, wrap}: NodeProps & Props) {
     return {
       value: key,
       label: child.translate('path'),
-      disabled: key === node.value,
     };
   });
   const title = node.translate('sectionTitle');

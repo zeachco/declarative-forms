@@ -9,12 +9,13 @@ import {
 
 export {BooleanNode, PolymorphicNode, StringNode, ListNode, NumericNode};
 
-export function decorateWithBasicComponents(context: FormContext) {
-  Object.assign(context.plugins, {
-    string: StringNode,
-    number: NumericNode,
-    integer: StringNode,
-    boolean: BooleanNode,
-    polymorphic: PolymorphicNode,
-  });
+export function decorateWithBasicComponents(ctx: FormContext) {
+  ctx.where(({type}) => 'string' === type).replaceWith(StringNode);
+  ctx.where(({type}) => 'boolean' === type).replaceWith(BooleanNode);
+  ctx.where(({isList}) => isList).replaceWith(ListNode);
+  ctx.where(({type}) => 'polymorphic' === type).replaceWith(PolymorphicNode);
+  ctx.where(({type}) => 'boolean' === type).replaceWith(BooleanNode);
+  ctx
+    .where(({type}) => ['number', 'integer'].includes(type))
+    .replaceWith(NumericNode);
 }

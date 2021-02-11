@@ -22,7 +22,7 @@ interface ErrorOptions {
 
 export function translateError(_: SchemaNode, {error}: ErrorOptions) {
   // HACK poorman translator mock
-  return `${error.type}`;
+  return `Translate [${error.type}]`;
 }
 
 const labelsForV2 = JSON.parse(V2.labels);

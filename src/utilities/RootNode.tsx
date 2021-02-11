@@ -1,38 +1,27 @@
 import React from 'react';
 
 import {useNode} from './hook';
-import {NodeProps, ReactComponent, SchemaNode} from '../types';
-import {getFunctionName} from '../debug/utils';
+import {NodeProps, SchemaNode} from '../types';
 import {DebugNode} from '../debug/DebugNode';
 
 export function RootNode({node}: NodeProps) {
   const {errors} = useNode(node);
 
-  const Plugin = getPlugin(node);
   let jsx: React.ReactNodeArray = [];
   const nodeChildren: React.ReactNodeArray = [];
 
   node.attributes.forEach((key) => {
     const child = node.children[key];
-    if (node.schema.type !== 'polymorphic') {
+    if (node.type !== 'polymorphic') {
       nodeChildren.push(<RootNode key={child.uid} node={child} />);
     }
   });
 
-  if (Plugin) {
-    jsx.push(
-      <Plugin key={`plugin_${node.uid}`} context={node.context} node={node}>
-        nodeChildren
-      </Plugin>,
-    );
-  } else {
-    jsx.push(...nodeChildren, errors);
-  }
+  jsx.push(...nodeChildren, ...errors);
 
   if (node.context.debug) {
-    const pluginName = getFunctionName(getPlugin(node), node.schema.type);
     jsx = [
-      <DebugNode key={`debug_${node.uid}`} node={node} name={pluginName}>
+      <DebugNode key={`debug_${node.uid}`} node={node} name={node.type}>
         {jsx}
       </DebugNode>,
     ];
@@ -84,8 +73,4 @@ function getPropsMerger(node: SchemaNode) {
       node,
     };
   };
-}
-
-function getPlugin({isList, context, schema}: SchemaNode): ReactComponent {
-  return isList ? context.plugins.list : context.plugins[schema.type];
 }

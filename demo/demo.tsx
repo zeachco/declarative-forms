@@ -16,7 +16,7 @@ import {
   RootNode,
   SchemaNode,
   SchemaNodeDefinitionLegacy,
-} from '../src';
+} from '../source';
 import {V1} from './v1';
 import {V2} from './v2';
 import {FormCardContainer} from './components/FormCardContainer';
@@ -24,7 +24,7 @@ import {
   decorateWithPolarisComponents,
   PolarisPolymorphicNode,
   PolarisRangeSlider,
-} from '../src/plugins/polaris';
+} from '../source/plugins/polaris';
 import {PeopleDeleteButton, PeopleListNode} from './components';
 import {
   translateError,

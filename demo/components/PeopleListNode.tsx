@@ -1,7 +1,7 @@
 import {Button} from '@shopify/polaris';
 import React from 'react';
 
-import {NodeProps, RootNode, SchemaNode, useNode} from '../../src';
+import {NodeProps, RootNode, SchemaNode, useNode} from '../../source';
 
 interface Props {
   deletable?: boolean;

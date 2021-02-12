@@ -8,8 +8,8 @@
   "main": "src/index.ts",
   "repository": "https://github.com/zeachco/declarative-form",
   "scripts": {
-    "start": "rimraf .cache dist && parcel demo/index.html",
-    "build": "rimraf .cache dist && parcel build src/index.ts plugins/basic/inedx.ts plugins/polaris/inedx.ts",
+    "start": "rimraf .cache dist && parcel public/index.html",
+    "build": "rimraf .cache dist && parcel build source/index.ts source/plugins/basic/index.ts source/plugins/polaris/index.ts",
     "_start": "react-scripts-ts start",
     "_build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom"

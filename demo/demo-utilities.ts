@@ -1,5 +1,5 @@
 import {get} from 'lodash';
-import {SchemaNode, ValidationError} from '../src';
+import {SchemaNode, ValidationError} from '../source';
 import {V2} from './v2';
 
 export function translateLabel(node: SchemaNode) {

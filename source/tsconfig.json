@@ -11,5 +11,5 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "files": ["source"]
+  "files": ["index.ts", "plugins/polaris/index.ts", "plugins/basic/index.ts"]
 }

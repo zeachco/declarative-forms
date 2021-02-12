@@ -25,10 +25,18 @@ export function DebugNode({children, node, name = ''}: DebugProps) {
     borderRadius: '.5em',
   };
   return (
-    <div key={`debug_${node.path}`} title={name} style={style}>
+    <div
+      key={`debug_${node.path}`}
+      title={JSON.stringify(
+        {...node, children: '...', schema: '...', context: '...'},
+        null,
+        2
+      )}
+      style={style}
+    >
       <small style={{color}}>
-        &lt;{name} path=&quot;{node.path}&quot; depth=&quot;{node.depth}&quot;
-        &gt;
+        &lt;{name} path=&quot;{node.path}&quot; pathShort=&quot;{node.pathShort}
+        &quot; depth=&quot;{node.depth}&quot; &gt;
       </small>
       {children}
       <small style={{color}}>&lt;/{name} &gt;</small>

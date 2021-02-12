@@ -27,7 +27,7 @@ export interface Validator {
 }
 
 export interface SchemaNodeDefinitionLegacy {
-  type: NodeKind | NodeKind[] | {polymorphic: string[]};
+  type?: NodeKind | NodeKind[] | {polymorphic: string[]};
   attributes?: Record<string, SchemaNodeDefinitionLegacy>;
   validators?: Validator[];
   meta?: Record<string, any>;
@@ -131,22 +131,24 @@ export class ValidationError {
 // Schema Node
 export class SchemaNode {
   public errors: ValidationError[] = [];
-  public children: Record<string, SchemaNode>;
+  public children: Record<string, SchemaNode> = {};
   public schema: SchemaNodeDefinition;
   public value: NodeValue = null;
   public isList = false;
   public attributes: string[] = [];
   public depth: number;
   public type: string = '';
-  public dataPath: string;
+  /**
+   * This path is a direct path that skips the polymorphic level
+   */
   public decorator: Partial<Decorator> = {};
 
   constructor(
     public context: FormContext,
-    public path: string,
-    schema: SchemaNodeDefinitionLegacy
+    schema: SchemaNodeDefinitionLegacy,
+    public path: string = '',
+    public pathShort: string = path
   ) {
-    this.dataPath = this.path;
     this.depth = (this.path && this.path.split('.').length) || 0;
     const formatter = this.context.formatters.local;
     const value = this.context.values[this.path];
@@ -155,7 +157,7 @@ export class SchemaNode {
     if (formatter) {
       this.value = formatter(this.value, this.type);
     }
-    this.children = this.buildChildren();
+    this.buildChildren();
     this.saveDecorators();
   }
 
@@ -175,7 +177,6 @@ export class SchemaNode {
       .map((config) => {
         const fn = this.context.validators[config.name];
         if (!fn) return null;
-        console.log('validating', this.path, 'with', fn.name);
         return fn(this.value, config);
       })
       .filter(Boolean) as ValidationError[];
@@ -224,7 +225,7 @@ export class SchemaNode {
     if (!this.isList) {
       throw new Error('node is not a list');
     }
-    const node = new SchemaNode(this.context, '', this.schema);
+    const node = new SchemaNode(this.context, this.schema);
     this.value.push(node);
     this.buildChildren();
     return node;
@@ -243,27 +244,36 @@ export class SchemaNode {
   }
 
   // utilities
-  private buildChildren(): SchemaNode['children'] {
+  private buildChildren() {
     const children: SchemaNode['children'] = {};
     if (this.isList) {
       this.value.forEach((node: SchemaNode, newIndex: number) => {
+        // FIXME path gets lost in arrays
         node.path = [this.path, newIndex].join('.');
       });
-      return this.children;
+      return;
     }
 
-    if (!this.schema.attributes) {
-      return {};
-    }
+    if (!this.schema.attributes) return {};
+
     this.attributes = Object.keys(this.schema.attributes);
     this.attributes.forEach((key) => {
-      const attributes = this.schema.attributes || {};
+      const attributes = this.schema.attributes!;
       const schema = attributes[key] as SchemaNodeDefinition;
-      const subPath = this.path ? [this.path, key].join('.') : key;
-      children[key] = new SchemaNode(this.context, subPath, schema);
+
+      const subPath = [this.path, key].filter(Boolean).join('.');
+      const spreadPath = this.pathShort.split('.');
+      if (this.type !== 'polymorphic') spreadPath.push(key);
+      const subPathShort = spreadPath.filter(Boolean).join('.');
+
+      children[key] = new SchemaNode(
+        this.context,
+        schema,
+        subPath,
+        subPathShort
+      );
     });
-    this.attributes = Object.keys(children);
-    return children;
+    this.children = children;
   }
 
   private saveDecorators() {

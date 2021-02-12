@@ -203,32 +203,92 @@ export const V1 = {
             ],
           },
           bankAccountDetails: {
-            type: 'BankAccountDetails',
+            type: {
+              polymorphic: ['BankAccountDetailsCA', 'BankAccountDetailsUS'],
+            },
             attributes: {
-              routingNumber: {
-                type: 'string',
-                meta: {
-                  group: 'bank_line',
-                },
-                validators: [
-                  {
-                    name: 'Presence',
+              BankAccountDetailsCA: {
+                type: 'BankAccountDetailsCA',
+                attributes: {
+                  routingNumber: {
+                    type: 'string',
+                    meta: {
+                      group: 'bank_line',
+                    },
+                    validators: [
+                      {
+                        name: 'Presence',
+                      },
+                    ],
                   },
-                ],
-              },
-              accountNumber: {
-                type: 'string',
-                meta: {
-                  group: 'bank_line',
-                },
-                validators: [
-                  {
-                    name: 'Presence',
+                  institutionNumber: {
+                    type: 'string',
+                    meta: {
+                      group: 'bank_line',
+                    },
+                    validators: [
+                      {
+                        name: 'Presence',
+                      },
+                    ],
                   },
-                ],
+                  accountNumber: {
+                    type: 'string',
+                    meta: {
+                      group: 'bank_line',
+                    },
+                    validators: [
+                      {
+                        name: 'Presence',
+                      },
+                    ],
+                  },
+                  currency: {
+                    type: 'string',
+                    options: ['CAD', 'USD'],
+                    validators: [
+                      {
+                        name: 'Presence',
+                      },
+                    ],
+                  },
+                },
               },
-              shopifyBalance: {
-                type: 'boolean',
+              BankAccountDetailsUS: {
+                type: 'BankAccountDetailsUS',
+                attributes: {
+                  routingNumber: {
+                    type: 'string',
+                    meta: {
+                      group: 'bank_line',
+                    },
+                    validators: [
+                      {
+                        name: 'Presence',
+                      },
+                    ],
+                  },
+                  accountNumber: {
+                    type: 'string',
+                    meta: {
+                      group: 'bank_line',
+                    },
+                    validators: [
+                      {
+                        name: 'Presence',
+                      },
+                    ],
+                  },
+                  currency: {
+                    type: 'string',
+                    options: ['USD'],
+                    validators: [
+                      {
+                        name: 'Presence',
+                      },
+                    ],
+                  },
+                },
               },
             },
             validators: [

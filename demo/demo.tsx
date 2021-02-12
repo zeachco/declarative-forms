@@ -90,8 +90,8 @@ const schema2: SchemaNodeDefinitionLegacy = {
   attributes: JSON.parse(V2.schema),
 };
 
-const node1 = new SchemaNode(context1, '', schema1);
-const node2 = new SchemaNode(context2, '', schema2);
+const node1 = new SchemaNode(context1, schema1);
+const node2 = new SchemaNode(context2, schema2);
 // for debugger
 (window as any).node1 = node1;
 (window as any).node2 = node2;

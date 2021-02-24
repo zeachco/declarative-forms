@@ -1,13 +1,20 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useReducer} from 'react';
 
 import {SchemaNode} from '../types';
+
+function stateReducer(state: object, payload: object) {
+  return {
+    ...state,
+    ...payload,
+  };
+}
 
 export function useNode(node: SchemaNode) {
   if (!node) {
     throw new Error('no Node provided in useNode hook');
   }
 
-  const [state, changeState] = useState({
+  const [state, update] = useReducer(stateReducer, {
     errors: node.errors,
     onChange,
     validate,
@@ -20,17 +27,11 @@ export function useNode(node: SchemaNode) {
   useEffect(refreshListItems, [node.value]);
 
   function onChange(value: any) {
-    changeState({
-      ...state,
-      errors: node.onChange(value),
-    });
+    update({errors: node.onChange(value)});
   }
 
   function validate() {
-    changeState({
-      ...state,
-      errors: node.validate(),
-    });
+    update({errors: node.validate()});
   }
 
   function refreshListItems() {
@@ -39,10 +40,7 @@ export function useNode(node: SchemaNode) {
       child.path = [node.path, newIndex].join('.');
       child.deleteSelf = () => removeListItem(newIndex);
     });
-    changeState({
-      ...state,
-      errors: node.validate(),
-    });
+    update({errors: node.validate()});
   }
 
   function addListItem() {

@@ -1,5 +1,6 @@
 import React from 'react';
 import {Checkbox} from '@shopify/polaris';
+
 import {NodeProps, useNode} from '../../..';
 
 export function PolarisBooleanNode({node}: NodeProps) {

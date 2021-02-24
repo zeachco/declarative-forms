@@ -9,7 +9,7 @@ export type FormatterFn = (value: any, type: string) => any;
 export type TranslatorFn = (node: SchemaNode, args?: any) => string;
 export type ValidatorFn = (
   val: NodeValue,
-  options: Validator
+  options: Validator,
 ) => ValidationError | null;
 
 // Schema structure
@@ -117,7 +117,7 @@ export class Decorator {
   private store<T extends Noop>(
     slotName: DecoratorKeys,
     fc: T,
-    props?: DecoratorPropsGetter<T>
+    props?: DecoratorPropsGetter<T>,
   ) {
     this[slotName] = {Node: fc, props};
     return this;
@@ -137,7 +137,8 @@ export class SchemaNode {
   public isList = false;
   public attributes: string[] = [];
   public depth: number;
-  public type: string = '';
+  public type = '';
+
   /**
    * This path is a direct path that skips the polymorphic level
    */
@@ -147,7 +148,7 @@ export class SchemaNode {
     public context: FormContext,
     schema: SchemaNodeDefinitionLegacy,
     public path: string = '',
-    public pathShort: string = path
+    public pathShort: string = path,
   ) {
     this.depth = (this.path && this.path.split('.').length) || 0;
     const formatter = this.context.formatters.local;
@@ -229,7 +230,7 @@ export class SchemaNode {
       this.context,
       this.schema,
       this.path,
-      this.pathShort
+      this.pathShort,
     );
     this.value.push(node);
     this.buildChildren();
@@ -275,7 +276,7 @@ export class SchemaNode {
         this.context,
         schema,
         subPath,
-        subPathShort
+        subPathShort,
       );
     });
     this.children = children;
@@ -292,7 +293,7 @@ export class SchemaNode {
   // magic happend to be retrocompatible and set some flags
   // warning, this method have side effets
   private schemaCompatibilityLayer(
-    schema: SchemaNodeDefinitionLegacy
+    schema: SchemaNodeDefinitionLegacy,
   ): SchemaNodeDefinition {
     let type = schema.type || 'group';
 

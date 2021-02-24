@@ -1,20 +1,13 @@
-import {useEffect, useReducer} from 'react';
+import {useEffect, useState} from 'react';
 
 import {SchemaNode} from '../types';
-
-function stateReducer(state: object, payload: object) {
-  return {
-    ...state,
-    ...payload,
-  };
-}
 
 export function useNode(node: SchemaNode) {
   if (!node) {
     throw new Error('no Node provided in useNode hook');
   }
 
-  const [state, update] = useReducer(stateReducer, {
+  const [state, setState] = useState({
     errors: node.errors,
     onChange,
     validate,
@@ -22,6 +15,9 @@ export function useNode(node: SchemaNode) {
     addListItem,
     refreshListItems,
   });
+
+  const update = (merge: Partial<typeof state>) =>
+    setState({...state, ...merge});
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(refreshListItems, [node.value]);

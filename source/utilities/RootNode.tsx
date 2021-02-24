@@ -1,8 +1,9 @@
 import React from 'react';
 
-import {useNode} from './hook';
 import {NodeProps, SchemaNode} from '../types';
 import {DebugNode} from '../debug/DebugNode';
+
+import {useNode} from './hook';
 
 interface RootNodesProps {
   nodes: Record<string, NodeProps['node']>;

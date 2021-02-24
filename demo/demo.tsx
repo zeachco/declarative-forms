@@ -31,10 +31,15 @@ import {
   translateLabel,
   translateLabelsForV2,
 } from './demo-utilities';
+import {SpecialBusinessDetails} from './components/SpecialBusinessDetails';
 
 const context1 = new DeclarativeFormContext({
   decorate(ctx) {
     decorateWithPolarisComponents(ctx);
+
+    ctx
+      .where(({pathShort}) => pathShort === 'legalEntity.businessDetails')
+      .replaceWith(SpecialBusinessDetails);
 
     ctx
       .where(({type}) => type === 'polymorphic')

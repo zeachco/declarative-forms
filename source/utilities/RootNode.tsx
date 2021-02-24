@@ -4,6 +4,21 @@ import {useNode} from './hook';
 import {NodeProps, SchemaNode} from '../types';
 import {DebugNode} from '../debug/DebugNode';
 
+interface RootNodesProps {
+  nodes: Record<string, NodeProps['node']>;
+}
+
+export function RootNodes({nodes}: RootNodesProps) {
+  const keys = Object.keys(nodes);
+  return (
+    <>
+      {keys.map((key) => (
+        <RootNode key={key} node={nodes[key]} />
+      ))}
+    </>
+  );
+}
+
 export function RootNode({node}: NodeProps) {
   const {errors} = useNode(node);
 

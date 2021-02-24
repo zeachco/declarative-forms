@@ -225,7 +225,12 @@ export class SchemaNode {
     if (!this.isList) {
       throw new Error('node is not a list');
     }
-    const node = new SchemaNode(this.context, this.schema);
+    const node = new SchemaNode(
+      this.context,
+      this.schema,
+      this.path,
+      this.pathShort
+    );
     this.value.push(node);
     this.buildChildren();
     return node;
@@ -248,8 +253,8 @@ export class SchemaNode {
     const children: SchemaNode['children'] = {};
     if (this.isList) {
       this.value.forEach((node: SchemaNode, newIndex: number) => {
-        // FIXME path gets lost in arrays
         node.path = [this.path, newIndex].join('.');
+        node.buildChildren();
       });
       return;
     }

@@ -2,13 +2,9 @@ import {useEffect, useState} from 'react';
 
 import {SchemaNode} from '../types';
 
-export function useNode(node: SchemaNode) {
-  if (!node) {
-    throw new Error('no Node provided in useNode hook');
-  }
-
+export function useNode(node?: SchemaNode) {
   const [state, setState] = useState({
-    errors: node.errors,
+    errors: node?.errors || [],
     onChange,
     validate,
     removeListItem,
@@ -20,18 +16,18 @@ export function useNode(node: SchemaNode) {
     setState({...state, ...merge});
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(refreshListItems, [node.value]);
+  useEffect(refreshListItems, [node?.value]);
 
   function onChange(value: any) {
-    update({errors: node.onChange(value)});
+    update({errors: node?.onChange(value)});
   }
 
   function validate() {
-    update({errors: node.validate()});
+    update({errors: node?.validate()});
   }
 
   function refreshListItems() {
-    if (!node.isList || !Array.isArray(node?.value)) return;
+    if (!node?.isList || !Array.isArray(node?.value)) return;
     node.value.forEach((child: SchemaNode, newIndex: number) => {
       child.path = [node.path, newIndex].join('.');
       child.deleteSelf = () => removeListItem(newIndex);
@@ -40,12 +36,12 @@ export function useNode(node: SchemaNode) {
   }
 
   function addListItem() {
-    node.addListItem();
+    node?.addListItem();
     refreshListItems();
   }
 
   function removeListItem(index: number) {
-    node.removeListItem(index);
+    node?.removeListItem(index);
     refreshListItems();
   }
 

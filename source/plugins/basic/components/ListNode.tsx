@@ -31,7 +31,7 @@ export function ListNode({node}: NodeProps) {
     <div>
       <h4>{node.translate('label')}: </h4>
       {errors.map((error) => (
-        <strong key={error}>{node.translate('error', {error})}</strong>
+        <strong key={error.type}>{node.translate('error', {error})}</strong>
       ))}
       {jsx}
       <button type="button" onClick={addListItem}>

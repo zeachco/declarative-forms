@@ -9,7 +9,7 @@ export type FormatterFn = (value: any, type: string) => any;
 export type TranslatorFn = (node: SchemaNode, args?: any) => string;
 export type ValidatorFn = (
   val: NodeValue,
-  options: Validator,
+  options: Validator
 ) => ValidationError | null;
 
 // Schema structure
@@ -117,7 +117,7 @@ export class Decorator {
   private store<T extends Noop>(
     slotName: DecoratorKeys,
     fc: T,
-    props?: DecoratorPropsGetter<T>,
+    props?: DecoratorPropsGetter<T>
   ) {
     this[slotName] = {Node: fc, props};
     return this;
@@ -133,7 +133,6 @@ export class SchemaNode {
   public errors: ValidationError[] = [];
   public children: Record<string, SchemaNode> = {};
   public schema: SchemaNodeDefinition;
-  public value: NodeValue = null;
   public isList = false;
   public attributes: string[] = [];
   public depth: number;
@@ -149,11 +148,11 @@ export class SchemaNode {
     schema: SchemaNodeDefinitionLegacy,
     public path: string = '',
     public pathShort: string = path,
+    public value: NodeValue = null
   ) {
     this.depth = (this.path && this.path.split('.').length) || 0;
     const formatter = this.context.formatters.local;
-    const value = this.context.values[this.path];
-    this.value = value;
+    this.value = value === null ? this.context.values[this.path] : value;
     this.schema = this.schemaCompatibilityLayer(schema);
     if (formatter) {
       this.value = formatter(this.value, this.type);
@@ -230,7 +229,7 @@ export class SchemaNode {
       this.context,
       this.schema,
       this.path,
-      this.pathShort,
+      this.pathShort
     );
     this.value.push(node);
     this.buildChildren();
@@ -277,6 +276,7 @@ export class SchemaNode {
         schema,
         subPath,
         subPathShort,
+        this.children[key]?.value
       );
     });
     this.children = children;
@@ -293,7 +293,7 @@ export class SchemaNode {
   // magic happend to be retrocompatible and set some flags
   // warning, this method have side effets
   private schemaCompatibilityLayer(
-    schema: SchemaNodeDefinitionLegacy,
+    schema: SchemaNodeDefinitionLegacy
   ): SchemaNodeDefinition {
     let type = schema.type || 'group';
 

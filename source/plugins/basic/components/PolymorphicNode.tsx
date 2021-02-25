@@ -20,7 +20,7 @@ export function PolymorphicNode({node}: NodeProps) {
         </select>{' '}
       </label>
       {errors.map((error) => (
-        <strong key={error}>{node.translate('error', {error})}</strong>
+        <strong key={error.type}>{node.translate('error', {error})}</strong>
       ))}
       {variant && <RenderNode node={variant} />}
     </>

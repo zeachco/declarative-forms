@@ -3,7 +3,7 @@ import React from 'react';
 import {NodeProps} from '../../../types';
 import {useNode} from '../../../utilities/hook';
 
-import {RootNode} from '../../../utilities/RootNode';
+import {RenderNode} from '../../../utilities/RenderNode';
 
 export function PolymorphicNode({node}: NodeProps) {
   const {onChange, errors} = useNode(node);
@@ -22,7 +22,7 @@ export function PolymorphicNode({node}: NodeProps) {
       {errors.map((error) => (
         <strong key={error}>{node.translate('error', {error})}</strong>
       ))}
-      {variant && <RootNode node={variant} />}
+      {variant && <RenderNode node={variant} />}
     </>
   );
 

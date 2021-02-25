@@ -13,7 +13,7 @@ import {
 import '@shopify/polaris/dist/styles.css';
 import {
   DeclarativeFormContext,
-  RootNode,
+  RenderNode,
   SchemaNode,
   SchemaNodeDefinitionLegacy,
 } from '../source';
@@ -107,13 +107,13 @@ export function App() {
 
   const formV1Jsx = (
     <Layout.Section oneHalf>
-      <RootNode node={node1} />
+      <RenderNode node={node1} />
     </Layout.Section>
   );
 
   const formV2Jsx = (
     <Layout.Section oneHalf>
-      <RootNode node={node2} />
+      <RenderNode node={node2} />
     </Layout.Section>
   );
 

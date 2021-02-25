@@ -1,4 +1,4 @@
-export {RootNode, RootNodes} from './utilities/RootNode';
+export {RenderNode, RenderNodes} from './utilities/RenderNode';
 export {
   NodeKind,
   NodeValue,

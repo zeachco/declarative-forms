@@ -1,20 +1,26 @@
 import {FormLayout} from '@shopify/polaris';
 import React from 'react';
-import {NodeProps, RootNode, RootNodes} from '../../source';
+import {NodeProps, RenderNode, RenderNodes} from '../../source';
 
 export function SpecialBusinessDetails({node}: NodeProps) {
-  const {address, city, postalCode, provinceCode, ...other} = node.children;
+  const {
+    address,
+    city,
+    postalCode,
+    provinceCode,
+    ...otherNodes
+  } = node.children;
   return (
     <FormLayout>
       <FormLayout.Group>
-        <RootNode node={address} />
-        <RootNode node={city} />
+        <RenderNode node={address} />
+        <RenderNode node={city} />
       </FormLayout.Group>
       <FormLayout.Group>
-        <RootNode node={provinceCode} />
-        <RootNode node={postalCode} />
+        <RenderNode node={provinceCode} />
+        <RenderNode node={postalCode} />
       </FormLayout.Group>
-      <RootNodes nodes={other} />
+      <RenderNodes nodes={otherNodes} />
     </FormLayout>
   );
 }

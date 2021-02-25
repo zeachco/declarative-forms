@@ -5,22 +5,22 @@ import {DebugNode} from '../debug/DebugNode';
 
 import {useNode} from './hook';
 
-interface RootNodesProps {
+interface RenderNodesProps {
   nodes: Record<string, NodeProps['node']>;
 }
 
-export function RootNodes({nodes}: RootNodesProps) {
+export function RenderNodes({nodes}: RenderNodesProps) {
   const keys = Object.keys(nodes);
   return (
     <>
       {keys.map((key) => (
-        <RootNode key={key} node={nodes[key]} />
+        <RenderNode key={key} node={nodes[key]} />
       ))}
     </>
   );
 }
 
-export function RootNode({node}: NodeProps) {
+export function RenderNode({node}: NodeProps) {
   const {errors} = useNode(node);
 
   let jsx: React.ReactNodeArray = [];
@@ -29,7 +29,7 @@ export function RootNode({node}: NodeProps) {
   node.attributes.forEach((key) => {
     const child = node.children[key];
     if (node.type !== 'polymorphic') {
-      nodeChildren.push(<RootNode key={child.uid} node={child} />);
+      nodeChildren.push(<RenderNode key={child.uid} node={child} />);
     }
   });
 

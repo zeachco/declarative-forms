@@ -3,7 +3,7 @@ import React from 'react';
 import {NodeProps, SchemaNode} from '../../../types';
 import {useNode} from '../../../utilities/hook';
 
-import {RootNode} from '../../../utilities/RootNode';
+import {RenderNode} from '../../../utilities/RenderNode';
 
 export function ListNode({node}: NodeProps) {
   const {errors, addListItem} = useNode(node);
@@ -22,8 +22,8 @@ export function ListNode({node}: NodeProps) {
         >
           Remove item
         </button>
-        <RootNode key={subNode.uid} node={subNode} />
-      </div>,
+        <RenderNode key={subNode.uid} node={subNode} />
+      </div>
     );
   });
 

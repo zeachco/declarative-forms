@@ -2,7 +2,6 @@ import React from 'react';
 
 import {NodeProps, SchemaNode} from '../../../types';
 import {useNode} from '../../../utilities/hook';
-
 import {RenderNode} from '../../../utilities/RenderNode';
 
 export function ListNode({node}: NodeProps) {
@@ -23,7 +22,7 @@ export function ListNode({node}: NodeProps) {
           Remove item
         </button>
         <RenderNode key={subNode.uid} node={subNode} />
-      </div>
+      </div>,
     );
   });
 

@@ -19,7 +19,9 @@ export function useNode(node: SchemaNode) {
   const update = (merge: Partial<typeof state>) =>
     setState({...state, ...merge});
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(refreshListItems, [node.value]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(refreshFromContext, [reactContext, node.pathShort]);
 
   function onChange(value: any) {

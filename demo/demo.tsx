@@ -85,6 +85,9 @@ const context2 = new DeclarativeFormContext({
   values: JSON.parse(V2.values),
 });
 
+const {Provider: Provider1} = context1.ReactContext;
+const {Provider: Provider2} = context2.ReactContext;
+
 const schema1: SchemaNodeDefinitionLegacy = {
   type: 'group',
   attributes: V1,
@@ -97,6 +100,7 @@ const schema2: SchemaNodeDefinitionLegacy = {
 
 const node1 = new SchemaNode(context1, schema1);
 const node2 = new SchemaNode(context2, schema2);
+
 // for debugger
 (window as any).node1 = node1;
 (window as any).node2 = node2;
@@ -104,16 +108,21 @@ const node2 = new SchemaNode(context2, schema2);
 export function App() {
   const [debug, setDebug] = React.useState(context1.debug);
   const [json, setJson] = React.useState<any>({});
+  const [errors, setErrors] = React.useState<any>({});
 
   const formV1Jsx = (
     <Layout.Section oneHalf>
-      <RenderNode node={node1} />
+      <Provider1 value={{errors}}>
+        <RenderNode node={node1} />
+      </Provider1>
     </Layout.Section>
   );
 
   const formV2Jsx = (
     <Layout.Section oneHalf>
-      <RenderNode node={node2} />
+      <Provider2 value={{errors}}>
+        <RenderNode node={node2} />
+      </Provider2>
     </Layout.Section>
   );
 
@@ -150,7 +159,7 @@ export function App() {
         }
       >
         <Page title="Demo">
-          <Form onSubmit={handleSubmit}>
+          <Form onSubmit={handleSubmit} autoComplete={false}>
             <Layout>
               {formV1Jsx}
               {formV2Jsx}
@@ -176,19 +185,30 @@ export function App() {
     console.log(data);
     setJson(data);
 
-    const errors = [
-      {
-        message: "Postal/ZIP code can't be blank",
-        field: ['legalEntity', 'businessDetails', 'postalCode'],
+    setErrors({
+      legalEntity: {
+        businessDetails: {
+          address: ['Something wrong'],
+        },
       },
-    ];
+    });
 
-    const a = {
-      [['legalEntity', 'businessDetails', 'postalCode'].join('.')]: '',
-    };
-
-    // errors[this.path]
-
-    // node2.setErrors(errors);
+    // we could even have validation from multiple
+    // sources and just merge the errors
+    setTimeout(() => {
+      setErrors({
+        ...errors,
+        address: [
+          'Error on context 2',
+          `Time is ${new Date().toLocaleTimeString()}`,
+        ],
+        provinceCode: ['Decorate with a custom component'],
+        legalEntity: {
+          businessDetails: {
+            address: ['Something wrong delayed'],
+          },
+        },
+      });
+    }, 1000);
   }
 }

@@ -12,6 +12,10 @@ export type ValidatorFn = (
   options: Validator,
 ) => ValidationError | null;
 
+export interface ContextErrors {
+  [key: string]: string[] | ContextErrors;
+}
+
 // Schema structure
 export interface Validator {
   name: string;
@@ -48,6 +52,7 @@ export interface NodeProps {
 
 export interface FormContext {
   debug: boolean;
+  ReactContext: React.Context<{errors: ContextErrors}>;
   validators: Record<string, ValidatorFn> & {
     Presence?: ValidatorFn;
     Length?: ValidatorFn;
@@ -124,8 +129,8 @@ export class Decorator {
   }
 }
 
-export class ValidationError {
-  constructor(public type: string, public data?: Record<string, any>) {}
+export class ValidationError<T = Record<string, any>> {
+  constructor(public type: string, public data?: T) {}
 }
 
 // Schema Node

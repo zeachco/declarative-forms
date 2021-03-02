@@ -17,12 +17,30 @@ export function translateLabel(node: SchemaNode) {
 }
 
 interface ErrorOptions {
-  error: ValidationError;
+  error: ValidationError<{
+    format?: string;
+    maximum?: number;
+    minimum?: number;
+    error?: string;
+  }>;
 }
 
 export function translateError(_: SchemaNode, {error}: ErrorOptions) {
   // HACK poorman translator mock
-  return `Translate [${error.type}]`;
+  switch (error.type) {
+    case 'server':
+      return `Server Error "${error.data.error}"`;
+    case 'Presence':
+      return 'This field is required';
+    case 'Format':
+      return `The value should match ${error.data.format}`;
+    case 'MaximumLength':
+      return `The value cannot be longer than ${error.data.maximum} characters`;
+    case 'MinimumLength':
+      return `The value must be of at least ${error.data.minimum} characters`;
+    default:
+      return `Translation for <${error.type}]> validator`;
+  }
 }
 
 const labelsForV2 = JSON.parse(V2.labels);

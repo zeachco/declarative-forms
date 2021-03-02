@@ -10,6 +10,11 @@ export function PolarisStringNode({node, ...props}: NodeProps & any) {
     props.type = 'number';
   }
 
+  const allProps = {
+    ...(node.schema.meta || {}),
+    ...props,
+  };
+
   return (
     <TextField
       label={node.translate('label')}
@@ -19,7 +24,7 @@ export function PolarisStringNode({node, ...props}: NodeProps & any) {
       error={errors
         .map((error: ValidationError) => node.translate('error', {error}))
         .join('. ')}
-      {...props}
+      {...allProps}
     />
   );
 }

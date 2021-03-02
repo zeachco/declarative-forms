@@ -141,6 +141,7 @@ export class SchemaNode {
   public isList = false;
   public attributes: string[] = [];
   public depth: number;
+  public name: string;
   public type = '';
 
   /**
@@ -155,7 +156,9 @@ export class SchemaNode {
     public pathShort: string = path,
     public value: NodeValue = null,
   ) {
-    this.depth = (this.path && this.path.split('.').length) || 0;
+    const split = (this.path && this.path.split('.')) || [];
+    this.depth = split.length;
+    this.name = split.reverse()[0] || '';
     const formatter = this.context.formatters.local;
     this.value = value === null ? this.context.values[this.path] : value;
     this.schema = this.schemaCompatibilityLayer(schema);
@@ -204,8 +207,7 @@ export class SchemaNode {
       return this.attributes.reduce((acc, key) => {
         if (key === this.value) {
           Object.assign(acc, this.children[key].data());
-          // FIXME make me less ugly
-          acc[`${this.path.split('.').reverse()[0]}Type`] = this.value;
+          acc[`${this.name}Type`] = this.value;
         }
         return acc;
       }, {} as any);

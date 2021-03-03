@@ -143,10 +143,6 @@ export class SchemaNode {
   public depth: number;
   public name: string;
   public type = '';
-
-  /**
-   * This path is a direct path that skips the polymorphic level
-   */
   public decorator: Partial<Decorator> = {};
 
   constructor(

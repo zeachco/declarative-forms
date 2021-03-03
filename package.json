@@ -5,7 +5,10 @@
   "description": "React package to generate forms based on a schema",
   "author": "Olivier Rousseau-Guyot <zeachco@gmail.com>",
   "license": "MIT",
-  "main": "dist/index.ts",
+  "main": "dist/index.js",
+  "files": [
+    "source"
+  ],
   "repository": "https://github.com/zeachco/declarative-form",
   "scripts": {
     "start": "rimraf .cache dist && parcel public/index.html",
@@ -14,7 +17,7 @@
   "devDependencies": {
     "@types/lodash": "^4.14.168",
     "@types/react": "^16.11.0",
-    "@types/react-dom": "^16.11.0",
+    "@types/react-dom": "^17.0.1",
     "parcel-bundler": "^1.12.4",
     "prettier": "^2.2.1",
     "react-scripts-ts": "latest",
@@ -22,12 +25,9 @@
     "typescript": "^4.1.3"
   },
   "optionalDependencies": {
-    "@shopify/polaris": "6.0.1"
-  },
-  "dependencies": {
-    "@zeachco/declarative-form": "^0.1.1",
-    "lodash": "^4.17.4",
-    "react": "^16.11.0",
-    "react-dom": "^16.11.0"
+    "@shopify/polaris": "6.0.1",
+    "lodash": "^4.17.21",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
   }
 }

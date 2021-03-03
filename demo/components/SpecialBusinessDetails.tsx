@@ -1,6 +1,10 @@
 import {FormLayout} from '@shopify/polaris';
 import React from 'react';
-import {NodeProps, RenderNode, RenderNodes} from '../../source';
+import {
+  NodeProps,
+  RenderNode,
+  RenderNodes,
+} from '@zeachco/declarative-form/source';
 
 export function SpecialBusinessDetails({node}: NodeProps) {
   const {

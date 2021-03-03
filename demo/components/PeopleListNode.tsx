@@ -1,7 +1,12 @@
 import {Button} from '@shopify/polaris';
 import React from 'react';
 
-import {NodeProps, RenderNode, SchemaNode, useNode} from '../../source';
+import {
+  NodeProps,
+  RenderNode,
+  SchemaNode,
+  useNode,
+} from '@zeachco/declarative-form/source';
 
 interface Props {
   deletable?: boolean;
@@ -18,7 +23,7 @@ export function PeopleListNode({node, deletable}: NodeProps & Props) {
     additionnalOwnersJsx.push(<RenderNode key={uid} node={child} />);
     if (deletable) {
       additionnalOwnersJsx.push(
-        <PeopleDeleteButton key={`${uid}_delete`} node={child} />
+        <PeopleDeleteButton key={`${uid}_delete`} node={child} />,
       );
     }
   });

@@ -1,6 +1,6 @@
 import React from 'react';
 import {Card} from '@shopify/polaris';
-import {NodeProps} from '../../source';
+import {NodeProps} from '@zeachco/declarative-form/source';
 
 export function FormCardContainer({children, node}: NodeProps) {
   return (

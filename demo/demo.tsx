@@ -16,7 +16,7 @@ import {
   RenderNode,
   SchemaNode,
   SchemaNodeDefinitionLegacy,
-} from '../source';
+} from '@zeachco/declarative-form/source';
 import {V1} from './v1';
 import {V2} from './v2';
 import {FormCardContainer} from './components/FormCardContainer';
@@ -24,7 +24,7 @@ import {
   decorateWithPolarisComponents,
   PolarisPolymorphicNode,
   PolarisRangeSlider,
-} from '../source/plugins/polaris';
+} from '@zeachco/declarative-form/source/plugins/polaris';
 import {PeopleDeleteButton, PeopleListNode} from './components';
 import {
   translateError,

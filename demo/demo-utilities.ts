@@ -1,5 +1,5 @@
 import {get} from 'lodash';
-import {SchemaNode, ValidationError} from '../source';
+import {SchemaNode, ValidationError} from '@zeachco/declarative-form/source';
 import {V2} from './v2';
 
 export function translateLabel(node: SchemaNode) {

@@ -2,19 +2,19 @@ export const V1 = {
   legalEntity: {
     type: {
       polymorphic: [
-        'SoleProp',
-        'Corporation',
-        'LLC',
-        'Partnership',
-        'Nonprofit',
+        'Variant1',
+        'Variant2',
+        'Variant3',
+        'Variant4',
+        'Variant5',
       ],
     },
     attributes: {
-      SoleProp: {
-        type: 'SoleProp',
+      Variant1: {
+        type: 'Variant1',
         attributes: {
           businessDetails: {
-            type: 'BusinessDetailsSoleProp',
+            type: 'BusinessDetailsVariant1',
             attributes: {
               businessTaxId: {
                 type: 'string',
@@ -79,7 +79,7 @@ export const V1 = {
             ],
           },
           personalDetails: {
-            type: 'PersonalDetailsSoleProp',
+            type: 'PersonalDetailsVariant1',
             attributes: {
               firstName: {
                 type: 'string',
@@ -299,8 +299,8 @@ export const V1 = {
           },
         },
       },
-      Corporation: {
-        type: 'Corporation',
+      Variant2: {
+        type: 'Variant2',
         attributes: {
           businessDetails: {
             type: 'BusinessDetailsCompany',
@@ -641,7 +641,7 @@ export const V1 = {
                   },
                 ],
               },
-              shopifyBalance: {
+              useThisOption: {
                 type: 'boolean',
               },
             },
@@ -653,8 +653,8 @@ export const V1 = {
           },
         },
       },
-      LLC: {
-        type: 'LLC',
+      Variant3: {
+        type: 'Variant3',
         attributes: {
           businessDetails: {
             type: 'BusinessDetailsCompany',
@@ -995,7 +995,7 @@ export const V1 = {
                   },
                 ],
               },
-              shopifyBalance: {
+              useThisOption: {
                 type: 'boolean',
               },
             },
@@ -1007,8 +1007,8 @@ export const V1 = {
           },
         },
       },
-      Partnership: {
-        type: 'Partnership',
+      Variant4: {
+        type: 'Variant4',
         attributes: {
           businessDetails: {
             type: 'BusinessDetailsCompany',
@@ -1349,7 +1349,7 @@ export const V1 = {
                   },
                 ],
               },
-              shopifyBalance: {
+              useThisOption: {
                 type: 'boolean',
               },
             },
@@ -1361,8 +1361,8 @@ export const V1 = {
           },
         },
       },
-      Nonprofit: {
-        type: 'Nonprofit',
+      Variant5: {
+        type: 'Variant5',
         attributes: {
           businessDetails: {
             type: 'BusinessDetailsCompany',
@@ -1703,7 +1703,7 @@ export const V1 = {
                   },
                 ],
               },
-              shopifyBalance: {
+              useThisOption: {
                 type: 'boolean',
               },
             },

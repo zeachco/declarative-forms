@@ -1,5 +1,6 @@
 export {RenderNode, RenderNodes} from './utilities/RenderNode';
-export {
+export {SchemaNode, Decorator, ValidationError} from './types';
+export type {
   NodeKind,
   NodeValue,
   ReactComponent,
@@ -9,13 +10,12 @@ export {
   SchemaNodeDefinition,
   FormatterFn,
   TranslatorFn,
-  SchemaNode,
-  Decorator,
   DecoratorKeys,
   DecoratorObject,
   FormContext,
   NodeProps,
-  ValidationError,
+  ContextErrors,
 } from './types';
+export {isNodeV3} from './utilities/compatibility';
 export {useNode} from './utilities/hook';
 export {DeclarativeFormContext} from './DeclarativeFormContext';

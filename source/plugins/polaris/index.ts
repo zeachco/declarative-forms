@@ -1,4 +1,5 @@
 import {FormContext} from '../..';
+
 import {
   PolarisBooleanNode,
   PolarisPolymorphicNode,
@@ -15,9 +16,9 @@ export {
 
 export function decorateWithPolarisComponents(ctx: FormContext) {
   ctx
-    .where(({type}) => 'polymorphic' === type)
+    .where(({type}) => type === 'polymorphic')
     .replaceWith(PolarisPolymorphicNode);
-  ctx.where(({type}) => 'boolean' === type).replaceWith(PolarisBooleanNode);
+  ctx.where(({type}) => type === 'boolean').replaceWith(PolarisBooleanNode);
   ctx
     .where(({type}) => ['string', 'number', 'integer'].includes(type))
     .replaceWith(PolarisStringNode);

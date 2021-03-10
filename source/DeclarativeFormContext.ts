@@ -15,6 +15,7 @@ export class DeclarativeFormContext implements FormContext {
   public debug = false;
   public decorators: Decorator[] = [];
   public ReactContext = createContext({errors: {} as ContextErrors});
+  public version = 3;
 
   constructor({
     decorate = () => {},

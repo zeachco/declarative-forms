@@ -52,6 +52,7 @@ export interface NodeProps {
 
 export interface FormContext {
   debug: boolean;
+  version: number;
   ReactContext: React.Context<{errors: ContextErrors}>;
   validators: Record<string, ValidatorFn> & {
     Presence?: ValidatorFn;

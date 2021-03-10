@@ -3,7 +3,13 @@ import {useContext, useEffect, useState} from 'react';
 
 import {SchemaNode, ValidationError} from '../types';
 
+import {isNodeV3} from './compatibility';
+
 export function useNode(node: SchemaNode) {
+  if (!isNodeV3(node)) {
+    throw new Error('bad node type received');
+  }
+
   const reactContext = useContext(node.context.ReactContext);
 
   const [state, setState] = useState({

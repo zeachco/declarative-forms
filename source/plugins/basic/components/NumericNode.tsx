@@ -15,7 +15,7 @@ export function NumericNode({node}: NodeProps) {
         onBlur={handleBlur}
       />
       {errors.map((error) => (
-        <strong key={error}>{node.translate('error', {error})}</strong>
+        <strong key={error.type}>{node.translate('error', {error})}</strong>
       ))}
     </label>
   );

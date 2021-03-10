@@ -2,7 +2,6 @@ import React from 'react';
 
 import {NodeProps} from '../../../types';
 import {useNode} from '../../../utilities/hook';
-
 import {RenderNode} from '../../../utilities/RenderNode';
 
 export function PolymorphicNode({node}: NodeProps) {

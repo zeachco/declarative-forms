@@ -30,7 +30,7 @@ export function DebugNode({children, node, name = ''}: DebugProps) {
       title={JSON.stringify(
         {...node, children: '...', schema: '...', context: '...'},
         null,
-        2
+        2,
       )}
       style={style}
     >

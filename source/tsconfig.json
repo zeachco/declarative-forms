@@ -1,15 +1,11 @@
 {
+  "extends": "../../../config/typescript/tsconfig.base.json",
   "compilerOptions": {
-    "lib": ["DOM.Iterable", "DOM", "ESNext"],
-    "resolveJsonModule": true,
-    "target": "ES2015",
-    "jsx": "react",
-    "strict": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "baseUrl": "../../../",
+    "rootDir": "../../../",
+    "outDir": "../../../build/ts",
+    "resolveJsonModule": true
   },
-  "files": ["index.ts", "plugins/polaris/index.ts", "plugins/basic/index.ts"]
+  "include": [".", "./plugins/polaris", "./plugins/basic"],
+  "files": [".", "./plugins/polaris", "./plugins/basic"]
 }

@@ -1,4 +1,3 @@
-import {get} from 'lodash';
 import {useContext, useEffect, useState} from 'react';
 
 import {SchemaNode, ValidationError} from '../types';
@@ -20,6 +19,7 @@ export function useNode(node: SchemaNode) {
     removeListItem,
     addListItem,
     refreshListItems,
+    reactContext,
   });
 
   const update = (merge: Partial<typeof state>) =>
@@ -51,8 +51,7 @@ export function useNode(node: SchemaNode) {
   }
 
   function refreshFromContext() {
-    const serverErrorNode = get(reactContext.errors, node.pathShort);
-
+    const serverErrorNode = reactContext.errors[node.pathShort];
     const serverErrors: ValidationError[] = Array.isArray(serverErrorNode)
       ? serverErrorNode.map((error) => new ValidationError('server', {error}))
       : [];

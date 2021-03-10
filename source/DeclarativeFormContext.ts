@@ -1,9 +1,9 @@
 import {createContext} from 'react';
 
 import {frameworkValidators, frameworkFormatters} from './defaults';
-import {ContextErrors, Decorator, FormContext} from './types';
+import {Decorator, FormContext} from './types';
 
-interface WithDecoratorFn {
+interface WithConstructionProps {
   decorate(ctx: DeclarativeFormContext): void;
 }
 
@@ -14,7 +14,8 @@ export class DeclarativeFormContext implements FormContext {
   public formatters: FormContext['formatters'];
   public debug = false;
   public decorators: Decorator[] = [];
-  public ReactContext = createContext({errors: {} as ContextErrors});
+  public sharedContext: any;
+  public ReactContext: FormContext['ReactContext'];
   public version = 3;
 
   constructor({
@@ -23,7 +24,8 @@ export class DeclarativeFormContext implements FormContext {
     values = {},
     formatters = {},
     translators = {},
-  }: Partial<FormContext & WithDecoratorFn>) {
+  }: Partial<FormContext & WithConstructionProps>) {
+    this.ReactContext = createContext({errors: {}});
     this.validators = {
       ...frameworkValidators,
       ...validators,

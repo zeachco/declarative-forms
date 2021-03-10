@@ -13,7 +13,7 @@ export type ValidatorFn = (
 ) => ValidationError | null;
 
 export interface ContextErrors {
-  [key: string]: string[] | ContextErrors;
+  [key: string]: string[];
 }
 
 // Schema structure
@@ -32,16 +32,16 @@ export interface Validator {
 
 export interface SchemaNodeDefinitionLegacy {
   type?: NodeKind | NodeKind[] | {polymorphic: string[]};
-  attributes?: Record<string, SchemaNodeDefinitionLegacy>;
+  attributes?: {[key: string]: SchemaNodeDefinitionLegacy};
   validators?: Validator[];
-  meta?: Record<string, any>;
+  meta?: {[key: string]: any};
 }
 
 export interface SchemaNodeDefinition {
   type: NodeKind;
-  attributes?: Record<string, SchemaNodeDefinition>;
+  attributes?: {[key: string]: SchemaNodeDefinition};
   validators?: Validator[];
-  meta?: Record<string, any>;
+  meta?: {[key: string]: any};
 }
 
 // Components
@@ -53,18 +53,18 @@ export interface NodeProps {
 export interface FormContext {
   debug: boolean;
   version: number;
-  ReactContext: React.Context<{errors: ContextErrors}>;
-  validators: Record<string, ValidatorFn> & {
+  ReactContext: React.Context<{errors: ContextErrors} & any>;
+  validators: {[key: string]: ValidatorFn} & {
     Presence?: ValidatorFn;
     Length?: ValidatorFn;
     Format?: ValidatorFn;
   };
-  values: Record<string, any>;
-  formatters: Record<string, FormatterFn> & {
+  values: {[key: string]: any};
+  formatters: {[key: string]: FormatterFn} & {
     local?: FormatterFn;
     remote?: FormatterFn;
   };
-  translators: Record<string, TranslatorFn> & {
+  translators: {[key: string]: TranslatorFn} & {
     label?: TranslatorFn;
     error?: TranslatorFn;
   };
@@ -130,14 +130,14 @@ export class Decorator {
   }
 }
 
-export class ValidationError<T = Record<string, any>> {
+export class ValidationError<T = {[key: string]: any}> {
   constructor(public type: string, public data?: T) {}
 }
 
 // Schema Node
 export class SchemaNode {
   public errors: ValidationError[] = [];
-  public children: Record<string, SchemaNode> = {};
+  public children: {[key: string]: SchemaNode} = {};
   public schema: SchemaNodeDefinition;
   public isList = false;
   public attributes: string[] = [];
@@ -199,7 +199,7 @@ export class SchemaNode {
     return translator(this, args) || '';
   }
 
-  public data(): Record<string, any> {
+  public data(): {[key: string]: any} {
     if (this.type === 'polymorphic') {
       return this.attributes.reduce((acc, key) => {
         if (key === this.value) {

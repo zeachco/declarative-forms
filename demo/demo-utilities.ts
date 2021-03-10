@@ -1,4 +1,3 @@
-import {get} from 'lodash';
 import {SchemaNode, ValidationError} from '@zeachco/declarative-form/source';
 import {V2} from './v2';
 
@@ -44,7 +43,17 @@ export function translateError(_: SchemaNode, {error}: ErrorOptions) {
 }
 
 const labelsForV2 = JSON.parse(V2.labels);
+
+function get(obj, path) {
+  const [next, ...rest] = Array.isArray(path) ? path : path.split('.');
+  const value = obj[next];
+  if (!rest.length) {
+    return value;
+  }
+  return get(value, rest);
+}
+
 export function translateLabelsForV2(key: string) {
   return (node: SchemaNode) =>
-    get<string>(labelsForV2, [node.path, key].join('.'), '');
+    get(labelsForV2, node.path.split('.').concat(key));
 }

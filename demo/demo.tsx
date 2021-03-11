@@ -13,10 +13,10 @@ import {
 import '@shopify/polaris/dist/styles.css';
 import {
   DeclarativeFormContext,
-  RenderNode,
+  renderNodes,
   SchemaNode,
   SchemaNodeDefinitionLegacy,
-} from '@zeachco/declarative-form/source';
+} from '../source';
 import {V1} from './v1';
 import {V2} from './v2';
 import {FormCardContainer} from './components/FormCardContainer';
@@ -24,7 +24,7 @@ import {
   decorateWithPolarisComponents,
   PolarisPolymorphicNode,
   PolarisRangeSlider,
-} from '@zeachco/declarative-form/source/plugins/polaris';
+} from '../source/plugins/polaris';
 import {PeopleDeleteButton, PeopleListNode} from './components';
 import {
   translateError,
@@ -112,17 +112,13 @@ export function App() {
 
   const formV1Jsx = (
     <Layout.Section oneHalf>
-      <Provider1 value={{errors}}>
-        <RenderNode node={node1} />
-      </Provider1>
+      <Provider1 value={{errors}}>{renderNodes({node1})}</Provider1>
     </Layout.Section>
   );
 
   const formV2Jsx = (
     <Layout.Section oneHalf>
-      <Provider2 value={{errors}}>
-        <RenderNode node={node2} />
-      </Provider2>
+      <Provider2 value={{errors}}>{renderNodes({node2})}</Provider2>
     </Layout.Section>
   );
 

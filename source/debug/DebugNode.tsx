@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {NodeProps} from '../types';
+import {NodeProps, SchemaNode} from '../types';
 
 interface DebugProps extends NodeProps {
   name: string;
@@ -35,11 +35,14 @@ export function DebugNode({children, node, name = ''}: DebugProps) {
       style={style}
     >
       <small style={{color}}>
-        &lt;{name} path=&quot;{node.path}&quot; pathShort=&quot;{node.pathShort}
-        &quot; depth=&quot;{node.depth}&quot; &gt;
+        &lt;{name} {jsxAttr(node, ['name', 'depth', 'path', 'pathShort'])} &gt;
       </small>
       {children}
       <small style={{color}}>&lt;/{name} &gt;</small>
     </div>
   );
+}
+
+function jsxAttr(node: SchemaNode, attributes: (keyof SchemaNode)[]) {
+  return attributes.map((attr) => `${attr}="${node[attr]}"`).join(' ');
 }

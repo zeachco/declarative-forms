@@ -1,12 +1,7 @@
 import {Button} from '@shopify/polaris';
 import React from 'react';
 
-import {
-  NodeProps,
-  RenderNode,
-  SchemaNode,
-  useNode,
-} from '@zeachco/declarative-form/source';
+import {NodeProps, renderNodes, SchemaNode, useNode} from '../../source';
 
 interface Props {
   deletable?: boolean;
@@ -20,7 +15,7 @@ export function PeopleListNode({node, deletable}: NodeProps & Props) {
   node.value.forEach((child: SchemaNode) => {
     // HACK to avoid react key collisions when deleting nodes
     const uid = Math.random();
-    additionnalOwnersJsx.push(<RenderNode key={uid} node={child} />);
+    additionnalOwnersJsx.push(...renderNodes({child}));
     if (deletable) {
       additionnalOwnersJsx.push(
         <PeopleDeleteButton key={`${uid}_delete`} node={child} />,

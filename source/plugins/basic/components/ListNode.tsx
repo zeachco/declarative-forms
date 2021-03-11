@@ -2,7 +2,7 @@ import React from 'react';
 
 import {NodeProps, SchemaNode} from '../../../types';
 import {useNode} from '../../../utilities/hook';
-import {RenderNode} from '../../../utilities/RenderNode';
+import {renderNodes} from '../../../utilities/RenderNode';
 
 export function ListNode({node}: NodeProps) {
   const {errors, addListItem} = useNode(node);
@@ -21,7 +21,7 @@ export function ListNode({node}: NodeProps) {
         >
           Remove item
         </button>
-        <RenderNode key={subNode.uid} node={subNode} />
+        {renderNodes({subNode})}
       </div>,
     );
   });

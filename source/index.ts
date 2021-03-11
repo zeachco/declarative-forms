@@ -1,4 +1,4 @@
-export {RenderNode, RenderNodes} from './utilities/RenderNode';
+export {renderNode, renderNodes} from './utilities/RenderNode';
 export {SchemaNode, Decorator, ValidationError} from './types';
 export type {
   NodeKind,

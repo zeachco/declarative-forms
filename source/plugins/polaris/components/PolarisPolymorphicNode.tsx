@@ -1,7 +1,7 @@
 import {Card, FormLayout, Select} from '@shopify/polaris';
 import React from 'react';
 
-import {NodeProps, RenderNode, RenderNodes, useNode} from '../../..';
+import {NodeProps, renderNodes, useNode} from '../../..';
 
 interface Props {
   wrap?: boolean;
@@ -34,19 +34,21 @@ export function PolarisPolymorphicNode({
       <>
         <Card title={title}>
           <Card.Section>
-            <Select
-              label={label}
-              onChange={onChange}
-              options={options}
-              value={node.value}
-            />
-            {errorMessages}
+            <FormLayout>
+              <Select
+                label={label}
+                onChange={onChange}
+                options={options}
+                value={node.value}
+              />
+              {errorMessages}
+            </FormLayout>
           </Card.Section>
           <Card.Section>
-            <RenderNode node={_extracted} />
+            <FormLayout>{renderNodes({_extracted})}</FormLayout>
           </Card.Section>
         </Card>
-        <RenderNodes nodes={otherNodes} />
+        {renderNodes(otherNodes)}
       </>
     );
   }
@@ -67,13 +69,13 @@ export function PolarisPolymorphicNode({
             </FormLayout>
           </Card.Section>
         </Card>
-        {variant && <RenderNode node={variant} />}
+        {variant && renderNodes({variant})}
       </>
     );
   }
 
   return (
-    <>
+    <FormLayout>
       <Select
         label={label}
         onChange={onChange}
@@ -81,7 +83,7 @@ export function PolarisPolymorphicNode({
         value={node.value}
       />
       {errorMessages}
-      {variant && <RenderNode node={variant} />}
-    </>
+      {variant && renderNodes({variant})}
+    </FormLayout>
   );
 }

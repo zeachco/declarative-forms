@@ -1,10 +1,12 @@
 {
-  "extends": "../../../config/typescript/tsconfig.base.json",
+  // "extends": "../../../config/typescript/tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": "../../../",
     "rootDir": "../../../",
     "outDir": "../../../build/ts",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "jsx": "react",
+    "allowSyntheticDefaultImports": true
   },
   "include": [".", "./plugins/polaris", "./plugins/basic"],
   "files": [".", "./plugins/polaris", "./plugins/basic"]

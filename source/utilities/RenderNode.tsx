@@ -1,39 +1,25 @@
 import React from 'react';
 
-import {NodeProps, SchemaNode} from '../types';
+import {SchemaNode} from '../types';
 import {DebugNode} from '../debug/DebugNode';
 
-import {useNode} from './hook';
-
-interface RenderNodesProps {
-  nodes: Record<string, NodeProps['node']>;
-}
-
-export function RenderNodes({nodes}: RenderNodesProps) {
+export function renderNodes(nodes: {[key: string]: SchemaNode}, uid = '') {
   const keys = Object.keys(nodes);
-  return (
-    <>
-      {keys.map((key) => (
-        <RenderNode key={key} node={nodes[key]} />
-      ))}
-    </>
-  );
+  return keys.map((key) => renderNode(nodes[key], `${uid}_${key}`));
 }
 
-export function RenderNode({node}: NodeProps) {
-  const {errors} = useNode(node);
-
+export function renderNode(node: SchemaNode, uid = '') {
   let jsx: React.ReactNodeArray = [];
   const nodeChildren: React.ReactNodeArray = [];
 
   node.attributes.forEach((key) => {
     const child = node.children[key];
     if (node.type !== 'polymorphic') {
-      nodeChildren.push(<RenderNode key={child.uid} node={child} />);
+      nodeChildren.push(...renderNode(child, child.uid));
     }
   });
 
-  jsx.push(...nodeChildren, ...errors);
+  jsx.push(...nodeChildren);
 
   const {Before, After, Replace, Wrap, Pack} = node.decorator;
   const mergeProps = getPropsMerger(node);
@@ -41,31 +27,31 @@ export function RenderNode({node}: NodeProps) {
   if (Replace) {
     const {Node, props} = Replace;
     jsx = [
-      <Node key={`r_${node.uid}`} {...mergeProps(props)}>
-        {jsx}
-      </Node>,
-    ];
-  }
-  if (Wrap) {
-    const {Node, props} = Wrap;
-    jsx = [
-      <Node key={`w_${node.uid}`} {...mergeProps(props)}>
+      <Node key={`${uid}_r_${node.uid}`} {...mergeProps(props)}>
         {jsx}
       </Node>,
     ];
   }
   if (Before) {
     const {Node, props} = Before;
-    jsx.unshift(<Node key={`b_${node.uid}`} {...mergeProps(props)} />);
+    jsx.unshift(<Node key={`${uid}_b_${node.uid}`} {...mergeProps(props)} />);
   }
   if (After) {
     const {Node, props} = After;
-    jsx.push(<Node key={`a_${node.uid}`} {...mergeProps(props)} />);
+    jsx.push(<Node key={`${uid}_a_${node.uid}`} {...mergeProps(props)} />);
+  }
+  if (Wrap) {
+    const {Node, props} = Wrap;
+    jsx = [
+      <Node key={`${uid}_w_${node.uid}`} {...mergeProps(props)}>
+        {jsx}
+      </Node>,
+    ];
   }
 
   if (node.context.debug) {
     jsx = [
-      <DebugNode key={`debug_${node.uid}`} node={node} name={node.type}>
+      <DebugNode key={`${uid}_debug_${node.uid}`} node={node} name={node.type}>
         {jsx}
       </DebugNode>,
     ];
@@ -73,13 +59,13 @@ export function RenderNode({node}: NodeProps) {
 
   if (Pack) {
     const {Node, props} = Pack;
-    return (
-      <Node key={`p_${node.uid}`} {...mergeProps(props)}>
+    return [
+      <Node key={`${uid}_p_${node.uid}`} {...mergeProps(props)}>
         {jsx}
-      </Node>
-    );
+      </Node>,
+    ];
   }
-  return <>{jsx}</>;
+  return jsx;
 }
 
 function getPropsMerger(node: SchemaNode) {

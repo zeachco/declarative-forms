@@ -1,4 +1,4 @@
-import {SchemaNode, ValidationError} from '@zeachco/declarative-form/source';
+import {SchemaNode, ValidationError} from '../source';
 import {V2} from './v2';
 
 export function translateLabel(node: SchemaNode) {
@@ -55,5 +55,5 @@ function get(obj, path) {
 
 export function translateLabelsForV2(key: string) {
   return (node: SchemaNode) =>
-    get(labelsForV2, node.path.split('.').concat(key));
+    get(labelsForV2, node.path.split('.').concat(key).filter(Boolean));
 }

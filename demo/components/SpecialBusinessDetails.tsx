@@ -1,10 +1,6 @@
 import {FormLayout} from '@shopify/polaris';
 import React from 'react';
-import {
-  NodeProps,
-  RenderNode,
-  RenderNodes,
-} from '@zeachco/declarative-form/source';
+import {NodeProps, renderNodes} from '../../source';
 
 export function SpecialBusinessDetails({node}: NodeProps) {
   const {
@@ -16,15 +12,11 @@ export function SpecialBusinessDetails({node}: NodeProps) {
   } = node.children;
   return (
     <FormLayout>
+      <FormLayout.Group>{renderNodes({address, city})}</FormLayout.Group>
       <FormLayout.Group>
-        <RenderNode node={address} />
-        <RenderNode node={city} />
+        {renderNodes({provinceCode, postalCode})}
       </FormLayout.Group>
-      <FormLayout.Group>
-        <RenderNode node={provinceCode} />
-        <RenderNode node={postalCode} />
-      </FormLayout.Group>
-      <RenderNodes nodes={otherNodes} />
+      {renderNodes(otherNodes)}
     </FormLayout>
   );
 }

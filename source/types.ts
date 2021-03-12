@@ -81,7 +81,7 @@ interface DecoratorSlot {
 }
 
 type DecoratorMatcher = (node: SchemaNode) => boolean;
-export type DecoratorObject = Omit<Decorator, 'test'>;
+export type DecoratorObject = Partial<Omit<Decorator, 'match'>>;
 
 // decorator props to components
 type Noop = (props: any) => React.ReactNode;
@@ -98,7 +98,7 @@ export class Decorator {
   public Pack?: DecoratorSlot;
   public Replace?: DecoratorSlot;
 
-  constructor(public test: DecoratorMatcher) {}
+  constructor(public match: DecoratorMatcher) {}
 
   public replaceWith<T extends Noop>(fc: T, props?: DecoratorPropsGetter<T>) {
     return this.store('Replace', fc, props);
@@ -148,7 +148,7 @@ export class SchemaNode {
   public depth: number;
   public name: string;
   public type = '';
-  public decorator: Partial<Decorator> = {};
+  public decorator: DecoratorObject = {};
 
   constructor(
     public context: FormContext,
@@ -193,12 +193,11 @@ export class SchemaNode {
     return this.errors;
   }
 
-  public translate(mode: 'label' | 'error' | string, args?: any): string {
+  public translate(mode: 'label' | 'error' | string, args?: object): string {
     const {translators} = this.context;
-    const translator =
-      translators[mode as keyof typeof translators] || translators.default;
+    const translator = translators[mode as keyof typeof translators];
     if (!translator) {
-      return '';
+      return translators?.default(this, {...args, key: mode}) || '';
     }
     return translator(this, args) || '';
   }
@@ -292,8 +291,9 @@ export class SchemaNode {
 
   private saveDecorators() {
     this.context.decorators.forEach((decorator: Decorator) => {
-      if (decorator.test(this)) {
-        Object.assign(this.decorator, decorator, {test: null});
+      const {match, ...decoratorMods} = decorator;
+      if (match(this)) {
+        Object.assign(this.decorator, decoratorMods);
       }
     });
   }

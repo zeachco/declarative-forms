@@ -5,6 +5,7 @@ import {NodeProps, renderNodes, NodeChildrenMap} from '../../..';
 
 interface Props {
   grid: string[][];
+  condensed?: boolean;
 }
 
 /**
@@ -43,7 +44,11 @@ interface Props {
  *
  * tripwire: if immutable objects were native to javascript, we would not need this
  */
-export function PolarisLayoutGridPosition({node, grid}: NodeProps & Props) {
+export function PolarisLayoutGridPosition({
+  node,
+  grid,
+  condensed,
+}: NodeProps & Props) {
   let otherNodes: NodeChildrenMap = node.children;
   const jsx = [];
 
@@ -54,7 +59,11 @@ export function PolarisLayoutGridPosition({node, grid}: NodeProps & Props) {
       if (extract) Object.assign(selected, {[col]: extract});
       otherNodes = unselected;
     }
-    jsx.push(<FormLayout.Group>{renderNodes(selected)}</FormLayout.Group>);
+    jsx.push(
+      <FormLayout.Group condensed={condensed}>
+        {renderNodes(selected)}
+      </FormLayout.Group>,
+    );
   }
 
   return (

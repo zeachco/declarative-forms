@@ -2,9 +2,17 @@ import React from 'react';
 import {Card} from '@shopify/polaris';
 import {NodeProps} from '../../source';
 
-export function FormCardContainer({children, node}: NodeProps) {
+interface Props {
+  customTitle?: string;
+}
+
+export function FormCardContainer({
+  children,
+  node,
+  customTitle,
+}: NodeProps & Props) {
   return (
-    <Card title={node.translate('label')}>
+    <Card title={customTitle || node.translate('label')}>
       <Card.Section>{children}</Card.Section>
     </Card>
   );

@@ -22,6 +22,7 @@ import {V2} from './v2';
 import {FormCardContainer} from './components/FormCardContainer';
 import {
   decorateWithPolarisComponents,
+  PolarisLayoutGridPosition,
   PolarisPolymorphicNode,
   PolarisRangeSlider,
 } from '../source/plugins/polaris';
@@ -44,7 +45,7 @@ const context1 = new DeclarativeFormContext({
     ctx
       .where(({type}) => type === 'polymorphic')
       .replaceWith(PolarisPolymorphicNode, ({depth}) => ({
-        wrap: depth === 1,
+        nestWithChildren: depth === 1 ? 'businessDetails' : '',
       }));
 
     ctx
@@ -56,7 +57,9 @@ const context1 = new DeclarativeFormContext({
       .packWith(FormCardContainer)
       .appendWith(PeopleDeleteButton);
 
-    ctx.where(({depth}) => depth === 3).wrapWith(FormCardContainer);
+    ctx
+      .where(({depth, name}) => depth === 3 && name !== 'businessDetails')
+      .wrapWith(FormCardContainer);
 
     ctx
       .where(({path}) => /ownershipPercentage$/.test(path))
@@ -74,7 +77,12 @@ const context2 = new DeclarativeFormContext({
   decorate(ctx) {
     decorateWithPolarisComponents(ctx);
 
-    ctx.where(({depth}) => depth === 0).wrapWith(FormCardContainer, {});
+    ctx
+      .where(({depth}) => depth === 0)
+      .wrapWith(FormCardContainer, {customTitle: 'V2 form'})
+      .replaceWith(PolarisLayoutGridPosition, {
+        grid: [['address'], ['city', 'postalCode']],
+      });
   },
   translators: {
     label: translateLabelsForV2('label'),
@@ -157,8 +165,8 @@ export function App() {
         <Page title="Demo">
           <Form onSubmit={handleSubmit} autoComplete={false}>
             <Layout>
-              {formV1Jsx}
               {formV2Jsx}
+              {formV1Jsx}
               {formSubmitJsx}
             </Layout>
           </Form>

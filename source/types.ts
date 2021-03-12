@@ -134,10 +134,14 @@ export class ValidationError<T = {[key: string]: any}> {
   constructor(public type: string, public data?: T) {}
 }
 
+export interface NodeChildrenMap {
+  [key: string]: SchemaNode;
+}
+
 // Schema Node
 export class SchemaNode {
   public errors: ValidationError[] = [];
-  public children: {[key: string]: SchemaNode} = {};
+  public children: NodeChildrenMap = {};
   public schema: SchemaNodeDefinition;
   public isList = false;
   public attributes: string[] = [];

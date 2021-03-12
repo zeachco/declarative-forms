@@ -1,9 +1,9 @@
 import React from 'react';
 
-import {SchemaNode} from '../types';
+import {SchemaNode, NodeChildrenMap} from '../types';
 import {DebugNode} from '../debug/DebugNode';
 
-export function renderNodes(nodes: {[key: string]: SchemaNode}, uid = '') {
+export function renderNodes(nodes: NodeChildrenMap, uid = '') {
   const keys = Object.keys(nodes);
   return keys.map((key) => renderNode(nodes[key], `${uid}_${key}`));
 }
@@ -51,7 +51,7 @@ export function renderNode(node: SchemaNode, uid = '') {
 
   if (node.context.debug) {
     jsx = [
-      <DebugNode key={`${uid}_debug_${node.uid}`} node={node} name={node.type}>
+      <DebugNode key={`${uid}_debug_${node.uid}`} node={node}>
         {jsx}
       </DebugNode>,
     ];

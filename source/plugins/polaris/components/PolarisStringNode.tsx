@@ -16,9 +16,14 @@ export function PolarisStringNode({node, ...props}: NodeProps & any) {
     ...props,
   };
 
+  if (allProps.multiline) {
+    allProps.multiline = 5;
+  }
+
   return (
     <TextField
       label={node.translate('label')}
+      helpText={node.translate('helpText')}
       value={node.value}
       onChange={onChange}
       onBlur={validate}

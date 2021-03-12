@@ -3,7 +3,7 @@ import React from 'react';
 import {NodeProps, SchemaNode} from '../types';
 
 interface DebugProps extends NodeProps {
-  name: string;
+  children?: React.ReactNode;
 }
 
 const increment = 0.01;
@@ -15,12 +15,12 @@ function getNextColor() {
   return Math.floor(index * 16777215).toString(16);
 }
 
-export function DebugNode({children, node, name = ''}: DebugProps) {
+export function DebugNode({children, node}: DebugProps) {
   const color = getNextColor();
   const style = {
     boxShadow: `inset 0 0 3px 1px #${color}, inset -.5em 0 2em -.5em #${color}44, 0 0 1em 1px #${color}44`,
     backgroundColor: `#${color}08`,
-    padding: '.2em .7em',
+    padding: '.2em .7em .7em',
     margin: '.3em 0',
     borderRadius: '.5em',
   };
@@ -28,21 +28,28 @@ export function DebugNode({children, node, name = ''}: DebugProps) {
     <div
       key={`debug_${node.path}`}
       title={JSON.stringify(
-        {...node, children: '...', schema: '...', context: '...'},
+        {...node, children: '?', schema: '?', context: '?'},
         null,
         2,
       )}
       style={style}
     >
       <small style={{color}}>
-        &lt;{name} {jsxAttr(node, ['name', 'depth', 'path', 'pathShort'])} &gt;
+        {jsxAttr(node, ['type', 'name', 'depth', 'path', 'pathShort'])}
       </small>
       {children}
-      <small style={{color}}>&lt;/{name} &gt;</small>
     </div>
   );
 }
 
 function jsxAttr(node: SchemaNode, attributes: (keyof SchemaNode)[]) {
-  return attributes.map((attr) => `${attr}="${node[attr]}"`).join(' ');
+  return attributes.map((key: keyof SchemaNode) => (
+    <span key={key} style={{color: 'gray', fontSize: '.5em'}}>
+      {key}=&quot;
+      <i>
+        <span style={{color: 'black'}}>{node[key]}</span>
+      </i>
+      &quot;{' '}
+    </span>
+  ));
 }

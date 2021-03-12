@@ -5,13 +5,13 @@ import {NodeProps, renderNodes, useNode} from '../../..';
 
 interface Props {
   wrap?: boolean;
-  sectionnedWithValue?: string;
+  nestWithChildren?: string;
 }
 
 export function PolarisPolymorphicNode({
   node,
   wrap,
-  sectionnedWithValue,
+  nestWithChildren,
 }: NodeProps & Props) {
   const {onChange, errors} = useNode(node);
   const variant = node.children[node.value];
@@ -28,8 +28,8 @@ export function PolarisPolymorphicNode({
     <strong key={error.type}>{node.translate('error', {error})}</strong>
   ));
 
-  if (sectionnedWithValue && variant) {
-    const {[sectionnedWithValue]: _extracted, ...otherNodes} = variant.children;
+  if (nestWithChildren && variant) {
+    const {[nestWithChildren]: nestedNode, ...otherNodes} = variant.children;
     return (
       <>
         <Card title={title}>
@@ -45,7 +45,7 @@ export function PolarisPolymorphicNode({
             </FormLayout>
           </Card.Section>
           <Card.Section>
-            <FormLayout>{renderNodes({_extracted})}</FormLayout>
+            <FormLayout>{renderNodes({nestedNode})}</FormLayout>
           </Card.Section>
         </Card>
         {renderNodes(otherNodes)}

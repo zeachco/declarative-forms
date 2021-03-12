@@ -15,6 +15,7 @@ export type {
   FormContext,
   NodeProps,
   ContextErrors,
+  NodeChildrenMap,
 } from './types';
 export {isNodeV3} from './utilities/compatibility';
 export {useNode} from './utilities/hook';

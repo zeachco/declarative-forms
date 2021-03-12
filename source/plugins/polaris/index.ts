@@ -5,6 +5,7 @@ import {
   PolarisPolymorphicNode,
   PolarisStringNode,
   PolarisRangeSlider,
+  PolarisLayoutGridPosition,
 } from './components';
 
 export {
@@ -12,6 +13,7 @@ export {
   PolarisPolymorphicNode,
   PolarisStringNode,
   PolarisRangeSlider,
+  PolarisLayoutGridPosition,
 };
 
 export function decorateWithPolarisComponents(ctx: FormContext) {

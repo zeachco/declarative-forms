@@ -161,7 +161,10 @@ export class SchemaNode {
     this.depth = split.length;
     this.name = split.reverse()[0] || '';
     const formatter = this.context.formatters.local;
-    this.value = value === null ? this.context.values[this.path] : value;
+    this.value =
+      value === null
+        ? this.context.values[this.path] || this.context.values[this.name]
+        : value;
     this.schema = this.schemaCompatibilityLayer(schema);
     if (formatter) {
       this.value = formatter(this.value, this.type);

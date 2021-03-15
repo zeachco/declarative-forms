@@ -19,6 +19,7 @@ export interface ContextErrors {
 // Schema structure
 export interface Validator {
   name: string;
+  message?: number;
   maximum?: number;
   minimum?: number;
   format?:

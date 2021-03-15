@@ -9,8 +9,12 @@ export function presenceValidator(
     : new ValidationError('Presence');
 }
 
-function validateRegex(val: any, {format, message}): ValidationError | null {
+function validateRegex(
+  val: any,
+  {format, message}: Validator,
+): ValidationError | null {
   let exp = new RegExp('.*');
+  if (typeof format !== 'string') return null;
   try {
     exp = new RegExp(rubyRegexFromStackOverflow(format));
   } catch {

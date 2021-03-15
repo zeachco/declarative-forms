@@ -19,52 +19,16 @@ import {
 } from '../source';
 import {V1} from './v1';
 import {V2} from './v2';
-import {FormCardContainer} from './components/FormCardContainer';
-import {
-  decorateWithPolarisComponents,
-  PolarisLayoutGridPosition,
-  PolarisPolymorphicNode,
-  PolarisRangeSlider,
-} from '../source/plugins/polaris';
-import {PeopleDeleteButton, PeopleListNode} from './components';
+import {decorateV1} from './demo-decoration-v1';
+import {decorateV2} from './demo-decoration-v2';
 import {
   translateError,
   translateLabel,
   translateLabelsForV2,
 } from './demo-utilities';
-import {SpecialBusinessDetails} from './components/SpecialBusinessDetails';
 
 const context1 = new DeclarativeFormContext({
-  decorate(ctx) {
-    decorateWithPolarisComponents(ctx);
-
-    ctx
-      .where(({pathShort}) => pathShort === 'legalEntity.businessDetails')
-      .replaceWith(SpecialBusinessDetails);
-
-    ctx
-      .where(({type}) => type === 'polymorphic')
-      .replaceWith(PolarisPolymorphicNode, ({depth}) => ({
-        nestWithChildren: depth === 1 ? 'businessDetails' : '',
-      }));
-
-    ctx
-      .where(({type, isList}) => type === 'AdditionalOwner' && isList)
-      .replaceWith(PeopleListNode);
-
-    ctx
-      .where(({type, isList}) => type === 'AdditionalOwner' && !isList)
-      .packWith(FormCardContainer)
-      .appendWith(PeopleDeleteButton);
-
-    ctx
-      .where(({depth, name}) => depth === 3 && name !== 'businessDetails')
-      .wrapWith(FormCardContainer);
-
-    ctx
-      .where(({path}) => /ownershipPercentage$/.test(path))
-      .replaceWith(PolarisRangeSlider, {min: 0, max: 100});
-  },
+  decorate: decorateV1,
   translators: {
     label: translateLabel,
     sectionTitle: translateLabel,
@@ -74,16 +38,7 @@ const context1 = new DeclarativeFormContext({
 });
 
 const context2 = new DeclarativeFormContext({
-  decorate(ctx) {
-    decorateWithPolarisComponents(ctx);
-
-    ctx
-      .where(({depth}) => depth === 0)
-      .wrapWith(FormCardContainer, {customTitle: 'V2 form'})
-      .replaceWith(PolarisLayoutGridPosition, {
-        grid: [['address'], ['city', 'postalCode']],
-      });
-  },
+  decorate: decorateV2,
   translators: {
     label: translateLabelsForV2('label'),
     sectionTitle: translateLabelsForV2('sectionTitle'),

@@ -6,7 +6,8 @@
     "outDir": "../../../build/ts",
     "resolveJsonModule": true,
     "jsx": "react",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "lib": ["ESNext"]
   },
   "include": [".", "./plugins/polaris", "./plugins/basic"],
   "files": [".", "./plugins/polaris", "./plugins/basic"]

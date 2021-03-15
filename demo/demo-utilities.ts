@@ -21,6 +21,7 @@ interface ErrorOptions {
     maximum?: number;
     minimum?: number;
     error?: string;
+    message?: string;
   }>;
 }
 
@@ -32,7 +33,9 @@ export function translateError(_: SchemaNode, {error}: ErrorOptions) {
     case 'Presence':
       return 'This field is required';
     case 'Format':
-      return `The value should match ${error.data.format}`;
+      return (
+        error.data.message || `The value should match ${error.data.format}`
+      );
     case 'MaximumLength':
       return `The value cannot be longer than ${error.data.maximum} characters`;
     case 'MinimumLength':
@@ -47,6 +50,7 @@ const labelsForV2 = JSON.parse(V2.labels);
 function get(obj, path) {
   const [next, ...rest] = Array.isArray(path) ? path : path.split('.');
   const value = obj[next];
+  if (!value) return '';
   if (!rest.length) {
     return value;
   }

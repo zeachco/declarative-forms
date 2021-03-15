@@ -37,7 +37,7 @@ export class DeclarativeFormContext implements FormContext {
       ...formatters,
     };
 
-    this.translators = translators || [];
+    this.translators = translators || {};
 
     decorate(this as DeclarativeFormContext);
   }

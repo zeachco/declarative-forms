@@ -20,11 +20,14 @@ export function decorateV1(context: DeclarativeFormContext) {
     .replaceWith(SpecialBusinessDetails);
 
   context
-    .where(({type}) => type === 'polymorphic')
+    .where(({type, depth}) => type === 'polymorphic' && depth === 1)
     .prependWith(Card, {title: 'V1 form', sectioned: true})
-    .replaceWith(PolarisPolymorphicNode, ({depth}) => ({
-      nestWithChildren: depth === 1 ? 'businessDetails' : '',
-    }));
+    .replaceWith(PolarisPolymorphicNode, {nestWithChildren: 'businessDetails'});
+
+  context
+    .where(({type, depth}) => type === 'polymorphic' && depth !== 1)
+    .prependWith(Card, {sectioned: true})
+    .replaceWith(PolarisPolymorphicNode);
 
   context
     .where(({type, isList}) => type === 'AdditionalOwner' && isList)
@@ -41,5 +44,5 @@ export function decorateV1(context: DeclarativeFormContext) {
 
   context
     .where(({path}) => /ownershipPercentage$/.test(path))
-    .replaceWith(PolarisRangeSlider, {min: 0, max: 100});
+    .replaceWith(PolarisRangeSlider, {min: 0, max: 100, output: true});
 }

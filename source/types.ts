@@ -19,7 +19,6 @@ export interface ContextErrors {
 // Schema structure
 export interface Validator {
   name: string;
-  message?: number;
   maximum?: number;
   minimum?: number;
   format?:
@@ -43,6 +42,7 @@ export interface SchemaNodeDefinition {
   attributes?: {[key: string]: SchemaNodeDefinition};
   validators?: Validator[];
   meta?: {[key: string]: any};
+  options?: string[];
 }
 
 // Components
@@ -86,8 +86,28 @@ export type DecoratorObject = Partial<Omit<Decorator, 'match'>>;
 
 // decorator props to components
 type Noop = (props: any) => React.ReactNode;
+
+// All props of a function (or React component)
 type GetProps<T extends Noop> = T extends (args: infer P) => any ? P : never;
-type SpecialProps<T extends Noop> = Omit<GetProps<T>, keyof NodeProps>;
+
+// Usual excluded props in custom components
+export type GenericExcludedComponentProps =
+  | 'onChange'
+  | 'onFocus'
+  | 'onBlur'
+  | 'value';
+
+// Used to defines properties of a function
+// without the usual schema node props
+export type SpecialProps<
+  T extends Noop,
+  E extends
+    | GenericExcludedComponentProps
+    | string = GenericExcludedComponentProps
+> = Omit<GetProps<T>, keyof NodeProps | E>;
+
+// Used to defines props or a function returning props
+// of a function without the usual schema node props
 export type DecoratorPropsGetter<T extends Noop> =
   | SpecialProps<T>
   | ((node: SchemaNode) => SpecialProps<T>);
@@ -201,9 +221,7 @@ export class SchemaNode {
     const {translators} = this.context;
     const translator = translators[mode as keyof typeof translators];
     if (!translator) {
-      return translators.default
-        ? translators.default(this, {...args, key: mode})
-        : '';
+      return translators?.default(this, {...args, key: mode}) || '';
     }
     return translator(this, args) || '';
   }

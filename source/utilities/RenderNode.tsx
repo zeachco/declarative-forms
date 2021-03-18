@@ -32,14 +32,6 @@ export function renderNode(node: SchemaNode, uid = '') {
       </Node>,
     ];
   }
-  if (Wrap) {
-    const {Node, props} = Wrap;
-    jsx = [
-      <Node key={`${uid}_w_${node.uid}`} {...mergeProps(props)}>
-        {jsx}
-      </Node>,
-    ];
-  }
   if (Before) {
     const {Node, props} = Before;
     jsx.unshift(<Node key={`${uid}_b_${node.uid}`} {...mergeProps(props)} />);
@@ -47,6 +39,14 @@ export function renderNode(node: SchemaNode, uid = '') {
   if (After) {
     const {Node, props} = After;
     jsx.push(<Node key={`${uid}_a_${node.uid}`} {...mergeProps(props)} />);
+  }
+  if (Wrap) {
+    const {Node, props} = Wrap;
+    jsx = [
+      <Node key={`${uid}_w_${node.uid}`} {...mergeProps(props)}>
+        {jsx}
+      </Node>,
+    ];
   }
 
   if (node.context.debug) {

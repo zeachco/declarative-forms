@@ -2,8 +2,15 @@ import {RangeSlider} from '@shopify/polaris';
 import React from 'react';
 
 import {NodeProps, useNode} from '../../..';
+import {SpecialProps, GenericExcludedComponentProps} from '../../../types';
 
-export function PolarisRangeSlider({node, ...props}: NodeProps) {
+type Props = SpecialProps<
+  typeof RangeSlider,
+  GenericExcludedComponentProps | 'label'
+> &
+  NodeProps;
+
+export function PolarisRangeSlider({node, ...props}: Props) {
   const {onChange, errors} = useNode(node);
   const errorMessages = errors.map((error) => node.translate('error', {error}));
   return (
@@ -12,7 +19,6 @@ export function PolarisRangeSlider({node, ...props}: NodeProps) {
         label={node.translate('label')}
         value={node.value || 0}
         onChange={onChange}
-        output
         error={errorMessages.length ? errorMessages : ''}
         {...props}
       />

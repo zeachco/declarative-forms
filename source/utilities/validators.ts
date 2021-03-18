@@ -2,27 +2,21 @@ import {ValidationError, Validator} from '../types';
 
 export function presenceValidator(
   val: any,
-  _options: Validator,
+  _options: Validator
 ): ValidationError | null {
   return (Array.isArray(val) ? val.length : val)
     ? null
     : new ValidationError('Presence');
 }
 
-function validateRegex(
-  val: any,
-  {format, message}: Validator,
-): ValidationError | null {
+function validateRegex(val: any, format: string): ValidationError | null {
   let exp = new RegExp('.*');
-  if (typeof format !== 'string') return null;
   try {
     exp = new RegExp(rubyRegexFromStackOverflow(format));
   } catch {
     exp = new RegExp(format);
   }
-  return exp.test(val)
-    ? null
-    : new ValidationError('Format', {format, message});
+  return exp.test(val) ? null : new ValidationError('Format', {format});
 }
 
 function rubyRegexFromStackOverflow(str: string) {
@@ -39,14 +33,14 @@ function rubyRegexFromStackOverflow(str: string) {
 
 export function formatValidator(
   val: any,
-  options: Validator,
+  options: Validator
 ): ValidationError | null {
   if (!options.format) {
     return null;
   }
 
   if (typeof options.format === 'string') {
-    return validateRegex(val, options);
+    return validateRegex(val, options.format);
   }
 
   // eslint-disable-next-line no-console
@@ -56,7 +50,7 @@ export function formatValidator(
 
 export function lengthValidator(
   val: string,
-  {maximum, minimum}: Validator,
+  {maximum, minimum}: Validator
 ): ValidationError | null {
   if (maximum && val?.length > maximum) {
     return new ValidationError(`MaximumLength`, {maximum});

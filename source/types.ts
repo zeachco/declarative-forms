@@ -176,6 +176,7 @@ export class SchemaNode {
     schema: SchemaNodeDefinitionLegacy,
     public path: string = '',
     public pathShort: string = path,
+    public pathVariant: string = path,
     public value: NodeValue = null,
   ) {
     const split = (this.path && this.path.split('.')) || [];
@@ -192,15 +193,23 @@ export class SchemaNode {
     }
     this.buildChildren();
     this.saveDecorators();
+    this.onChange(this.value, false);
   }
 
   public get uid() {
-    return [this.path, this.type].join('_');
+    return [this.pathVariant, this.type].join('_');
   }
 
-  public onChange(value: any) {
+  public onChange(value: any, validate = true) {
     this.value = value;
-    return this.validate();
+    this.updateVariant(value);
+    return validate ? this.validate() : this.errors;
+  }
+
+  public updateVariant(value: string) {
+    if (this.type === 'polymorphic') {
+      this.pathVariant = `${this.pathVariant.replace(/\[.*\]$/, ``)}[${value}]`;
+    }
   }
 
   public validate(): ValidationError[] {
@@ -261,6 +270,7 @@ export class SchemaNode {
       this.schema,
       this.path,
       this.pathShort,
+      this.pathVariant,
     );
     this.value.push(node);
     this.buildChildren();
@@ -299,7 +309,13 @@ export class SchemaNode {
 
       const subPath = [this.path, key].filter(Boolean).join('.');
       const spreadPath = this.pathShort.split('.');
-      if (this.type !== 'polymorphic') spreadPath.push(key);
+      let pathVariant = this.pathVariant;
+      if (this.type === 'polymorphic') {
+        pathVariant += `[${key}]`;
+      } else {
+        spreadPath.push(key);
+        pathVariant += this.depth ? `.${key}` : key;
+      }
       const subPathShort = spreadPath.filter(Boolean).join('.');
 
       children[key] = new SchemaNode(
@@ -307,6 +323,7 @@ export class SchemaNode {
         schema,
         subPath,
         subPathShort,
+        pathVariant,
         this.children[key]?.value,
       );
     });

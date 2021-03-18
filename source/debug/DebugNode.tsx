@@ -35,7 +35,14 @@ export function DebugNode({children, node}: DebugProps) {
       style={style}
     >
       <small style={{color}}>
-        {jsxAttr(node, ['type', 'name', 'depth', 'path', 'pathShort'])}
+        {jsxAttr(node, [
+          'type',
+          'name',
+          'depth',
+          'path',
+          'pathShort',
+          'pathVariant',
+        ])}
       </small>
       {children}
     </div>

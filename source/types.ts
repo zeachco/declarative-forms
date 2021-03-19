@@ -35,6 +35,7 @@ export interface SchemaNodeDefinitionLegacy {
   attributes?: {[key: string]: SchemaNodeDefinitionLegacy};
   validators?: Validator[];
   meta?: {[key: string]: any};
+  options?: string[];
 }
 
 export interface SchemaNodeDefinition {
@@ -159,6 +160,8 @@ export interface NodeChildrenMap {
   [key: string]: SchemaNode;
 }
 
+const NO_VALUE = Symbol('');
+
 // Schema Node
 export class SchemaNode {
   public errors: ValidationError[] = [];
@@ -177,14 +180,15 @@ export class SchemaNode {
     public path: string = '',
     public pathShort: string = path,
     public pathVariant: string = path,
-    public value: NodeValue = null,
+    public value: NodeValue = NO_VALUE,
+    private updateParent: SchemaNode['onChildrenChange'] = () => {},
   ) {
     const split = (this.path && this.path.split('.')) || [];
     this.depth = split.length;
     this.name = split.reverse()[0] || '';
     const formatter = this.context.formatters.local;
     this.value =
-      value === null
+      value === NO_VALUE
         ? this.context.values[this.path] || this.context.values[this.name]
         : value;
     this.schema = this.schemaCompatibilityLayer(schema);
@@ -200,10 +204,46 @@ export class SchemaNode {
     return [this.pathVariant, this.type].join('_');
   }
 
-  public onChange(value: any, validate = true) {
+  public onChange(value: any, validate = true, callParent = true) {
     this.value = value;
     this.updateVariant(value);
+    if (callParent) {
+      if (this.type === 'polymorphic') {
+        this.updateParent(this.name, this.childrenData());
+      } else {
+        this.updateParent(this.name, value);
+      }
+    }
     return validate ? this.validate() : this.errors;
+  }
+
+  public onChildrenChange(childrenName: string, childrenValue: any) {
+    // for intermediary nodes, values are objects representing children
+    if (
+      (this.attributes.length && this.value === null) ||
+      this.value === undefined
+    ) {
+      this.value = {};
+    }
+    // polymorphic nodes values are the polymorphic selection
+    // we skip that level but we register the selection on the parent's level
+    if (this.type === 'polymorphic') {
+      this.updateParent(this.name, {
+        ...childrenValue,
+        [`${this.name}Type`]: childrenName,
+      });
+      return;
+    }
+    // same for lists
+    if (this.isList) {
+      this.updateParent(this.name, childrenValue);
+      return;
+    }
+    // other types of nodes just get updated
+    this.onChange({
+      ...this.value,
+      [childrenName]: childrenValue,
+    });
   }
 
   public updateVariant(value: string) {
@@ -235,31 +275,6 @@ export class SchemaNode {
     return translator(this, args) || '';
   }
 
-  public data(): {[key: string]: any} {
-    if (this.type === 'polymorphic') {
-      return this.attributes.reduce((acc, key) => {
-        if (key === this.value) {
-          Object.assign(acc, this.children[key].data());
-          acc[`${this.name}Type`] = this.value;
-        }
-        return acc;
-      }, {} as any);
-    }
-    if (this.isList) {
-      return this.value.map((item: SchemaNode) => item.data());
-    } else if (this.attributes.length) {
-      return this.attributes.reduce((acc, key) => {
-        acc[key] = this.children[key].data();
-        return acc;
-      }, {} as any);
-    }
-
-    this.errors = this.validate();
-    const formatter = this.context.formatters.remote;
-
-    return formatter ? formatter(this.value, this.schema.type) : this.value;
-  }
-
   // methods specific to list type
   public addListItem() {
     if (!this.isList) {
@@ -271,6 +286,8 @@ export class SchemaNode {
       this.path,
       this.pathShort,
       this.pathVariant,
+      null,
+      (value, path) => this.onChildrenChange(value, path),
     );
     this.value.push(node);
     this.buildChildren();
@@ -325,6 +342,7 @@ export class SchemaNode {
         subPathShort,
         pathVariant,
         this.children[key]?.value,
+        (value, path) => this.onChildrenChange(value, path),
       );
     });
     this.children = children;
@@ -362,6 +380,10 @@ export class SchemaNode {
       }
     }
 
+    if (schema.options) {
+      this.value = this.value || schema.options[0] || '';
+    }
+
     this.type = type as NodeKind;
 
     return {
@@ -369,5 +391,32 @@ export class SchemaNode {
       attributes: schema.attributes as SchemaNodeDefinition['attributes'],
       type: this.type,
     };
+  }
+
+  private childrenData(validate = false): {[key: string]: any} {
+    if (this.type === 'polymorphic') {
+      return this.attributes.reduce((acc, key) => {
+        if (key === this.value) {
+          Object.assign(acc, this.children[key].childrenData());
+          acc[`${this.name}Type`] = this.value;
+        }
+        return acc;
+      }, {} as any);
+    }
+    if (this.isList) {
+      return this.value.map((item: SchemaNode) => item.childrenData());
+    } else if (this.attributes.length) {
+      const value = this.attributes.reduce((acc, key) => {
+        acc[key] = this.children[key].childrenData();
+        return acc;
+      }, {} as any);
+      this.value = value;
+      return value;
+    }
+
+    if (validate) this.validate();
+
+    const formatter = this.context.formatters.remote;
+    return formatter ? formatter(this.value, this.schema.type) : this.value;
   }
 }

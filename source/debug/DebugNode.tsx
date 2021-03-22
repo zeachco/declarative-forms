@@ -36,6 +36,7 @@ export function DebugNode({children, node}: DebugProps) {
     >
       <small style={{color}}>
         {jsxAttr(node, [
+          'uid',
           'type',
           'name',
           'depth',

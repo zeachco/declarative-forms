@@ -60,7 +60,7 @@ export function PolarisLayoutGridPosition({
       otherNodes = unselected;
     }
     jsx.push(
-      <FormLayout.Group condensed={condensed}>
+      <FormLayout.Group key={`g_${node.uid}_${row}`} condensed={condensed}>
         {renderNodes(selected)}
       </FormLayout.Group>,
     );
@@ -69,7 +69,7 @@ export function PolarisLayoutGridPosition({
   return (
     <FormLayout>
       {jsx}
-      {renderNodes(otherNodes as NodeChildrenMap)}
+      {renderNodes(otherNodes, `o_${node.uid}`)}
     </FormLayout>
   );
 }

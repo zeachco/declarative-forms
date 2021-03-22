@@ -201,18 +201,17 @@ export class SchemaNode {
   }
 
   public get uid() {
-    return [this.pathVariant, this.type].join('_');
+    return [this.path, this.type].join('_');
   }
 
   public onChange(value: any, validate = true, callParent = true) {
     this.value = value;
     this.updateVariant(value);
     if (callParent) {
-      if (this.type === 'polymorphic') {
-        this.updateParent(this.name, this.childrenData());
-      } else {
-        this.updateParent(this.name, value);
-      }
+      this.updateParent(
+        this.name,
+        this.type === 'polymorphic' ? this.childrenData() : value,
+      );
     }
     return validate ? this.validate() : this.errors;
   }
@@ -236,8 +235,10 @@ export class SchemaNode {
     }
     // same for lists
     if (this.isList) {
-      // TODO update value correctly FIXME
-      this.updateParent(this.name, childrenValue);
+      this.updateParent(
+        this.name,
+        this.value.map((item: SchemaNode) => item.childrenData()),
+      );
       return;
     }
     // other types of nodes just get updated
@@ -310,7 +311,7 @@ export class SchemaNode {
   }
 
   // utilities
-  private buildChildren() {
+  private buildChildren(index?: number) {
     const children: SchemaNode['children'] = {};
     if (this.isList) {
       this.value.forEach((node: SchemaNode, newIndex: number) => {
@@ -332,6 +333,9 @@ export class SchemaNode {
       let pathVariant = this.pathVariant;
       if (this.type === 'polymorphic') {
         pathVariant += `[${key}]`;
+      } else if (typeof index === 'number') {
+        spreadPath.push(key);
+        pathVariant += `[${index}].${key}`;
       } else {
         spreadPath.push(key);
         pathVariant += this.depth ? `.${key}` : key;

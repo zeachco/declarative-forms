@@ -2,6 +2,7 @@ import {Card} from '@shopify/polaris';
 import {DeclarativeFormContext} from '../source';
 import {
   decorateWithPolarisComponents,
+  PolarisLayoutGridPosition,
   PolarisPolymorphicNode,
   PolarisRangeSlider,
 } from '../source/plugins/polaris';
@@ -35,6 +36,7 @@ export function decorateV1(context: DeclarativeFormContext) {
 
   context
     .where(({type, isList}) => type === 'AdditionalOwner' && !isList)
+    .replaceWith(PolarisLayoutGridPosition, {grid: [['firstName', 'lastName']]})
     .packWith(FormCardContainer)
     .appendWith(PeopleDeleteButton);
 
@@ -43,6 +45,6 @@ export function decorateV1(context: DeclarativeFormContext) {
     .wrapWith(FormCardContainer);
 
   context
-    .where(({path}) => /ownershipPercentage$/.test(path))
+    .where(({name}) => name === 'ownershipPercentage')
     .replaceWith(PolarisRangeSlider, {min: 0, max: 100, output: true});
 }

@@ -9,13 +9,14 @@ export function renderNodes(nodes: NodeChildrenMap, uid = '') {
 }
 
 export function renderNode(node: SchemaNode, uid = '') {
+  const reactKey = `${node.uid}_${uid}`;
   let jsx: React.ReactNodeArray = [];
   const nodeChildren: React.ReactNodeArray = [];
 
   node.attributes.forEach((key) => {
     const child = node.children[key];
     if (node.type !== 'polymorphic') {
-      nodeChildren.push(...renderNode(child, child.uid));
+      nodeChildren.push(...renderNode(child, reactKey));
     }
   });
 
@@ -27,7 +28,7 @@ export function renderNode(node: SchemaNode, uid = '') {
   if (Replace) {
     const {Node, props} = Replace;
     jsx = [
-      <Node key={`${uid}_r_${node.uid}`} {...mergeProps(props)}>
+      <Node key={`_r_${reactKey}`} {...mergeProps(props)}>
         {jsx}
       </Node>,
     ];
@@ -35,23 +36,23 @@ export function renderNode(node: SchemaNode, uid = '') {
   if (Wrap) {
     const {Node, props} = Wrap;
     jsx = [
-      <Node key={`${uid}_w_${node.uid}`} {...mergeProps(props)}>
+      <Node key={`_w_${reactKey}`} {...mergeProps(props)}>
         {jsx}
       </Node>,
     ];
   }
   if (Before) {
     const {Node, props} = Before;
-    jsx.unshift(<Node key={`${uid}_b_${node.uid}`} {...mergeProps(props)} />);
+    jsx.unshift(<Node key={`_b_${reactKey}`} {...mergeProps(props)} />);
   }
   if (After) {
     const {Node, props} = After;
-    jsx.push(<Node key={`${uid}_a_${node.uid}`} {...mergeProps(props)} />);
+    jsx.push(<Node key={`_a_${reactKey}`} {...mergeProps(props)} />);
   }
 
   if (node.context.debug) {
     jsx = [
-      <DebugNode key={`${uid}_debug_${node.uid}`} node={node}>
+      <DebugNode key={`_debug_${reactKey}`} node={node}>
         {jsx}
       </DebugNode>,
     ];
@@ -60,7 +61,7 @@ export function renderNode(node: SchemaNode, uid = '') {
   if (Pack) {
     const {Node, props} = Pack;
     return [
-      <Node key={`${uid}_p_${node.uid}`} {...mergeProps(props)}>
+      <Node key={`_p_${reactKey}`} {...mergeProps(props)}>
         {jsx}
       </Node>,
     ];

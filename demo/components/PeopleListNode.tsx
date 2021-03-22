@@ -15,7 +15,7 @@ export function PeopleListNode({node, deletable}: NodeProps & Props) {
   node.value.forEach((child: SchemaNode) => {
     // HACK to avoid react key collisions when deleting nodes
     const uid = Math.random();
-    additionnalOwnersJsx.push(...renderNodes({child}));
+    additionnalOwnersJsx.push(...renderNodes({child}, `c_${uid}`));
     if (deletable) {
       additionnalOwnersJsx.push(
         <PeopleDeleteButton key={`${uid}_delete`} node={child} />,

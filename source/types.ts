@@ -236,6 +236,7 @@ export class SchemaNode {
     }
     // same for lists
     if (this.isList) {
+      // TODO update value correctly FIXME
       this.updateParent(this.name, childrenValue);
       return;
     }

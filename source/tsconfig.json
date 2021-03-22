@@ -1,13 +1,12 @@
 {
-  // "extends": "../../../config/typescript/tsconfig.base.json",
+  "extends": "../../../config/typescript/tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": "../../../",
     "rootDir": "../../../",
     "outDir": "../../../build/ts",
     "resolveJsonModule": true,
     "jsx": "react",
-    "allowSyntheticDefaultImports": true,
-    "lib": ["ESNext"]
+    "allowSyntheticDefaultImports": true
   },
   "include": [".", "./plugins/polaris", "./plugins/basic"],
   "files": [".", "./plugins/polaris", "./plugins/basic"]

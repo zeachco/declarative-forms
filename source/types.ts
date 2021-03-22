@@ -270,7 +270,9 @@ export class SchemaNode {
     const {translators} = this.context;
     const translator = translators[mode as keyof typeof translators];
     if (!translator) {
-      return translators?.default(this, {...args, key: mode}) || '';
+      return translators.default
+        ? translators.default(this, {...args, key: mode})
+        : '';
     }
     return translator(this, args) || '';
   }

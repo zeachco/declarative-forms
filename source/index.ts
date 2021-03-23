@@ -11,7 +11,6 @@ export type {
   FormatterFn,
   TranslatorFn,
   DecoratorKeys,
-  DecoratorObject,
   GenericExcludedComponentProps,
   SpecialProps,
   FormContext,

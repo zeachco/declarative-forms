@@ -42,7 +42,7 @@ export class DeclarativeFormContext implements FormContext {
     decorate(this as DeclarativeFormContext);
   }
 
-  public where(fn: Decorator['match']) {
+  public where(fn: Decorator['match']): Omit<Decorator, 'apply'> {
     const decorator = new Decorator(fn);
     this.decorators.push(decorator);
     return decorator;

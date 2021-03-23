@@ -71,11 +71,12 @@ export interface FormContext {
     error?: TranslatorFn;
   };
   decorators: Decorator[];
-  where(fn: DecoratorMatcher): Decorator;
+  where(fn: DecoratorMatcher): Omit<Decorator, 'apply'>;
 }
 
 // Decorators
-export type DecoratorKeys = 'Replace' | 'Before' | 'After' | 'Wrap' | 'Pack';
+const slotNames = ['Before', 'After', 'Wrap', 'Pack', 'Replace'] as const;
+export type DecoratorKeys = typeof slotNames[number];
 
 interface DecoratorSlot {
   Node?: ReactComponent;
@@ -83,7 +84,6 @@ interface DecoratorSlot {
 }
 
 type DecoratorMatcher = (node: SchemaNode) => boolean;
-export type DecoratorObject = Partial<Omit<Decorator, 'match'>>;
 
 // decorator props to components
 type Noop = (props: any) => React.ReactNode;
@@ -113,14 +113,30 @@ export type DecoratorPropsGetter<T extends Noop> =
   | SpecialProps<T>
   | ((node: SchemaNode) => SpecialProps<T>);
 
-export class Decorator {
-  public Before?: DecoratorSlot;
-  public After?: DecoratorSlot;
-  public Wrap?: DecoratorSlot;
-  public Pack?: DecoratorSlot;
-  public Replace?: DecoratorSlot;
+interface RegisteredDecorations {
+  Before?: DecoratorSlot;
+  After?: DecoratorSlot;
+  Wrap?: DecoratorSlot;
+  Pack?: DecoratorSlot;
+  Replace?: DecoratorSlot;
+}
 
-  constructor(public match: DecoratorMatcher) {}
+export class Decorator {
+  private Before?: DecoratorSlot;
+  private After?: DecoratorSlot;
+  private Wrap?: DecoratorSlot;
+  private Pack?: DecoratorSlot;
+  private Replace?: DecoratorSlot;
+
+  constructor(private match: DecoratorMatcher) {}
+
+  public apply(node: SchemaNode) {
+    if (this.match(node)) {
+      slotNames.forEach((key) => {
+        if (this[key]) node.decorator[key] = this[key];
+      });
+    }
+  }
 
   public replaceWith<T extends Noop>(fc: T, props?: DecoratorPropsGetter<T>) {
     return this.store('Replace', fc, props);
@@ -146,7 +162,7 @@ export class Decorator {
     slotName: DecoratorKeys,
     fc: T,
     props?: DecoratorPropsGetter<T>,
-  ) {
+  ): Omit<Decorator, 'apply'> {
     this[slotName] = {Node: fc, props};
     return this;
   }
@@ -172,7 +188,7 @@ export class SchemaNode {
   public depth: number;
   public name: string;
   public type = '';
-  public decorator: DecoratorObject = {};
+  public decorator: RegisteredDecorations = {};
 
   constructor(
     public context: FormContext,
@@ -248,12 +264,6 @@ export class SchemaNode {
     });
   }
 
-  public updateVariant(value: string) {
-    if (this.type === 'polymorphic') {
-      this.pathVariant = `${this.pathVariant.replace(/\[.*\]$/, ``)}[${value}]`;
-    }
-  }
-
   public validate(): ValidationError[] {
     if (!this.schema.validators) return [];
 
@@ -311,6 +321,12 @@ export class SchemaNode {
   }
 
   // utilities
+  private updateVariant(value: string) {
+    if (this.type === 'polymorphic') {
+      this.pathVariant = `${this.pathVariant.replace(/\[.*\]$/, ``)}[${value}]`;
+    }
+  }
+
   private buildChildren(index?: number) {
     const children: SchemaNode['children'] = {};
     if (this.isList) {
@@ -357,10 +373,7 @@ export class SchemaNode {
 
   private saveDecorators() {
     this.context.decorators.forEach((decorator: Decorator) => {
-      const {match, ...decoratorMods} = decorator;
-      if (match(this)) {
-        Object.assign(this.decorator, decoratorMods);
-      }
+      decorator.apply(this);
     });
   }
 

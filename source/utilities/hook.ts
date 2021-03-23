@@ -25,6 +25,7 @@ export function useNode(node: SchemaNode) {
   const update = (merge: Partial<typeof state>) =>
     setState({...state, ...merge});
 
+  // FIXME resolve useEffect dependencies so they are not circular
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(refreshListItems, [node.value]);
   // eslint-disable-next-line react-hooks/exhaustive-deps

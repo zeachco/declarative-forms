@@ -24,7 +24,6 @@
     "@shopify/polaris": "6.0.1"
   },
   "dependencies": {
-    "@zeachco/declarative-form": "^0.1.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
   }

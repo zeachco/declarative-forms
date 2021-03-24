@@ -5,7 +5,7 @@
   "description": "React package to generate forms based on a schema",
   "author": "Olivier Rousseau-Guyot <zeachco@gmail.com>",
   "license": "MIT",
-  "main": "dist/index.ts",
+  "main": "dist",
   "repository": "https://github.com/zeachco/declarative-form",
   "scripts": {
     "start": "rimraf .cache dist && parcel public/index.html",

@@ -3,7 +3,7 @@ import {V2} from './v2';
 
 export function translateLabel(node: SchemaNode) {
   // HACK poorman translator mock
-  const pathEnd = node.path.split('.').reverse()[0] || node.path;
+  const pathEnd = node.path.tail;
   return (
     pathEnd
       // space camel cased chars
@@ -58,6 +58,5 @@ function get(obj, path) {
 }
 
 export function translateLabelsForV2(key: string) {
-  return (node: SchemaNode) =>
-    get(labelsForV2, node.path.split('.').concat(key).filter(Boolean));
+  return (node: SchemaNode) => get(labelsForV2, node.path.add(key).toString());
 }

@@ -35,29 +35,29 @@ export function DebugNode({children, node}: DebugProps) {
       style={style}
     >
       <small style={{color}}>
-        {jsxAttr(node, [
-          'uid',
-          'type',
-          'name',
-          'depth',
-          'path',
-          'pathShort',
-          'pathVariant',
-        ])}
+        {['uid', 'type', 'name', 'depth'].map((key) => (
+          <DebugAttribute key={key} name={key} value={node[key]} />
+        ))}
+        <DebugAttribute name="path" value={node.path.toString()} />
+        <DebugAttribute name="pathShort" value={node.path.toStringShort()} />
+        <DebugAttribute
+          name="pathWithBrackets"
+          value={node.path.toStringShort(true, true)}
+        />
       </small>
       {children}
     </div>
   );
 }
 
-function jsxAttr(node: SchemaNode, attributes: (keyof SchemaNode)[]) {
-  return attributes.map((key: keyof SchemaNode) => (
-    <span key={key} style={{color: 'gray', fontSize: '.5em'}}>
-      {key}=&quot;
+function DebugAttribute({name = '', value = ''}) {
+  return (
+    <span style={{color: 'gray', fontSize: '.5em'}}>
+      {name}=&quot;
       <i>
-        <span style={{color: 'black'}}>{node[key]}</span>
+        <span style={{color: 'black'}}>{value}</span>
       </i>
       &quot;{' '}
     </span>
-  ));
+  );
 }

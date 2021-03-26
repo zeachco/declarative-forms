@@ -178,6 +178,57 @@ export interface NodeChildrenMap {
 
 const NO_VALUE = Symbol('');
 
+class PathSegment {
+  constructor(
+    public key: string,
+    public isList = false,
+    public isVariant = false,
+  ) {}
+
+  toString() {
+    return this.key;
+  }
+}
+
+export class Path {
+  public segments: PathSegment[];
+  public head: string;
+  public tail: string;
+
+  constructor(
+    name: string = '',
+    segments: PathSegment[] = [],
+    {isVariant = false, isList = false} = {},
+  ) {
+    if (!name) {
+      this.segments = [];
+      this.tail = '';
+      this.head = '';
+      return this;
+    }
+    const tail = new PathSegment(name, isList, isVariant);
+    this.segments = segments.concat(tail);
+    this.head = segments[0]?.toString() || '';
+    this.tail = tail.toString();
+  }
+
+  add(name: string, isList = false, isVariant = false): Path {
+    return new Path(name, this.segments, {isList, isVariant});
+  }
+
+  toString(): string {
+    return this.segments.join('.');
+  }
+
+  toStringShort(withVariant = false, withList = false): string {
+    return this.segments.reduce((acc: string, seg: PathSegment) => {
+      if (seg.isList) return withList ? `${acc}[${seg}]` : acc;
+      if (seg.isVariant) return withVariant ? `${acc}[${seg}]` : acc;
+      return acc ? `${acc}.${seg}` : seg.toString();
+    }, '');
+  }
+}
+
 // Schema Node
 export class SchemaNode {
   public errors: ValidationError[] = [];
@@ -193,19 +244,17 @@ export class SchemaNode {
   constructor(
     public context: FormContext,
     schema: SchemaNodeDefinitionLegacy,
-    public path: string = '',
-    public pathShort: string = path,
-    public pathVariant: string = path,
+    public path: Path = new Path(),
     public value: NodeValue = NO_VALUE,
     private updateParent: SchemaNode['onChildrenChange'] = () => {},
   ) {
-    const split = (this.path && this.path.split('.')) || [];
-    this.depth = split.length;
-    this.name = split.reverse()[0] || '';
+    this.depth = path.segments.length;
+    this.name = path.tail.toString();
     const formatter = this.context.formatters.local;
     this.value =
       value === NO_VALUE
-        ? this.context.values[this.path] || this.context.values[this.name]
+        ? this.context.values[this.path.toString()] ||
+          this.context.values[this.name]
         : value;
     this.schema = this.schemaCompatibilityLayer(schema);
     if (formatter) {
@@ -217,7 +266,7 @@ export class SchemaNode {
   }
 
   public get uid() {
-    return [this.path, this.type].join('_');
+    return this.path.toString();
   }
 
   public onChange(value: any, validate = true, callParent = true) {
@@ -297,9 +346,7 @@ export class SchemaNode {
     const node = new SchemaNode(
       this.context,
       this.schema,
-      this.path,
-      this.pathShort,
-      this.pathVariant,
+      this.path.add('-1', true),
       null,
       (value, path) => this.onChildrenChange(value, path),
     );
@@ -323,15 +370,15 @@ export class SchemaNode {
   // utilities
   private updateVariant(value: string) {
     if (this.type === 'polymorphic') {
-      this.pathVariant = `${this.pathVariant.replace(/\[.*\]$/, ``)}[${value}]`;
+      this.path.segments.splice(-1, 1, new PathSegment(value));
     }
   }
 
-  private buildChildren(index?: number) {
+  private buildChildren() {
     const children: SchemaNode['children'] = {};
     if (this.isList) {
       this.value.forEach((node: SchemaNode, newIndex: number) => {
-        node.path = [this.path, newIndex].join('.');
+        node.path = this.path.add(newIndex.toString(), true);
         node.buildChildren();
       });
       return;
@@ -344,26 +391,10 @@ export class SchemaNode {
       const attributes = this.schema.attributes!;
       const schema = attributes[key] as SchemaNodeDefinition;
 
-      const subPath = [this.path, key].filter(Boolean).join('.');
-      const spreadPath = this.pathShort.split('.');
-      let pathVariant = this.pathVariant;
-      if (this.type === 'polymorphic') {
-        pathVariant += `[${key}]`;
-      } else if (typeof index === 'number') {
-        spreadPath.push(key);
-        pathVariant += `[${index}].${key}`;
-      } else {
-        spreadPath.push(key);
-        pathVariant += this.depth ? `.${key}` : key;
-      }
-      const subPathShort = spreadPath.filter(Boolean).join('.');
-
       children[key] = new SchemaNode(
         this.context,
         schema,
-        subPath,
-        subPathShort,
-        pathVariant,
+        this.path.add(key, this.isList, this.type === 'polymorphic'),
         this.children[key]?.value,
         (value, path) => this.onChildrenChange(value, path),
       );

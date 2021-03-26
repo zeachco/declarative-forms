@@ -17,7 +17,7 @@ export function decorateV1(context: DeclarativeFormContext) {
   decorateWithPolarisComponents(context);
 
   context
-    .where(({pathShort}) => pathShort === 'legalEntity.businessDetails')
+    .where(({path}) => path.toStringShort() === 'legalEntity.businessDetails')
     .replaceWith(SpecialBusinessDetails);
 
   context

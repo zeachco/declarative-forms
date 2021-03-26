@@ -25,11 +25,11 @@ export function useNode(node: SchemaNode) {
   const update = (merge: Partial<typeof state>) =>
     setState({...state, ...merge});
 
-  // FIXME resolve useEffect dependencies so they are not circular
+  // To~do will resolve useEffect dependencies so they are not circular later
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(refreshListItems, [node.value]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(refreshFromContext, [reactContext, node.pathShort]);
+  useEffect(refreshFromContext, [reactContext, node.path]);
 
   function onChange(value: any) {
     update({errors: node.onChange(value)});
@@ -42,7 +42,7 @@ export function useNode(node: SchemaNode) {
   function refreshListItems() {
     if (!node.isList || !Array.isArray(node.value)) return;
     node.value.forEach((child: SchemaNode, newIndex: number) => {
-      child.path = [node.path, newIndex].join('.');
+      child.path = node.path.add(newIndex.toString(), true);
       child.deleteSelf = () => removeListItem(newIndex);
     });
 
@@ -52,7 +52,7 @@ export function useNode(node: SchemaNode) {
   }
 
   function refreshFromContext() {
-    const serverErrorNode = reactContext.errors[node.pathShort];
+    const serverErrorNode = reactContext.errors[node.path.toStringShort()];
     const serverErrors: ValidationError[] = Array.isArray(serverErrorNode)
       ? serverErrorNode.map((error) => new ValidationError('server', {error}))
       : [];

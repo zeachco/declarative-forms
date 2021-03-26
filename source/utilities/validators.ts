@@ -2,7 +2,7 @@ import {ValidationError, Validator} from '../types';
 
 export function presenceValidator(
   val: any,
-  _options: Validator
+  _options: Validator,
 ): ValidationError | null {
   return (Array.isArray(val) ? val.length : val)
     ? null
@@ -33,7 +33,7 @@ function rubyRegexFromStackOverflow(str: string) {
 
 export function formatValidator(
   val: any,
-  options: Validator
+  options: Validator,
 ): ValidationError | null {
   if (!options.format) {
     return null;
@@ -50,7 +50,7 @@ export function formatValidator(
 
 export function lengthValidator(
   val: string,
-  {maximum, minimum}: Validator
+  {maximum, minimum}: Validator,
 ): ValidationError | null {
   if (maximum && val?.length > maximum) {
     return new ValidationError(`MaximumLength`, {maximum});

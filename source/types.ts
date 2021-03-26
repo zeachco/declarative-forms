@@ -196,20 +196,20 @@ export class Path {
   public tail: string;
 
   constructor(
-    name: string = '',
+    name = '',
     segments: PathSegment[] = [],
     {isVariant = false, isList = false} = {},
   ) {
-    if (!name) {
+    if (name) {
+      const tail = new PathSegment(name, isList, isVariant);
+      this.segments = segments.concat(tail);
+      this.head = segments[0]?.toString() || '';
+      this.tail = tail.toString();
+    } else {
       this.segments = [];
       this.tail = '';
       this.head = '';
-      return this;
     }
-    const tail = new PathSegment(name, isList, isVariant);
-    this.segments = segments.concat(tail);
-    this.head = segments[0]?.toString() || '';
-    this.tail = tail.toString();
   }
 
   add(name: string, isList = false, isVariant = false): Path {

@@ -265,6 +265,20 @@ export class SchemaNode {
     this.onChange(this.value, false);
   }
 
+  /**
+   * @deprecated use .path.toStringShort() instead
+   */
+  public get pathShort() {
+    return this.path.toStringShort();
+  }
+
+  /**
+   * @deprecated use .path.toStringShort(true) instead
+   */
+  public get pathVariant() {
+    return this.path.toStringShort(true);
+  }
+
   public get uid() {
     return this.path.toString();
   }

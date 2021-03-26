@@ -1,5 +1,5 @@
 export {renderNode, renderNodes} from './utilities/RenderNode';
-export {SchemaNode, Decorator, ValidationError} from './types';
+export {SchemaNode, Decorator, ValidationError, Path} from './types';
 export type {
   NodeKind,
   NodeValue,

@@ -4,14 +4,12 @@ import React from 'react';
 import {NodeProps, renderNodes, useNode} from '../../..';
 
 interface Props {
-  wrap?: boolean;
-  nestWithChildren?: string;
+  nestWithChild?: string;
 }
 
 export function PolarisPolymorphicNode({
   node,
-  wrap,
-  nestWithChildren,
+  nestWithChild,
 }: NodeProps & Props) {
   const {onChange, errors} = useNode(node);
   const variant = node.children[node.value];
@@ -24,12 +22,10 @@ export function PolarisPolymorphicNode({
   });
   const title = node.translate('sectionTitle');
   const label = node.translate('label');
-  const errorMessages = errors.map((error) => (
-    <strong key={error.type}>{node.translate('error', {error})}</strong>
-  ));
+  const error = errors[0] ? node.translate('error', {error: errors[0]}) : '';
 
-  if (nestWithChildren && variant) {
-    const {[nestWithChildren]: nestedNode, ...otherNodes} = variant.children;
+  if (nestWithChild && variant) {
+    const {[nestWithChild]: nestedNode, ...otherNodes} = variant.children;
     return (
       <>
         <Card title={title}>
@@ -40,8 +36,8 @@ export function PolarisPolymorphicNode({
                 onChange={onChange}
                 options={options}
                 value={node.value}
+                error={error}
               />
-              {errorMessages}
             </FormLayout>
           </Card.Section>
           <Card.Section>
@@ -53,27 +49,6 @@ export function PolarisPolymorphicNode({
     );
   }
 
-  if (wrap) {
-    return (
-      <>
-        <Card title={title}>
-          <Card.Section>
-            <FormLayout>
-              <Select
-                label={label}
-                onChange={onChange}
-                options={options}
-                value={node.value}
-              />
-              {errorMessages}
-            </FormLayout>
-          </Card.Section>
-        </Card>
-        {variant && renderNodes({variant})}
-      </>
-    );
-  }
-
   return (
     <FormLayout>
       <Select
@@ -81,8 +56,8 @@ export function PolarisPolymorphicNode({
         onChange={onChange}
         options={options}
         value={node.value}
+        error={error}
       />
-      {errorMessages}
       {variant && renderNodes({variant})}
     </FormLayout>
   );

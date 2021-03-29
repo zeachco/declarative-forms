@@ -6,19 +6,14 @@ import {ValidationError, NodeProps, useNode} from '../../..';
 export function PolarisStringNode({node, ...props}: NodeProps & any) {
   const {onChange, errors, validate} = useNode(node);
 
-  // HACK to avoid making two components
-  if (node.schema.kind === 'integer') {
-    props.type = 'number';
-  }
-
   const allProps = {
     ...(node.schema.meta || {}),
     ...props,
-  };
 
-  if (allProps.multiline) {
-    allProps.multiline = 5;
-  }
+    // Workaround to avoid making two components.
+    type: node.schema.kind === 'integer' ? 'number' : props.type,
+    multiline: props.multiline === true ? 5 : null,
+  };
 
   return (
     <TextField

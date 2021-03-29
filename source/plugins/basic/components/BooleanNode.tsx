@@ -7,15 +7,19 @@ export function BooleanNode({node}: NodeProps) {
   const {onChange, errors, validate} = useNode(node);
   return (
     <label>
-      {node.translate('label')}:{' '}
+      <div id={node.uid}>{node.translate('label')}</div>
       <input
         type="checkbox"
         onChange={handleChange}
         checked={Boolean(node.value)}
+        aria-invalid={errors.length > 0}
+        aria-describedby={node.uid}
       />
-      {errors.map((error) => (
-        <strong key={error.type}>{node.translate('error', {error})}</strong>
-      ))}
+      <div role="alert">
+        {errors.map((error) => (
+          <strong key={error.type}>{node.translate('error', {error})}</strong>
+        ))}
+      </div>
     </label>
   );
 

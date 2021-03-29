@@ -15,7 +15,7 @@ export function renderNode(node: SchemaNode, uid = '') {
 
   node.attributes.forEach((key) => {
     const child = node.children[key];
-    if (node.type !== 'polymorphic') {
+    if (!node.isVariant) {
       nodeChildren.push(...renderNode(child, reactKey));
     }
   });
@@ -28,7 +28,7 @@ export function renderNode(node: SchemaNode, uid = '') {
   if (Replace) {
     const {Node, props} = Replace;
     jsx = [
-      <Node key={`_r_${reactKey}`} {...mergeProps(props)}>
+      <Node key={`replace_${reactKey}`} {...mergeProps(props)}>
         {jsx}
       </Node>,
     ];
@@ -36,23 +36,23 @@ export function renderNode(node: SchemaNode, uid = '') {
   if (Wrap) {
     const {Node, props} = Wrap;
     jsx = [
-      <Node key={`_w_${reactKey}`} {...mergeProps(props)}>
+      <Node key={`wrap_${reactKey}`} {...mergeProps(props)}>
         {jsx}
       </Node>,
     ];
   }
   if (Before) {
     const {Node, props} = Before;
-    jsx.unshift(<Node key={`_b_${reactKey}`} {...mergeProps(props)} />);
+    jsx.unshift(<Node key={`before_${reactKey}`} {...mergeProps(props)} />);
   }
   if (After) {
     const {Node, props} = After;
-    jsx.push(<Node key={`_a_${reactKey}`} {...mergeProps(props)} />);
+    jsx.push(<Node key={`after_${reactKey}`} {...mergeProps(props)} />);
   }
 
   if (node.context.debug) {
     jsx = [
-      <DebugNode key={`_debug_${reactKey}`} node={node}>
+      <DebugNode key={`debug_${reactKey}`} node={node}>
         {jsx}
       </DebugNode>,
     ];
@@ -61,7 +61,7 @@ export function renderNode(node: SchemaNode, uid = '') {
   if (Pack) {
     const {Node, props} = Pack;
     return [
-      <Node key={`_p_${reactKey}`} {...mergeProps(props)}>
+      <Node key={`pack_${reactKey}`} {...mergeProps(props)}>
         {jsx}
       </Node>,
     ];
@@ -70,11 +70,8 @@ export function renderNode(node: SchemaNode, uid = '') {
 }
 
 function getPropsMerger(node: SchemaNode) {
-  return (add: object = {}) => {
-    const base = typeof add === 'function' ? add(node) : add;
-    return {
-      ...base,
-      node,
-    };
-  };
+  return (customProps: object = {}) => ({
+    ...(typeof customProps === 'function' ? customProps(node) : customProps),
+    node,
+  });
 }

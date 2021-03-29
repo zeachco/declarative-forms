@@ -9,7 +9,7 @@ export function useNode(node: SchemaNode) {
     throw new Error('bad node type received');
   }
 
-  const reactContext = useContext(node.context.ReactContext);
+  const declarativeFormsReactContext = useContext(node.context.ReactContext);
 
   const [state, setState] = useState({
     errors: node.errors || [],
@@ -19,7 +19,7 @@ export function useNode(node: SchemaNode) {
     removeListItem,
     addListItem,
     refreshListItems,
-    reactContext,
+    declarativeFormsReactContext,
   });
 
   const update = (merge: Partial<typeof state>) =>
@@ -29,7 +29,7 @@ export function useNode(node: SchemaNode) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(refreshListItems, [node.value]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(refreshFromContext, [reactContext, node.path]);
+  useEffect(refreshContextErrors, [declarativeFormsReactContext, node.path]);
 
   function onChange(value: any) {
     update({errors: node.onChange(value)});
@@ -39,6 +39,11 @@ export function useNode(node: SchemaNode) {
     update({errors: node.validate()});
   }
 
+  // in order to detect changes from children nodes,
+  // we assign them a hook removal callback for removal
+  // gotcha: if we render the same node structure
+  // into two different react components, only one (the latest)
+  // would be updated in real time
   function refreshListItems() {
     if (!node.isList || !Array.isArray(node.value)) return;
     node.value.forEach((child: SchemaNode, newIndex: number) => {
@@ -51,8 +56,9 @@ export function useNode(node: SchemaNode) {
     });
   }
 
-  function refreshFromContext() {
-    const serverErrorNode = reactContext.errors[node.path.toStringShort()];
+  function refreshContextErrors() {
+    const serverErrorNode =
+      declarativeFormsReactContext.errors[node.path.toStringShort()];
     const serverErrors: ValidationError[] = Array.isArray(serverErrorNode)
       ? serverErrorNode.map((error) => new ValidationError('server', {error}))
       : [];

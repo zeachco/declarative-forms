@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import React from 'react';
 
 // Utils and functions
@@ -21,13 +20,13 @@ export interface Validator {
   name: string;
   maximum?: number;
   minimum?: number;
-  format?:
-    | string
-    | {
-        greater_than?: number;
-        less_than?: number;
-        allow_nill?: boolean;
-      };
+  format?: string;
+  // ! Client don't support this format yet but server could
+  // | {
+  //     greater_than?: number;
+  //     less_than?: number;
+  //     allow_nill?: boolean;
+  //   };
 }
 
 export interface SchemaNodeDefinitionLegacy {
@@ -216,10 +215,20 @@ export class Path {
     return new Path(name, this.segments, {isList, isVariant});
   }
 
+  /**
+   * @description full path including variant selections and array indexes
+   */
   toString(): string {
     return this.segments.join('.');
   }
 
+  /**
+   * @description full path separated by dots without variant selections or indexes.
+   * Variants and indexes can still be included with a bracket syntax by passing setting
+   * withVariant or withList arguments
+   * @param withVariant show variant selections next to their polymorphic node ei: "foo.node[selectedVariant].bar"
+   * @param withList show indexes next to their list node ei: "foo.node[0].bar"
+   */
   toStringShort(withVariant = false, withList = false): string {
     return this.segments.reduce((acc: string, seg: PathSegment) => {
       if (seg.isList) return withList ? `${acc}[${seg}]` : acc;
@@ -235,6 +244,7 @@ export class SchemaNode {
   public children: NodeChildrenMap = {};
   public schema: SchemaNodeDefinition;
   public isList = false;
+  public isVariant = false;
   public attributes: string[] = [];
   public depth: number;
   public name: string;
@@ -256,6 +266,9 @@ export class SchemaNode {
         ? this.context.values[this.path.toString()] ||
           this.context.values[this.name]
         : value;
+    // the invocation of schemaCompatibilityLayer must be after value hydratation
+    // since it redefines the value but it must be before building
+    // the children because it sets the type of node as well
     this.schema = this.schemaCompatibilityLayer(schema);
     if (formatter) {
       this.value = formatter(this.value, this.type);
@@ -279,22 +292,33 @@ export class SchemaNode {
     return this.path.toStringShort(true);
   }
 
+  /**
+   * @description usefull for react key since it aims to be unique
+   */
   public get uid() {
     return this.path.toString();
   }
 
+  // Generic onchange called by the useNode hook or upon construction
+  // we can turn up bubbling the even up or validating in some cases
   public onChange(value: any, validate = true, callParent = true) {
     this.value = value;
     this.updateVariant(value);
     if (callParent) {
       this.updateParent(
         this.name,
-        this.type === 'polymorphic' ? this.childrenData() : value,
+        this.isVariant ? this.childrenData() : value,
       );
     }
     return validate ? this.validate() : this.errors;
   }
 
+  // This method allows bubbling up the values of the children
+  // when they change, for some type of nodes, we want to skip
+  // to the next parent because the node is an abstraction
+  // ei: the polymorphic and list nodes have values that represent
+  // their list of selected variants instead of the value of their children
+  // so they will just pass up the value to the next node above them
   public onChildrenChange(childrenName: string, childrenValue: any) {
     // for intermediary nodes, values are objects representing children
     if (
@@ -305,7 +329,7 @@ export class SchemaNode {
     }
     // polymorphic nodes values are the polymorphic selection
     // we skip that level but we register the selection on the parent's level
-    if (this.type === 'polymorphic') {
+    if (this.isVariant) {
       this.updateParent(this.name, {
         ...childrenValue,
         [`${this.name}Type`]: childrenName,
@@ -383,7 +407,7 @@ export class SchemaNode {
 
   // utilities
   private updateVariant(value: string) {
-    if (this.type === 'polymorphic') {
+    if (this.isVariant) {
       this.path.segments.splice(-1, 1, new PathSegment(value));
     }
   }
@@ -408,7 +432,7 @@ export class SchemaNode {
       children[key] = new SchemaNode(
         this.context,
         schema,
-        this.path.add(key, this.isList, this.type === 'polymorphic'),
+        this.path.add(key, this.isList, this.isVariant),
         this.children[key]?.value,
         (value, path) => this.onChildrenChange(value, path),
       );
@@ -422,33 +446,42 @@ export class SchemaNode {
     });
   }
 
-  // magic happend to be retrocompatible and set some flags
-  // warning, this method have side effets
   private schemaCompatibilityLayer(
     schema: SchemaNodeDefinitionLegacy,
   ): SchemaNodeDefinition {
     let type = schema.type || 'group';
 
     if (typeof type !== 'string') {
+      // Define if node should be a list node
       if (Array.isArray(type)) {
+        // We remap from the Legacy Schema syntax
         type = type[0];
         this.isList = true;
+        // List node have their children in the value attribute
         if (!Array.isArray(this.value)) {
           this.value = [];
         }
       } else if (Array.isArray(type.polymorphic)) {
+        // we don't need to read the polymorphic attributes
+        // as they are just a list of the keys in attributes
+        // instead we change the type for a plain string
         type = 'polymorphic';
+        this.isVariant = true;
         const options = Object.keys(schema.attributes || {});
+        // Making sure we have something selected
         if (options.indexOf(this.value) === -1) {
           this.value = options[0];
         }
       }
     }
 
+    // If we have a node with options and no values,
+    // preselecting the first option if present
     if (schema.options) {
       this.value = this.value || schema.options[0] || '';
     }
 
+    // At this point type can only be a string, no polymorphic or list shape
     this.type = type as NodeKind;
 
     return {
@@ -458,8 +491,10 @@ export class SchemaNode {
     };
   }
 
+  // This method calculate the node's value
+  // descending all it's children
   private childrenData(validate = false): {[key: string]: any} {
-    if (this.type === 'polymorphic') {
+    if (this.isVariant) {
       return this.attributes.reduce((acc, key) => {
         if (key === this.value) {
           Object.assign(acc, this.children[key].childrenData());

@@ -10,16 +10,16 @@ export function presenceValidator(
 }
 
 function validateRegex(val: any, format: string): ValidationError | null {
-  let exp = new RegExp('.*');
+  let exp;
   try {
-    exp = new RegExp(rubyRegexFromStackOverflow(format));
+    exp = new RegExp(convertRubyRegexToJavascriptRegex(format));
   } catch {
     exp = new RegExp(format);
   }
   return exp.test(val) ? null : new ValidationError('Format', {format});
 }
 
-function rubyRegexFromStackOverflow(str: string) {
+function convertRubyRegexToJavascriptRegex(str: string) {
   return str
     .replace('\\A', '^')
     .replace('\\Z', '$')
@@ -42,9 +42,6 @@ export function formatValidator(
   if (typeof options.format === 'string') {
     return validateRegex(val, options.format);
   }
-
-  // eslint-disable-next-line no-console
-  console.warn('unsupported options in FormatValidator');
   return null;
 }
 

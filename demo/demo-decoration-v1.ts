@@ -21,13 +21,12 @@ export function decorateV1(context: DeclarativeFormContext) {
     .replaceWith(SpecialBusinessDetails);
 
   context
-    .where(({type, depth}) => type === 'polymorphic' && depth === 1)
+    .where(({isVariant, depth}) => isVariant && depth === 1)
     .prependWith(Card, {title: 'V1 form', sectioned: true})
-    .replaceWith(PolarisPolymorphicNode, {nestWithChildren: 'businessDetails'});
+    .replaceWith(PolarisPolymorphicNode, {nestWithChild: 'businessDetails'});
 
   context
-    .where(({type, depth}) => type === 'polymorphic' && depth !== 1)
-    .prependWith(Card, {sectioned: true})
+    .where(({isVariant, depth}) => isVariant && depth !== 1)
     .replaceWith(PolarisPolymorphicNode);
 
   context

@@ -54,7 +54,8 @@ const {Provider: Provider2} = context2.ReactContext;
 const schema1: SchemaNodeDefinitionLegacy = {
   type: 'group',
   attributes: V1,
-};
+  // TODO: remove SchemaNodeDefinitionLegacy cast and implement alternative format options
+} as SchemaNodeDefinitionLegacy;
 
 const schema2: SchemaNodeDefinitionLegacy = {
   type: V2.kind,
@@ -138,8 +139,8 @@ export function App() {
 
   function handleSubmit() {
     const data = {
-      v1: node1.data(),
-      v2: node2.data(),
+      v1: node1.value,
+      v2: node2.value,
     };
     console.log(data);
     setJson(data);

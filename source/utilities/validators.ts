@@ -35,7 +35,7 @@ export function formatValidator(
   val: any,
   options: Validator,
 ): ValidationError | null {
-  if (!options.format) {
+  if (!options.format || !val) {
     return null;
   }
 

@@ -211,12 +211,15 @@ export class Path {
     }
   }
 
+  /**
+   * Append a new path segment to a path
+   */
   add(name: string, isList = false, isVariant = false): Path {
     return new Path(name, this.segments, {isList, isVariant});
   }
 
   /**
-   * @description full path including variant selections and array indexes
+   * full path including variant selections and array indexes
    */
   toString(): string {
     return this.segments.join('.');
@@ -241,15 +244,38 @@ export class Path {
 // Schema Node
 export class SchemaNode {
   public errors: ValidationError[] = [];
+
+  /**
+   * List of nodes with their names as a key
+   */
   public children: NodeChildrenMap = {};
+
+  /**
+   * Converted schema received from the backend
+   */
   public schema: SchemaNodeDefinition;
   public isList = false;
+
+  /**
+   * True if the node is a polymorphic node
+   * Polymorphic nodes select their variant(s) to display
+   * The selection name is held in the value attribue
+   */
   public isVariant = false;
+
+  /**
+   * Cached list of all the children key names
+   */
   public attributes: string[] = [];
   public depth: number;
   public name: string;
   public type = '';
   public decorator: RegisteredDecorations = {};
+
+  /**
+   * Indicates if this node's value is mandatory'
+   */
+  public required = false;
 
   constructor(
     public context: FormContext,
@@ -261,11 +287,7 @@ export class SchemaNode {
     this.depth = path.segments.length;
     this.name = path.tail.toString();
     const formatter = this.context.formatters.local;
-    this.value =
-      value === NO_VALUE
-        ? this.context.values[this.path.toString()] ||
-          this.context.values[this.name]
-        : value;
+    this.value = value === NO_VALUE ? this.context.values[this.name] : value;
     // the invocation of schemaCompatibilityLayer must be after value hydratation
     // since it redefines the value but it must be before building
     // the children because it sets the type of node as well
@@ -483,6 +505,9 @@ export class SchemaNode {
 
     // At this point type can only be a string, no polymorphic or list shape
     this.type = type as NodeKind;
+    this.required = Boolean(
+      schema.validators?.find(({name}) => name === 'Presence'),
+    );
 
     return {
       ...schema,

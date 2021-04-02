@@ -325,7 +325,6 @@ export class SchemaNode {
   // we can turn up bubbling the even up or validating in some cases
   public onChange(value: any, validate = true, callParent = true) {
     this.value = value;
-    this.updateVariant(value);
     if (callParent) {
       this.updateParent(
         this.name,
@@ -428,12 +427,6 @@ export class SchemaNode {
   }
 
   // utilities
-  private updateVariant(value: string) {
-    if (this.isVariant) {
-      this.path.segments.splice(-1, 1, new PathSegment(value));
-    }
-  }
-
   private buildChildren() {
     const children: SchemaNode['children'] = {};
     if (this.isList) {

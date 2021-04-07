@@ -22,6 +22,7 @@ interface ErrorOptions {
     minimum?: number;
     error?: string;
     message?: string;
+    field?: string;
   }>;
 }
 
@@ -31,7 +32,7 @@ export function translateError(_: SchemaNode, {error}: ErrorOptions) {
     case 'server':
       return `Server Error "${error.data.error}"`;
     case 'Presence':
-      return 'This field is required';
+      return `${error.data.field} can’t be blank`;
     case 'Format':
       return (
         error.data.message || `The value should match ${error.data.format}`

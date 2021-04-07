@@ -6,6 +6,7 @@ import {
   PolarisStringNode,
   PolarisRangeSlider,
   PolarisLayoutGridPosition,
+  PolarisOptionsNode,
 } from './components';
 
 export {
@@ -14,6 +15,7 @@ export {
   PolarisStringNode,
   PolarisRangeSlider,
   PolarisLayoutGridPosition,
+  PolarisOptionsNode,
 };
 
 export function decorateWithPolarisComponents(ctx: FormContext) {
@@ -22,4 +24,7 @@ export function decorateWithPolarisComponents(ctx: FormContext) {
   ctx
     .where(({type}) => ['string', 'number', 'integer'].includes(type))
     .replaceWith(PolarisStringNode);
+  ctx
+    .where(({schema}) => Boolean(schema.options?.length))
+    .replaceWith(PolarisOptionsNode);
 }

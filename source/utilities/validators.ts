@@ -1,12 +1,13 @@
-import {ValidationError, Validator} from '../types';
+import {ValidationError, Validator, SchemaNode} from '../types';
 
 export function presenceValidator(
   val: any,
   _options: Validator,
+  node: SchemaNode,
 ): ValidationError | null {
   return (Array.isArray(val) ? val.length : val)
     ? null
-    : new ValidationError('Presence');
+    : new ValidationError('Presence', {field: node.translate('label')});
 }
 
 function validateRegex(val: any, format: string): ValidationError | null {

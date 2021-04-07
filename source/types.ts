@@ -9,6 +9,7 @@ export type TranslatorFn = (node: SchemaNode, args?: any) => string;
 export type ValidatorFn = (
   val: NodeValue,
   options: Validator,
+  node: SchemaNode,
 ) => ValidationError | null;
 
 export interface ContextErrors {
@@ -379,7 +380,7 @@ export class SchemaNode {
       .map((config) => {
         const fn = this.context.validators[config.name];
         if (!fn) return null;
-        return fn(this.value, config);
+        return fn(this.value, config, this);
       })
       .filter(Boolean) as ValidationError[];
 

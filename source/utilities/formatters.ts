@@ -9,14 +9,11 @@ const mapByKind = {
   boolean: toBoolean,
 };
 
-export function localFormatter(val: any, type: string) {
+export function defaultTypeFormater(val: any, type: string) {
+  // the backend could intentionnaly send null values
+  // these are not to be formatted as it allows differencing
+  // between undefined and nil
+  if (val === null) return val;
   const transform = mapByKind[type as keyof typeof mapByKind];
-  if (!transform) return val;
-  return transform(val);
-}
-
-export function remoteFormatter(val: any, type: string) {
-  const transform = mapByKind[type as keyof typeof mapByKind];
-  if (!transform) return val;
-  return transform(val);
+  return transform ? transform(val) : val;
 }

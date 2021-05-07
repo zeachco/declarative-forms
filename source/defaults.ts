@@ -1,4 +1,4 @@
-import {localFormatter, remoteFormatter} from './utilities/formatters';
+import {defaultTypeFormater} from './utilities/formatters';
 import {
   formatValidator,
   lengthValidator,
@@ -13,6 +13,6 @@ export const frameworkValidators: FormContext['validators'] = {
 };
 
 export const frameworkFormatters: FormContext['formatters'] = {
-  remote: remoteFormatter,
-  local: localFormatter,
+  remote: defaultTypeFormater,
+  local: defaultTypeFormater,
 };

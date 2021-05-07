@@ -32,22 +32,18 @@ export function DebugNode({children, node}: DebugProps) {
     <div
       key={`debug_${node.path}`}
       title={JSON.stringify(
-        {...node, children: '?', schema: '?', context: '?'},
+        {...node, children: '?', schema: '?', context: '?', path: '?'},
         null,
         2,
       )}
       style={style}
     >
       <small style={{color}}>
-        {(['uid', 'type', 'name', 'depth'] as const).map((key) => (
+        {(['type', 'name', 'depth'] as const).map((key) => (
           <DebugAttribute key={key} name={key} value={node[key]} />
         ))}
         <DebugAttribute name="path" value={node.path.toString()} />
         <DebugAttribute name="pathShort" value={node.path.toStringShort()} />
-        <DebugAttribute
-          name="pathWithBrackets"
-          value={node.path.toStringShort(true, true)}
-        />
       </small>
       {children}
     </div>

@@ -15,21 +15,41 @@ function validateRegex(val: any, format: string): ValidationError | null {
   try {
     exp = new RegExp(convertRubyRegexToJavascriptRegex(format));
   } catch {
-    exp = new RegExp(format);
+    try {
+      exp = new RegExp(format);
+    } catch {
+      // if we receive garbage or unsupported regex from the server,
+      // let's ignore it. The server can always validate on submition.
+      return null;
+    }
   }
   return exp.test(val) ? null : new ValidationError('Format', {format});
 }
 
 function convertRubyRegexToJavascriptRegex(str: string) {
-  return str
-    .replace('\\A', '^')
-    .replace('\\Z', '$')
-    .replace('\\z', '$')
-    .replace(/^\//, '')
-    .replace(/\/[a-z]*$/, '')
-    .replace(/\(\?#.+\)/, '')
-    .replace(/\(\?-\w+:/, '(')
-    .replace(/\s/, '');
+  // Example of regex we can receive
+  // (?i-mx:\A([^@\s\p{Cf}]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z)
+  // becomes
+  // (([^@\s\p{Cf}]+)@((?:[-a-z0-9]+\.)+[a-z]{2,}))
+  return (
+    str
+      // Removing flags that aren't used in js
+      .replace('\\A', '^')
+      .replace('\\Z', '$')
+      .replace('\\z', '$')
+      // remove initial / in js
+      .replace(/^\//, '')
+      // remove trailing flags in js
+      .replace(/\/[a-z]*$/, '')
+      // ?# means nothing in js
+      .replace(/\(\?#.+\)/, '')
+      // syntax ?- means nothing in js
+      .replace(/\(\?-\w+:/, '(')
+      // \s aren't supported in js
+      .replace(/\s/, '')
+      // case insensitive regex flag removal
+      .replace(/(\?i-\w*:)/, '')
+  );
 }
 
 export function formatValidator(
@@ -50,11 +70,19 @@ export function lengthValidator(
   val: string,
   {maximum, minimum}: Validator,
 ): ValidationError | null {
-  if (maximum && val?.length > maximum) {
+  const len = val?.length;
+
+  // the lengthValidator should not be a replacement for presenceValidator
+  // if no value is passed, let's skip the check in case the value is optional
+  if (!len) return null;
+
+  // handle the maximum length
+  if (maximum && len > maximum)
     return new ValidationError(`MaximumLength`, {maximum});
-  }
-  if (minimum && val?.length < minimum) {
+
+  // handle the minimum length
+  if (minimum && len < minimum)
     return new ValidationError(`MinimumLength`, {minimum});
-  }
+
   return null;
 }

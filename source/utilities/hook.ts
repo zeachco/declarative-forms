@@ -14,11 +14,15 @@ export function useNode(node: SchemaNode) {
   const [state, setState] = useState({
     errors: node.errors || [],
     serverErrors: [] as ValidationError[],
+    // node changes
     onChange,
     validate,
+    reset,
+    // list node specifics
     removeListItem,
     addListItem,
     refreshListItems,
+    // shared context
     declarativeFormsReactContext,
   });
 
@@ -30,6 +34,11 @@ export function useNode(node: SchemaNode) {
   useEffect(refreshListItems, [node.value]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(refreshContextErrors, [declarativeFormsReactContext, node.path]);
+
+  function reset() {
+    node.resetNodeValue();
+    onChange(node.value);
+  }
 
   function onChange(value: any) {
     update({errors: node.onChange(value)});

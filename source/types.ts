@@ -72,6 +72,14 @@ export interface FormContext {
   };
   decorators: Decorator[];
   where(fn: DecoratorMatcher): Omit<Decorator, 'apply'>;
+  addInitialValuesAfterNode(
+    nodeName: SchemaNode['name'],
+    values: FormContext['values'],
+  ): void;
+  // Also allow hooking any values to the context.
+  // This patterns should not be over used but could
+  // allow Unblocking some difficult situations.
+  [key: string]: any;
 }
 
 // Decorators
@@ -243,6 +251,7 @@ export class Path {
 }
 
 // Schema Node
+type NodeSource = 'child' | 'parent' | 'self';
 export class SchemaNode {
   public errors: ValidationError[] = [];
 
@@ -254,7 +263,7 @@ export class SchemaNode {
   /**
    * Converted schema received from the backend
    */
-  public schema: SchemaNodeDefinition;
+  public schema: SchemaNodeDefinition = {type: 'not_set'};
   public isList = false;
 
   /**
@@ -271,6 +280,7 @@ export class SchemaNode {
   public depth: number;
   public name: string;
   public type = '';
+  public dirty = false;
   public decorator: RegisteredDecorations = {};
 
   /**
@@ -287,8 +297,30 @@ export class SchemaNode {
   ) {
     this.depth = path.segments.length;
     this.name = path.tail.toString();
+    this.resetNodeValue(value, schema);
+    this.saveDecorators();
+  }
+
+  public resetNodeValue(
+    value: any = NO_VALUE,
+    schema: SchemaNodeDefinitionLegacy = this.schema,
+  ) {
     const formatter = this.context.formatters.local;
-    this.value = value === NO_VALUE ? this.context.values[this.name] : value;
+    // Search for value override by traversing the path
+
+    let initialValue = this.context.values[this.name];
+
+    // To recover values set with `addInitialValuesAfterNode` from the context
+    // By default, no other values should be mixed up to that point
+    for (const segment of this.path.segments) {
+      const segmentValue = this.context.values[segment.key];
+      if (typeof segmentValue === 'object' && segmentValue !== null) {
+        initialValue = this.context.values[segment.key][this.name];
+        break;
+      }
+    }
+
+    this.value = value === NO_VALUE ? initialValue : value;
     // the invocation of schemaCompatibilityLayer must be after value hydratation
     // since it redefines the value but it must be before building
     // the children because it sets the type of node as well
@@ -296,9 +328,13 @@ export class SchemaNode {
     if (formatter) {
       this.value = formatter(this.value, this.type);
     }
+    // If we have a node with options and no values,
+    // preselecting the first option if present
+    if (schema.options && !schema.options.includes(this.value)) {
+      this.value = schema.options[0] || null;
+    }
     this.buildChildren();
-    this.saveDecorators();
-    this.onChange(this.value, false);
+    this.onChange(this.value, 'self', true);
   }
 
   /**
@@ -324,15 +360,33 @@ export class SchemaNode {
 
   // Generic onchange called by the useNode hook or upon construction
   // we can turn up bubbling the even up or validating in some cases
-  public onChange(value: any, validate = true, callParent = true) {
+  public onChange(
+    value: any,
+    from: NodeSource = 'self',
+    isInitialValue = false,
+  ) {
     this.value = value;
-    if (callParent) {
+
+    if (from !== 'parent') {
       this.updateParent(
         this.name,
-        this.isVariant ? this.childrenData() : value,
+        this.isVariant ? this.data() : this.value,
+        'child',
+        isInitialValue,
       );
     }
-    return validate ? this.validate() : this.errors;
+
+    if (from !== 'child' && !isInitialValue) {
+      this.updateChildren();
+    }
+
+    this.dirty = !isInitialValue && from !== 'parent';
+
+    if (isInitialValue) {
+      return this.errors;
+    }
+
+    return this.validate();
   }
 
   // This method allows bubbling up the values of the children
@@ -341,36 +395,56 @@ export class SchemaNode {
   // ei: the polymorphic and list nodes have values that represent
   // their list of selected variants instead of the value of their children
   // so they will just pass up the value to the next node above them
-  public onChildrenChange(childrenName: string, childrenValue: any) {
+  public onChildrenChange(
+    childrenName: string,
+    childrenValue: any,
+    from: NodeSource = 'self',
+    isInitialValue = false,
+  ) {
+    // Let's skip nodes with null as
+    // it might be intentionnaly set for opt-out nodes
+    if (isInitialValue && this.value === null && from !== 'parent') {
+      this.updateParent(this.name, childrenValue, 'child', isInitialValue);
+      return;
+    }
     // for intermediary nodes, values are objects representing children
-    if (
-      (this.attributes.length && this.value === null) ||
-      this.value === undefined
-    ) {
+    const isLeaf = this.attributes.length === 0;
+    if (!isLeaf && !this.value) {
       this.value = {};
     }
     // polymorphic nodes values are the polymorphic selection
     // we skip that level but we register the selection on the parent's level
     if (this.isVariant) {
-      this.updateParent(this.name, {
-        ...childrenValue,
-        [`${this.name}Type`]: childrenName,
-      });
+      this.updateParent(
+        this.name,
+        {
+          ...childrenValue,
+          [`${this.name}Type`]: childrenName,
+        },
+        'child',
+        isInitialValue,
+      );
       return;
     }
     // same for lists
     if (this.isList) {
       this.updateParent(
         this.name,
-        this.value.map((item: SchemaNode) => item.childrenData()),
+        this.value.map((item: SchemaNode) => item.data()),
+        'child',
+        isInitialValue,
       );
       return;
     }
     // other types of nodes just get updated
-    this.onChange({
-      ...this.value,
-      [childrenName]: childrenValue,
-    });
+    this.onChange(
+      {
+        ...this.value,
+        [childrenName]: childrenValue,
+      },
+      from,
+      isInitialValue,
+    );
   }
 
   public validate(): ValidationError[] {
@@ -406,8 +480,8 @@ export class SchemaNode {
     const node = new SchemaNode(
       this.context,
       this.schema,
-      this.path.add('-1', true),
-      null,
+      this.path.add(this.type, true),
+      undefined,
       (value, path) => this.onChildrenChange(value, path),
     );
     this.value.push(node);
@@ -427,7 +501,48 @@ export class SchemaNode {
     throw new Error('deleteSelf is callable on list node children only');
   }
 
+  // This method calculate the node's value
+  // descending all it's children
+  // it also calls the formater to convert client's values
+  // to server values
+  public data(validate = false): {[key: string]: any} {
+    if (this.isVariant) {
+      return this.attributes.reduce((acc, key) => {
+        if (key === this.value) {
+          Object.assign(acc, this.children[key].data());
+          acc[`${this.name}Type`] = this.value;
+        }
+        return acc;
+      }, {} as any);
+    }
+    if (this.isList) {
+      return this.value.map((item: SchemaNode) => item.data());
+    } else if (this.attributes.length && this.value !== null) {
+      const value = this.attributes.reduce((acc, key) => {
+        acc[key] = this.children[key].data();
+        return acc;
+      }, {} as any);
+      this.value = value;
+      return value;
+    }
+
+    if (validate) this.validate();
+
+    const formatter = this.context.formatters.remote;
+    return formatter ? formatter(this.value, this.schema.type) : this.value;
+  }
+
   // utilities
+  private updateChildren() {
+    if (this.isList || this.isVariant) return;
+    this.attributes.forEach((key) => {
+      const child: SchemaNode = this.children[key];
+      if (!child || child.isList || child.isVariant) return;
+      const childValue = this.value ? this.value[key] : null;
+      child.onChange(childValue, 'parent');
+    });
+  }
+
   private buildChildren() {
     const children: SchemaNode['children'] = {};
     if (this.isList) {
@@ -450,7 +565,7 @@ export class SchemaNode {
         schema,
         this.path.add(key, this.isList, this.isVariant),
         this.children[key]?.value,
-        (value, path) => this.onChildrenChange(value, path),
+        (value, path) => this.onChildrenChange(value, path, 'child', true),
       );
     });
     this.children = children;
@@ -491,12 +606,6 @@ export class SchemaNode {
       }
     }
 
-    // If we have a node with options and no values,
-    // preselecting the first option if present
-    if (schema.options) {
-      this.value = this.value || schema.options[0] || '';
-    }
-
     // At this point type can only be a string, no polymorphic or list shape
     this.type = type as NodeKind;
     this.required = Boolean(
@@ -508,34 +617,5 @@ export class SchemaNode {
       attributes: schema.attributes as SchemaNodeDefinition['attributes'],
       type: this.type,
     };
-  }
-
-  // This method calculate the node's value
-  // descending all it's children
-  private childrenData(validate = false): {[key: string]: any} {
-    if (this.isVariant) {
-      return this.attributes.reduce((acc, key) => {
-        if (key === this.value) {
-          Object.assign(acc, this.children[key].childrenData());
-          acc[`${this.name}Type`] = this.value;
-        }
-        return acc;
-      }, {} as any);
-    }
-    if (this.isList) {
-      return this.value.map((item: SchemaNode) => item.childrenData());
-    } else if (this.attributes.length) {
-      const value = this.attributes.reduce((acc, key) => {
-        acc[key] = this.children[key].childrenData();
-        return acc;
-      }, {} as any);
-      this.value = value;
-      return value;
-    }
-
-    if (validate) this.validate();
-
-    const formatter = this.context.formatters.remote;
-    return formatter ? formatter(this.value, this.schema.type) : this.value;
   }
 }

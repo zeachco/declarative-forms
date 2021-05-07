@@ -5,11 +5,13 @@ import {NodeProps, renderNodes, useNode} from '../../..';
 
 interface Props {
   nestWithChild?: string;
+  labelTranslationKey?: string;
 }
 
 export function PolarisPolymorphicNode({
   node,
   nestWithChild,
+  labelTranslationKey = 'label',
 }: NodeProps & Props) {
   const {onChange, errors} = useNode(node);
   const variant = node.children[node.value];
@@ -21,14 +23,15 @@ export function PolarisPolymorphicNode({
     };
   });
   const title = node.translate('sectionTitle');
-  const label = node.translate('label');
+  const label = node.translate(labelTranslationKey);
   const error = errors[0] ? node.translate('error', {error: errors[0]}) : '';
 
   if (nestWithChild && variant) {
     const {[nestWithChild]: nestedNode, ...otherNodes} = variant.children;
+    const childTitle = nestedNode.translate('sectionTitle') || title;
     return (
       <>
-        <Card title={title}>
+        <Card title={childTitle}>
           <Card.Section>
             <FormLayout>
               <Select

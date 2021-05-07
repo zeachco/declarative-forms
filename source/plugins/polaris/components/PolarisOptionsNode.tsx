@@ -34,6 +34,7 @@ export function PolarisOptionsNode({
 
   const content = (
     <Select
+      placeholder={node.translate('select')}
       disabled={options.length === 1}
       label={translatedLabel}
       labelHidden={labelHidden}

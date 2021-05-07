@@ -52,13 +52,19 @@ export function PolarisLayoutGridPosition({
   let otherNodes: NodeChildrenMap = node.children;
   const jsx = [];
 
+  // double loop to read cols and rows
   for (const row of grid) {
+    // create a map of nodes to render grouped
     const selected: NodeChildrenMap = {};
     for (const col of row) {
+      // get the node by name if found and move into the map
+      // removing it from the remaining nodes
       const {[col]: extract, ...unselected} = otherNodes;
       if (extract) Object.assign(selected, {[col]: extract});
       otherNodes = unselected;
     }
+
+    // Wraps the grouped nodes under `selected` with Polaris
     jsx.push(
       <FormLayout.Group key={`g_${node.uid}_${row}`} condensed={condensed}>
         {renderNodes(selected)}
@@ -66,6 +72,8 @@ export function PolarisLayoutGridPosition({
     );
   }
 
+  // first, renders all the known groups,
+  // then all the unmentionned nodes rendered normally.
   return (
     <FormLayout>
       {jsx}

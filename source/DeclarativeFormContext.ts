@@ -7,6 +7,10 @@ interface WithConstructionProps {
   decorate(ctx: DeclarativeFormContext): void;
 }
 
+/**
+ * This class is used to pass down a shared context accessible
+ * from all points of the framework and outside of it.
+ */
 export class DeclarativeFormContext implements FormContext {
   public validators: FormContext['validators'];
   public values: FormContext['values'];
@@ -46,5 +50,12 @@ export class DeclarativeFormContext implements FormContext {
     const decorator = new Decorator(fn);
     this.decorators.push(decorator);
     return decorator;
+  }
+
+  public addInitialValuesAfterNode(
+    nodeShortPath: string,
+    values: FormContext['values'],
+  ) {
+    this.values[nodeShortPath] = values;
   }
 }

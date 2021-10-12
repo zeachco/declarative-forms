@@ -1,16 +1,12 @@
 {
-  "name": "@zeachco/declarative-form",
+  "name": "@zeachco/declarative-forms",
   "version": "0.1.4",
   "private": false,
   "description": "React package to generate forms based on a schema",
   "author": "Olivier Rousseau-Guyot <zeachco@gmail.com>",
   "license": "MIT",
-  "main": "dist",
-  "repository": "https://github.com/zeachco/declarative-form",
-  "scripts": {
-    "start": "rimraf .cache dist && parcel public/index.html",
-    "build": "rimraf .cache dist && parcel build source/index.ts source/plugins/basic/index.ts source/plugins/polaris/index.ts"
-  },
+  "main": "lib",
+  "repository": "https://github.com/zeachco/declarative-forms",
   "devDependencies": {
     "@types/jest": "^27.0.2",
     "@types/react": "^17.0.2",
@@ -25,7 +21,7 @@
     "@shopify/polaris": "6.0.1"
   },
   "dependencies": {
-    "react": "^17.0.1",
+    "react": "^17.0.2",
     "react-dom": "^17.0.1"
   }
 }

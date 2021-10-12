@@ -17,6 +17,7 @@ export type {
   NodeProps,
   ContextErrors,
   NodeChildrenMap,
+  DecorateFunction,
 } from './types';
 export {isNodeV3} from './utilities/compatibility';
 export {useNode} from './utilities/hook';

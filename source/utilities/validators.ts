@@ -26,6 +26,10 @@ function validateRegex(val: any, format: string): ValidationError | null {
   return exp.test(val) ? null : new ValidationError('Format', {format});
 }
 
+/**
+ * @deprecated
+ * Do not use as core will be fixed to send corrected js regexes
+ */
 function convertRubyRegexToJavascriptRegex(str: string) {
   // Example of regex we can receive
   // (?i-mx:\A([^@\s\p{Cf}]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z)
@@ -52,10 +56,17 @@ function convertRubyRegexToJavascriptRegex(str: string) {
   );
 }
 
+// Format is disabled until core fixes the js regexes
+// we had issues in prod with ruby patterns such as
+// \p{Katakana} and \p{Hiragana}
+const DISABLE_REGEX_VALIDATOR = true;
+
 export function formatValidator(
   val: any,
   options: Validator,
 ): ValidationError | null {
+  if (DISABLE_REGEX_VALIDATOR) return null;
+
   if (!options.format || !val) {
     return null;
   }

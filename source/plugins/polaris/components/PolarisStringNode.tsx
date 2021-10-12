@@ -3,11 +3,11 @@ import React from 'react';
 
 import {NodeProps, useNode, SpecialProps} from '../../..';
 
-type Props = SpecialProps<typeof TextField> & NodeProps;
+type Props = Partial<SpecialProps<typeof TextField>> & NodeProps;
 
 export function PolarisStringNode({node, ...props}: Props) {
   const {onChange, errors, validate} = useNode(node);
-  const {multiline, ...otherProps} = props;
+  const {multiline, autoComplete, ...otherProps} = props;
   const {meta = {}} = node.schema;
 
   // Polaris accepts only numbers
@@ -25,8 +25,10 @@ export function PolarisStringNode({node, ...props}: Props) {
 
   return (
     <TextField
+      name={node.path.toStringShort()}
       label={node.translate('label')}
       helpText={node.translate('helpText')}
+      autoComplete={autoComplete || 'off'}
       {...allProps}
       value={node.value}
       onChange={onChange}

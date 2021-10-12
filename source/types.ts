@@ -4,7 +4,7 @@ import React from 'react';
 export type NodeKind = string;
 export type NodeValue = any;
 export type ReactComponent = any;
-export type FormatterFn = (value: any, type: string) => any;
+export type FormatterFn = (value: any, type: string, node: SchemaNode) => any;
 export type TranslatorFn = (node: SchemaNode, args?: any) => string;
 export type ValidatorFn = (
   val: NodeValue,
@@ -12,7 +12,13 @@ export type ValidatorFn = (
   node: SchemaNode,
 ) => ValidationError | null;
 
+/**
+ * used to map errors to their fields py short paths.
+ * the generic key is a placeholder for when
+ * an error is not matchable to a path
+ */
 export interface ContextErrors {
+  generic: string[];
   [key: string]: string[];
 }
 
@@ -52,10 +58,19 @@ export interface NodeProps {
   children?: React.ReactNode;
 }
 
-export interface FormContext {
+export interface SharedContext {
+  [key: string]: any;
+}
+
+export type DecorateFunction<T extends SharedContext = SharedContext> = (
+  ctx: FormContext<T>,
+) => void;
+
+export interface FormContext<T = SharedContext> {
   debug: boolean;
   version: number;
-  ReactContext: React.Context<{errors: ContextErrors} & any>;
+  sharedContext: T;
+  ReactContext: React.Context<{errors: ContextErrors} & SharedContext>;
   validators: {[key: string]: ValidatorFn} & {
     Presence?: ValidatorFn;
     Length?: ValidatorFn;
@@ -76,10 +91,6 @@ export interface FormContext {
     nodeName: SchemaNode['name'],
     values: FormContext['values'],
   ): void;
-  // Also allow hooking any values to the context.
-  // This patterns should not be over used but could
-  // allow Unblocking some difficult situations.
-  [key: string]: any;
 }
 
 // Decorators
@@ -146,22 +157,40 @@ export class Decorator {
     }
   }
 
+  /**
+   * the passed custom component will replace the node's current component
+   */
   public replaceWith<T extends Noop>(fc: T, props?: DecoratorPropsGetter<T>) {
     return this.store('Replace', fc, props);
   }
 
+  /**
+   * the passed custom component will be placed before the node's current component
+   */
   public prependWith<T extends Noop>(fc: T, props?: DecoratorPropsGetter<T>) {
     return this.store('Before', fc, props);
   }
 
+  /**
+   * the passed custom component will be placed after the node's current component
+   */
   public appendWith<T extends Noop>(fc: T, props?: DecoratorPropsGetter<T>) {
     return this.store('After', fc, props);
   }
 
+  /**
+   * the passed custom component will wrap arround the node's current component
+   * the props `children` will represents the node's current rendered component inside the custom component
+   */
   public wrapWith<T extends Noop>(fc: T, props?: DecoratorPropsGetter<T>) {
     return this.store('Wrap', fc, props);
   }
 
+  /**
+   * similar to `wrapWith` but the passed custom component will wrap
+   * around the node's components including other attached decorators
+   * such as the ones added from prependWith, appendWith and wrapWith decoration verbs
+   */
   public packWith<T extends Noop>(fc: T, props?: DecoratorPropsGetter<T>) {
     return this.store('Pack', fc, props);
   }
@@ -281,12 +310,21 @@ export class SchemaNode {
   public name: string;
   public type = '';
   public dirty = false;
+  public invalidChildren: Map<string, true> = new Map();
   public decorator: RegisteredDecorations = {};
 
   /**
    * Indicates if this node's value is mandatory'
    */
   public required = false;
+
+  /**
+   * valid can be false without errors registered when it fails validation
+   * before the user change it's value. It is usefull to prevent submitting
+   * a form that was prefilled with wrong values.
+   * It is privately used in isValid() public method for that reason.
+   */
+  private valid = false;
 
   constructor(
     public context: FormContext,
@@ -326,7 +364,7 @@ export class SchemaNode {
     // the children because it sets the type of node as well
     this.schema = this.schemaCompatibilityLayer(schema);
     if (formatter) {
-      this.value = formatter(this.value, this.type);
+      this.value = formatter(this.value, this.type, this);
     }
     // If we have a node with options and no values,
     // preselecting the first option if present
@@ -335,6 +373,14 @@ export class SchemaNode {
     }
     this.buildChildren();
     this.onChange(this.value, 'self', true);
+  }
+
+  public isValid(skipChildrenValidation = false): boolean {
+    if (!this.valid || this.errors.length) return false;
+    if (skipChildrenValidation) return true;
+    // For variants, we do not care about other nodes than the one selected
+    if (this.isVariant) return !this.invalidChildren.get(this.value);
+    return this.invalidChildren.size === 0;
   }
 
   /**
@@ -366,27 +412,27 @@ export class SchemaNode {
     isInitialValue = false,
   ) {
     this.value = value;
-
-    if (from !== 'parent') {
-      this.updateParent(
-        this.name,
-        this.isVariant ? this.data() : this.value,
-        'child',
-        isInitialValue,
-      );
-    }
+    const errors = this.validate(true);
+    this.dirty = !isInitialValue && from !== 'parent';
+    this.valid = errors.length === 0;
+    // We don't want to have errors on creation, just when dirty
+    if (!isInitialValue) this.errors = errors;
 
     if (from !== 'child' && !isInitialValue) {
       this.updateChildren();
     }
 
-    this.dirty = !isInitialValue && from !== 'parent';
-
-    if (isInitialValue) {
-      return this.errors;
+    if (from !== 'parent') {
+      this.updateParent(
+        this.name,
+        this.isVariant ? this.data() : this.value,
+        this.isValid(),
+        'child',
+        isInitialValue,
+      );
     }
 
-    return this.validate();
+    return this.errors;
   }
 
   // This method allows bubbling up the values of the children
@@ -398,13 +444,23 @@ export class SchemaNode {
   public onChildrenChange(
     childrenName: string,
     childrenValue: any,
+    isValid = false,
     from: NodeSource = 'self',
     isInitialValue = false,
   ) {
+    if (from === 'child') {
+      this.updateChildrenValidity(childrenName, isValid);
+    }
     // Let's skip nodes with null as
     // it might be intentionnaly set for opt-out nodes
     if (isInitialValue && this.value === null && from !== 'parent') {
-      this.updateParent(this.name, childrenValue, 'child', isInitialValue);
+      this.updateParent(
+        this.name,
+        childrenValue,
+        this.isValid(),
+        'child',
+        isInitialValue,
+      );
       return;
     }
     // for intermediary nodes, values are objects representing children
@@ -421,6 +477,7 @@ export class SchemaNode {
           ...childrenValue,
           [`${this.name}Type`]: childrenName,
         },
+        this.isValid(),
         'child',
         isInitialValue,
       );
@@ -431,6 +488,7 @@ export class SchemaNode {
       this.updateParent(
         this.name,
         this.value.map((item: SchemaNode) => item.data()),
+        this.isValid(),
         'child',
         isInitialValue,
       );
@@ -447,18 +505,19 @@ export class SchemaNode {
     );
   }
 
-  public validate(): ValidationError[] {
+  public validate(asDryRun = false): ValidationError[] {
     if (!this.schema.validators) return [];
 
-    this.errors = this.schema.validators
+    const errors = this.schema.validators
       .map((config) => {
         const fn = this.context.validators[config.name];
-        if (!fn) return null;
-        return fn(this.value, config, this);
+        return fn?.(this.value, config, this);
       })
       .filter(Boolean) as ValidationError[];
 
-    return this.errors;
+    if (!asDryRun) this.errors = errors;
+
+    return errors;
   }
 
   public translate(mode: 'label' | 'error' | string, args?: object): string {
@@ -529,7 +588,9 @@ export class SchemaNode {
     if (validate) this.validate();
 
     const formatter = this.context.formatters.remote;
-    return formatter ? formatter(this.value, this.schema.type) : this.value;
+    return formatter
+      ? formatter(this.value, this.schema.type, this)
+      : this.value;
   }
 
   // utilities
@@ -540,7 +601,16 @@ export class SchemaNode {
       if (!child || child.isList || child.isVariant) return;
       const childValue = this.value ? this.value[key] : null;
       child.onChange(childValue, 'parent');
+      this.updateChildrenValidity(child.name, child.isValid());
     });
+  }
+
+  private updateChildrenValidity(childrenName: string, isValid: boolean) {
+    if (isValid) {
+      this.invalidChildren.delete(childrenName);
+    } else {
+      this.invalidChildren.set(childrenName, true);
+    }
   }
 
   private buildChildren() {
@@ -565,7 +635,9 @@ export class SchemaNode {
         schema,
         this.path.add(key, this.isList, this.isVariant),
         this.children[key]?.value,
-        (value, path) => this.onChildrenChange(value, path, 'child', true),
+        (name, value, isValid, _source, isInitialValue) => {
+          this.onChildrenChange(name, value, isValid, 'child', isInitialValue);
+        },
       );
     });
     this.children = children;
@@ -598,11 +670,6 @@ export class SchemaNode {
         // instead we change the type for a plain string
         type = 'polymorphic';
         this.isVariant = true;
-        const options = Object.keys(schema.attributes || {});
-        // Making sure we have something selected
-        if (options.indexOf(this.value) === -1) {
-          this.value = options[0];
-        }
       }
     }
 

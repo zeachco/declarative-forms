@@ -4,7 +4,11 @@ import {SchemaNode, ValidationError} from '../types';
 
 import {isNodeV3} from './compatibility';
 
-export function useNode(node: SchemaNode) {
+interface Options {
+  forceSelection?: boolean;
+}
+
+export function useNode(node: SchemaNode, {forceSelection}: Options = {}) {
   if (!isNodeV3(node)) {
     throw new Error('bad node type received');
   }
@@ -16,6 +20,7 @@ export function useNode(node: SchemaNode) {
     serverErrors: [] as ValidationError[],
     // node changes
     onChange,
+    setInitialValue,
     validate,
     reset,
     // list node specifics
@@ -34,6 +39,8 @@ export function useNode(node: SchemaNode) {
   useEffect(refreshListItems, [node.value]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(refreshContextErrors, [declarativeFormsReactContext, node.path]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(forceInitialSelection, [forceSelection, node.attributes]);
 
   function reset() {
     node.resetNodeValue();
@@ -42,6 +49,10 @@ export function useNode(node: SchemaNode) {
 
   function onChange(value: any) {
     update({errors: node.onChange(value)});
+  }
+
+  function setInitialValue(value: any) {
+    update({errors: node.onChange(value, undefined, true)});
   }
 
   function validate() {
@@ -86,6 +97,17 @@ export function useNode(node: SchemaNode) {
   function removeListItem(index: number) {
     node.removeListItem(index);
     refreshListItems();
+  }
+
+  function forceInitialSelection() {
+    const [firstOptionValue] = node.attributes;
+    if (
+      forceSelection &&
+      typeof node.value !== 'string' &&
+      typeof firstOptionValue === 'string'
+    ) {
+      onChange(firstOptionValue);
+    }
   }
 
   return state;

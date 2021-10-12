@@ -13,6 +13,7 @@ export function NumericNode({node}: NodeProps) {
         value={node.value}
         onChange={handleChange}
         onBlur={handleBlur}
+        autoComplete="off"
       />
       {errors.map((error) => (
         <strong key={error.type}>{node.translate('error', {error})}</strong>

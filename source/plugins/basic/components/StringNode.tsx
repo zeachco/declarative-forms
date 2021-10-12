@@ -8,7 +8,12 @@ export function StringNode({node}: NodeProps) {
   return (
     <label>
       {node.translate('label')}:{' '}
-      <input value={node.value} onChange={handleChange} onBlur={handleBlur} />
+      <input
+        value={node.value}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        autoComplete="off"
+      />
       {errors.map((error) => (
         <strong key={error.type}>{node.translate('error', {error})}</strong>
       ))}

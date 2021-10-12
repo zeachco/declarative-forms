@@ -1,9 +1,17 @@
 import {DeclarativeFormContext, SchemaNode} from '..';
-import {FormContext} from '../types';
+import {DecorateFromConstructorFn} from '../DeclarativeFormContext';
+import {SharedContext} from '../types';
 
-const schema = {
+const validatorsFixtures = {
+  Presence: {name: 'Presence'},
+  Format: {name: 'Format', format: '[A-Z]{2}'},
+  Length: {name: 'Length', minimum: 3, maximum: 5},
+};
+
+const defaultSchema = {
   someString: {
     type: 'string',
+    validators: [validatorsFixtures.Presence, validatorsFixtures.Format],
   },
   someNumber: {
     type: 'integer',
@@ -14,6 +22,7 @@ const schema = {
   someGroup: {
     attributes: {
       someStringNested: {
+        validators: [validatorsFixtures.Length],
         type: 'string',
       },
       someNumberNested: {
@@ -83,16 +92,19 @@ const neutralFixture = {
   someBool: false,
   someNumber: 0,
   someString: '',
-  someVariant: {
-    someVariantType: 'asString',
-    someVariantString: '',
-  },
+  someVariant: {},
 };
+
+interface SetupProps extends DeclarativeFormContext {
+  decorate: DecorateFromConstructorFn<SharedContext>['decorate'];
+  schema: any;
+}
 
 function setup({
   values,
-  decorate = (_: FormContext) => {},
-}: Partial<FormContext> = {}) {
+  decorate = (_: DeclarativeFormContext) => {},
+  schema = defaultSchema,
+}: Partial<SetupProps> = {}) {
   const context = new DeclarativeFormContext({
     values,
     decorate,
@@ -140,6 +152,7 @@ describe('SchemaNode', () => {
       someNumber: 42,
       someString: 'xyz',
       someBool: true,
+      someVariant: 'asString',
       someVariantString: 'variant',
       someVariantNumber: -99,
       someVariantBool: true,
@@ -172,6 +185,7 @@ describe('SchemaNode', () => {
       someNumber: '42',
       someString: 42,
       someBool: 1,
+      someVariant: 'asString',
       someVariantString: 13,
     };
     const {root} = setup({values});
@@ -387,6 +401,136 @@ describe('SchemaNode', () => {
     expect(root.value.someVariant.someOptionNode).toBe('a');
   });
 
+  describe('fields validation', () => {
+    it('does not report validation errors for Format', () => {
+      const {root} = setup({
+        values: {
+          stringNode: 'AAA',
+        },
+        schema: {
+          stringNode: {
+            type: 'string',
+            validators: [{name: 'Format', format: 'ZZZZZ'}],
+          },
+        },
+      });
+
+      expect(root.children.stringNode.validate()).toStrictEqual([]);
+    });
+
+    it('marks valid when created with the right values', () => {
+      const {root} = setup({
+        values: {
+          someStringNested: '',
+          someString: 'AZ',
+        },
+      });
+
+      const {someString, someGroup} = root.children;
+      const {someStringNested} = someGroup.children;
+
+      expect(someString.isValid()).toBe(true);
+      expect(someStringNested.isValid()).toBe(true);
+      expect(root.isValid()).toBe(true);
+    });
+
+    it('marks invalid when created with the wrong values', () => {
+      const {root} = setup({
+        values: {
+          someStringNested: 'z',
+          someString: '',
+        },
+      });
+
+      const {someString, someGroup} = root.children;
+      const {someStringNested} = someGroup.children;
+
+      expect(someString.isValid()).toBe(false);
+      expect(someStringNested.isValid()).toBe(false);
+      expect(root.isValid()).toBe(false);
+    });
+
+    it('marks valid when changed with the right values', () => {
+      const {root} = setup({
+        values: {
+          someStringNested: 'z',
+          someString: 'w',
+        },
+      });
+
+      const {someString, someGroup} = root.children;
+      const {someStringNested} = someGroup.children;
+      someString.onChange('AZ');
+      someStringNested.onChange('');
+
+      expect(someString.isValid()).toBe(true);
+      expect(someStringNested.isValid()).toBe(true);
+      expect(root.isValid()).toBe(true);
+      expect(someString.validate()).toStrictEqual([]);
+      expect(someStringNested.validate()).toStrictEqual([]);
+    });
+
+    it('marks invalid when changed with the wrong values', () => {
+      const {root} = setup({
+        values: {
+          someStringNested: '',
+          someString: 'AZ',
+        },
+      });
+
+      const {someString, someGroup} = root.children;
+      const {someStringNested} = someGroup.children;
+      someString.onChange('a');
+      someStringNested.onChange('a');
+
+      expect(someString.isValid()).toBe(true);
+      expect(someStringNested.isValid()).toBe(false);
+      expect(root.isValid()).toBe(false);
+    });
+
+    describe('when changed from a non leaf node', () => {
+      it('marks invalid when changed with the wrong values', () => {
+        const {root} = setup({
+          values: {
+            someStringNested: '',
+            someString: 'AZ',
+          },
+        });
+
+        const {someString, someGroup} = root.children;
+        const {someStringNested} = someGroup.children;
+        someGroup.onChange({
+          someNumberNested: 'a',
+          someStringNested: 'a',
+        });
+
+        expect(someString.isValid()).toBe(true);
+        expect(someStringNested.isValid()).toBe(false);
+        expect(root.isValid()).toBe(false);
+      });
+
+      it('marks valid when changed with the right values', () => {
+        const {root} = setup({
+          values: {
+            someStringNested: 'a',
+            someString: 'a',
+          },
+        });
+
+        const {someString, someGroup} = root.children;
+        const {someStringNested} = someGroup.children;
+        someGroup.onChange({
+          someNumberNested: 3,
+          someStringNested: 'AZF',
+        });
+
+        expect(someString.isValid()).toBe(true);
+        expect(someStringNested.isValid()).toBe(true);
+        expect(root.isValid()).toBe(true);
+      });
+    });
+  });
+
   describe('data manipulation for `isList`', () => {
     const values = {
       someNameNode: 'Jerry',
@@ -428,7 +572,7 @@ describe('SchemaNode', () => {
     });
 
     it('hydrates list items with specific node intial values, excluding global values', () => {
-      const decorate = (context: FormContext) =>
+      const decorate = (context: DeclarativeFormContext) =>
         context.addInitialValuesAfterNode('someVariantList', {
           someNameNode: 'Tom',
           someAgeNode: 0,

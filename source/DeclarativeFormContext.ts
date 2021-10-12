@@ -1,25 +1,31 @@
 import {createContext} from 'react';
 
 import {frameworkValidators, frameworkFormatters} from './defaults';
-import {Decorator, FormContext} from './types';
+import {
+  ContextErrors,
+  Decorator,
+  FormContext,
+  SharedContext,
+  DecorateFunction,
+} from './types';
 
-interface WithConstructionProps {
-  decorate(ctx: DeclarativeFormContext): void;
+export interface DecorateFromConstructorFn<T = unknown> {
+  decorate: DecorateFunction<T>;
 }
 
 /**
  * This class is used to pass down a shared context accessible
  * from all points of the framework and outside of it.
  */
-export class DeclarativeFormContext implements FormContext {
+export class DeclarativeFormContext<T = SharedContext> implements FormContext {
   public validators: FormContext['validators'];
   public values: FormContext['values'];
   public translators: FormContext['translators'];
   public formatters: FormContext['formatters'];
   public debug = false;
   public decorators: Decorator[] = [];
-  public sharedContext: any;
-  public ReactContext: FormContext['ReactContext'];
+  public sharedContext: FormContext<T>['sharedContext'];
+  public ReactContext: FormContext<T>['ReactContext'];
   public version = 3;
 
   constructor({
@@ -28,8 +34,9 @@ export class DeclarativeFormContext implements FormContext {
     values = {},
     formatters = {},
     translators = {},
-  }: Partial<FormContext & WithConstructionProps>) {
-    this.ReactContext = createContext({errors: {}});
+    sharedContext = {} as T,
+  }: Partial<FormContext<T> & DecorateFromConstructorFn<T>>) {
+    this.ReactContext = createContext({errors: {generic: []} as ContextErrors});
     this.validators = {
       ...frameworkValidators,
       ...validators,
@@ -43,9 +50,17 @@ export class DeclarativeFormContext implements FormContext {
 
     this.translators = translators || {};
 
-    decorate(this as DeclarativeFormContext);
+    this.sharedContext = sharedContext;
+
+    decorate(this as DeclarativeFormContext<T>);
   }
 
+  /**
+   * Decorations are applied once when the node is constructed later.
+   * Normally, the `where` condition should not receive parameters from outside
+   * the function scope if the value is dynamic
+   * @returns chainable Decorator
+   */
   public where(fn: Decorator['match']): Omit<Decorator, 'apply'> {
     const decorator = new Decorator(fn);
     this.decorators.push(decorator);

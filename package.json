@@ -1,6 +1,6 @@
 {
   "name": "@zeachco/declarative-forms",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": false,
   "description": "React package to generate forms based on a schema",
   "author": "Olivier Rousseau-Guyot <zeachco@gmail.com>",

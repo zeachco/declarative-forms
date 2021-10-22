@@ -6,7 +6,7 @@ import {NodeProps, useNode, SpecialProps} from '../../..';
 type Props = Partial<SpecialProps<typeof TextField>> & NodeProps;
 
 export function PolarisStringNode({node, ...props}: Props) {
-  const {onChange, errors, validate} = useNode(node);
+  const {errorMessage} = useNode(node);
   const {multiline, autoComplete, ...otherProps} = props;
   const {meta = {}} = node.schema;
 
@@ -20,8 +20,6 @@ export function PolarisStringNode({node, ...props}: Props) {
     ...(node.schema.meta || {}),
     ...otherProps,
   };
-  const error = errors[0];
-  const errorMessage = error ? node.translate('error', {error}) : '';
 
   return (
     <TextField
@@ -31,9 +29,12 @@ export function PolarisStringNode({node, ...props}: Props) {
       autoComplete={autoComplete || 'off'}
       {...allProps}
       value={node.value}
-      onChange={onChange}
-      onBlur={validate}
+      onChange={handleChange}
       error={errorMessage}
     />
   );
+
+  function handleChange(newValue: string) {
+    node.onChange(newValue);
+  }
 }

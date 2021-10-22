@@ -1,4 +1,5 @@
-import {useContext, useEffect, useState} from 'react';
+import {useCallback, useContext, useEffect, useState} from 'react';
+import {autorun, toJS} from 'mobx';
 
 import {SchemaNode, ValidationError} from '../types';
 
@@ -12,91 +13,53 @@ export function useNode(node: SchemaNode, {forceSelection}: Options = {}) {
   if (!isNodeV3(node)) {
     throw new Error('bad node type received');
   }
-
   const declarativeFormsReactContext = useContext(node.context.ReactContext);
 
+  const getInvalidChildren = useCallback(() => {
+    const children = [] as string[];
+    node.invalidChildren.forEach((_, child) => children.push(child));
+    return children;
+  }, [node.invalidChildren]);
+
   const [state, setState] = useState({
+    value: toJS(node.value),
     errors: node.errors || [],
     serverErrors: [] as ValidationError[],
+    contextErrors: declarativeFormsReactContext.errors,
+    errorMessage: '',
     // node changes
-    onChange,
+    /** @deprecated use directly node.onChange() */
+    onChange(value: any) {
+      node.onChange(value);
+    },
     setInitialValue,
-    validate,
-    reset,
-    // list node specifics
-    removeListItem,
-    addListItem,
-    refreshListItems,
+
+    /** @deprecated use directly node.validate() */
+    validate() {
+      node.validate();
+    },
+    isValid: node.isValid(),
+    invalidChildren: getInvalidChildren(),
+    firstError: '',
+
+    /** @deprecated use directly node.resetNodeValue() */
+    reset() {
+      node.resetNodeValue();
+    },
     // shared context
     declarativeFormsReactContext,
   });
 
-  const update = (merge: Partial<typeof state>) =>
-    setState({...state, ...merge});
+  useEffect(forceInitialSelection, [forceSelection, node]);
 
-  // To~do will resolve useEffect dependencies so they are not circular later
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(refreshListItems, [node.value]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(refreshContextErrors, [declarativeFormsReactContext, node.path]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(forceInitialSelection, [forceSelection, node.attributes]);
-
-  function reset() {
-    node.resetNodeValue();
-    onChange(node.value);
-  }
-
-  function onChange(value: any) {
-    update({errors: node.onChange(value)});
-  }
+  useEffect(forceUpdateOnMobxState, [node, state, getInvalidChildren]);
+  useEffect(updateOnServerErrors, [node, declarativeFormsReactContext.errors]);
 
   function setInitialValue(value: any) {
-    update({errors: node.onChange(value, undefined, true)});
-  }
-
-  function validate() {
-    update({errors: node.validate()});
-  }
-
-  // in order to detect changes from children nodes,
-  // we assign them a hook removal callback for removal
-  // gotcha: if we render the same node structure
-  // into two different react components, only one (the latest)
-  // would be updated in real time
-  function refreshListItems() {
-    if (!node.isList || !Array.isArray(node.value)) return;
-    node.value.forEach((child: SchemaNode, newIndex: number) => {
-      child.path = node.path.add(newIndex.toString(), true);
-      child.deleteSelf = () => removeListItem(newIndex);
+    setState({
+      ...state,
+      errors: node.onChange(value, undefined, true),
     });
-
-    update({
-      errors: node.validate().concat(state.serverErrors),
-    });
-  }
-
-  function refreshContextErrors() {
-    const serverErrorNode =
-      declarativeFormsReactContext.errors[node.path.toStringShort()];
-    const serverErrors: ValidationError[] = Array.isArray(serverErrorNode)
-      ? serverErrorNode.map((error) => new ValidationError('server', {error}))
-      : [];
-
-    update({
-      errors: serverErrors.length ? serverErrors : node.errors,
-      serverErrors,
-    });
-  }
-
-  function addListItem() {
-    node.addListItem();
-    refreshListItems();
-  }
-
-  function removeListItem(index: number) {
-    node.removeListItem(index);
-    refreshListItems();
   }
 
   function forceInitialSelection() {
@@ -106,8 +69,38 @@ export function useNode(node: SchemaNode, {forceSelection}: Options = {}) {
       typeof node.value !== 'string' &&
       typeof firstOptionValue === 'string'
     ) {
-      onChange(firstOptionValue);
+      node.onChange(firstOptionValue);
     }
+  }
+
+  function updateOnServerErrors() {
+    const serverPath = node.path.toFullWithoutVariants();
+    const serverErrorNode = declarativeFormsReactContext.errors[serverPath];
+
+    const serverErrors: ValidationError[] = Array.isArray(serverErrorNode)
+      ? serverErrorNode.map((error) => new ValidationError('server', {error}))
+      : [];
+
+    node.setErrors(serverErrors);
+  }
+
+  function forceUpdateOnMobxState() {
+    return autorun(() => {
+      if (
+        node.value !== state.value ||
+        node.errors.length !== state.errors.length
+      ) {
+        setState({
+          ...state,
+          value: node.value,
+          isValid: node.isValid(),
+          errors: node.errors,
+          errorMessage: node.errors.length
+            ? node.translate('error', {error: node.errors[0]})
+            : '',
+        });
+      }
+    });
   }
 
   return state;

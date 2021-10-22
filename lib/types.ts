@@ -1,3 +1,4 @@
+import {makeAutoObservable, toJS} from 'mobx';
 import React from 'react';
 
 // Utils and functions
@@ -71,6 +72,7 @@ export interface FormContext<T = SharedContext> {
   version: number;
   sharedContext: T;
   ReactContext: React.Context<{errors: ContextErrors} & SharedContext>;
+  nodes: Map<string, SchemaNode>;
   validators: {[key: string]: ValidatorFn} & {
     Presence?: ValidatorFn;
     Length?: ValidatorFn;
@@ -277,6 +279,10 @@ export class Path {
       return acc ? `${acc}.${seg}` : seg.toString();
     }, '');
   }
+
+  toFullWithoutVariants() {
+    return this.segments.filter((seg) => !seg.isVariant).join('.');
+  }
 }
 
 // Schema Node
@@ -337,6 +343,8 @@ export class SchemaNode {
     this.name = path.tail.toString();
     this.resetNodeValue(value, schema);
     this.saveDecorators();
+    makeAutoObservable(this);
+    this.context.nodes.set(this.path.toString(), this);
   }
 
   public resetNodeValue(
@@ -433,6 +441,10 @@ export class SchemaNode {
     }
 
     return this.errors;
+  }
+
+  public setErrors(errors: ValidationError[]) {
+    this.errors = errors || [];
   }
 
   // This method allows bubbling up the values of the children
@@ -543,21 +555,30 @@ export class SchemaNode {
       undefined,
       (value, path) => this.onChildrenChange(value, path),
     );
-    this.value.push(node);
+    this.value = [...this.value, node];
     this.buildChildren();
     return node;
+  }
+
+  public getNodeByPath(fullPath: string) {
+    return this.context.nodes.get(fullPath);
+  }
+
+  public parentNode(): SchemaNode | undefined {
+    const parentKey = this.path.segments
+      .filter((_s, index) => index < this.path.segments.length - 2)
+      .join('.');
+    return this.getNodeByPath(parentKey);
   }
 
   public removeListItem(index: number) {
     if (!this.isList) {
       throw new Error('node is not a list');
     }
-    this.value.splice(index, 1);
+    this.value = this.value.filter(
+      (_: SchemaNode, idx: number) => idx !== index,
+    );
     this.buildChildren();
-  }
-
-  public deleteSelf() {
-    throw new Error('deleteSelf is callable on list node children only');
   }
 
   // This method calculate the node's value
@@ -588,9 +609,9 @@ export class SchemaNode {
     if (validate) this.validate();
 
     const formatter = this.context.formatters.remote;
-    return formatter
-      ? formatter(this.value, this.schema.type, this)
-      : this.value;
+    return toJS(
+      formatter ? formatter(this.value, this.schema.type, this) : this.value,
+    );
   }
 
   // utilities
@@ -656,15 +677,15 @@ export class SchemaNode {
 
     if (typeof type !== 'string') {
       // Define if node should be a list node
-      if (Array.isArray(type)) {
+      if (isMobxArray(type)) {
         // We remap from the Legacy Schema syntax
         type = type[0];
         this.isList = true;
         // List node have their children in the value attribute
-        if (!Array.isArray(this.value)) {
+        if (!isMobxArray(this.value)) {
           this.value = [];
         }
-      } else if (Array.isArray(type.polymorphic)) {
+      } else if (isMobxArray(type.polymorphic)) {
         // we don't need to read the polymorphic attributes
         // as they are just a list of the keys in attributes
         // instead we change the type for a plain string
@@ -685,4 +706,14 @@ export class SchemaNode {
       type: this.type,
     };
   }
+}
+
+/**
+ * when an array is proxied, it's not and instance of an Array anymore but the one of a Proxy
+ * therefore Array.isArray returns false on arrays wrapped by mobx (Proxied)
+ * Array.isArray is still safer semanticaly to future changes so it remains as the first condition
+ * For more information, you can check https://doc.ebichu.cc/mobx/refguide/array.html
+ */
+function isMobxArray(array: any): array is any[] {
+  return Array.isArray(array) || typeof array?.slice === 'function';
 }

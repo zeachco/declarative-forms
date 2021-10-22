@@ -1,5 +1,5 @@
 import {Card, FormLayout, Select} from '@shopify/polaris';
-import {SchemaNode} from '../../../types';
+import {SchemaNode} from '@shopify/declarative-forms/types';
 import React, {ReactNode} from 'react';
 
 import {NodeProps, renderNodes, useNode} from '../../..';

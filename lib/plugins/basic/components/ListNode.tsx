@@ -5,19 +5,16 @@ import {useNode} from '../../../utilities/hook';
 import {renderNodes} from '../../../utilities/RenderNode';
 
 export function ListNode({node}: NodeProps) {
-  const {errors, addListItem} = useNode(node);
+  const {errors} = useNode(node);
 
   const jsx: React.ReactNodeArray = [];
-  // HACK deleting a node < max length shift the dom elements and cause fields to be irresponsive
-  const uid = Math.random();
-
-  node.value.forEach((subNode: SchemaNode) => {
+  node.value.forEach((subNode: SchemaNode, index: number) => {
     jsx.push(
-      <div key={uid}>
+      <div key={node.uid}>
         <button
           type="button"
           style={{float: 'right'}}
-          onClick={subNode.deleteSelf}
+          onClick={handleRemoveForIndex(index)}
         >
           Remove item
         </button>
@@ -33,9 +30,17 @@ export function ListNode({node}: NodeProps) {
         <strong key={error.type}>{node.translate('error', {error})}</strong>
       ))}
       {jsx}
-      <button type="button" onClick={addListItem}>
+      <button type="button" onClick={handleAddItem}>
         Add item
       </button>
     </div>
   );
+
+  function handleAddItem() {
+    node.addListItem();
+  }
+
+  function handleRemoveForIndex(index: number) {
+    return () => node.removeListItem(index);
+  }
 }

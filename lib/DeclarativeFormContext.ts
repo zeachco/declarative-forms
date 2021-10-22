@@ -26,6 +26,7 @@ export class DeclarativeFormContext<T = SharedContext> implements FormContext {
   public decorators: Decorator[] = [];
   public sharedContext: FormContext<T>['sharedContext'];
   public ReactContext: FormContext<T>['ReactContext'];
+  public nodes: FormContext<T>['nodes'] = new Map();
   public version = 3;
 
   constructor({

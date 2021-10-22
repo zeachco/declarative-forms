@@ -18,13 +18,13 @@ export {
   PolarisOptionsNode,
 };
 
-export function decorateWithPolarisComponents(context: FormContext) {
-  context.where(({isVariant}) => isVariant).replaceWith(PolarisPolymorphicNode);
-  context.where(({type}) => type === 'boolean').replaceWith(PolarisBooleanNode);
-  context
+export function decorateWithPolarisComponents(ctx: FormContext) {
+  ctx.where(({isVariant}) => isVariant).replaceWith(PolarisPolymorphicNode);
+  ctx.where(({type}) => type === 'boolean').replaceWith(PolarisBooleanNode);
+  ctx
     .where(({type}) => ['string', 'number', 'integer'].includes(type))
     .replaceWith(PolarisStringNode);
-  context
+  ctx
     .where(({schema}) => Boolean(schema.options?.length))
     .replaceWith(PolarisOptionsNode);
 }

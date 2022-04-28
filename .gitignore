@@ -1,4 +1,3 @@
-.cache
 node_modules
-dist
+.loom
 .DS_Store

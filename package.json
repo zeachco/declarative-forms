@@ -27,7 +27,8 @@
     "parcel-bundler": "^1.12.5"
   },
   "scripts": {
-    "build": "parcel build ./lib/index.ts ./lib/plugins/polaris ./lib/plugins/basic"
+    "build": "parcel build ./lib/index.ts ./lib/plugins/polaris ./lib/plugins/basic",
+    "test": "echo \"no tests\""
   },
   "bugs": {
     "url": "https://github.com/zeachco/declarative-forms/issues"

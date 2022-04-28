@@ -1,7 +1,7 @@
 name: ci-check
 on: [push]
 jobs:
-  check-bats-version:
+  ci-check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

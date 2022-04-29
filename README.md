@@ -200,7 +200,7 @@ This will create a local folder `docs/` that you might want to clean up before c
 
 ## Jump in the code
 
-If you can't click those links, it's probably because you are viewing the the README.md directly instead of browsing the advanced documentation at <https://shopify.github.io/declarative-forms/>
+If you can't click those links, it's probably because you are viewing the the README.md directly instead of browsing the advanced documentation at <https://zeachco.github.io/declarative-forms/>
 
 ### library features
 

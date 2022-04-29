@@ -14,7 +14,7 @@ export default createPackage((pkg) => {
       commonjs: true,
       esmodules: true,
       esnext: true,
-      targets: 'extends @shopify/browserslist-config, ios >= 12, node 12.13',
+      targets: 'extends @shopify/browserslist-config, ios >= 12, node 16',
       jestTestEnvironment: 'jsdom',
     }),
     buildLibraryWorkspace(),

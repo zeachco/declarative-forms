@@ -38,7 +38,8 @@
     "prebuild": "rimraf dist docs",
     "build:doc": "typedoc --excludePrivate ./src/index.ts",
     "publish:docs": "yarn build:doc && sh ./doc-site.sh && rimraf docs",
-    "deploy": "yarn run build && yarn test --watch=false && yarn version && git push --follow-tags"
+    "deploy": "yarn run build && yarn test --watch=false && yarn version && git push --follow-tags",
+    "publish:npm": "echo 'auto-publish disabled'"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.16.0",

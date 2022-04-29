@@ -1,6 +1,6 @@
 {
   "name": "@zeachco/declarative-forms",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "build/cjs/index.js",
   "module": "build/esm/index.mjs",
   "esnext": "build/esnext/index.esnext",

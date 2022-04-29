@@ -1,15 +1,23 @@
 {
+  "extends": "@shopify/typescript-configs/library",
   "compilerOptions": {
-    "lib": ["DOM.Iterable", "DOM", "ESNext"],
-    "resolveJsonModule": true,
-    "target": "ES2015",
+    "baseUrl": ".",
+    "rootDir": ".",
+    "outDir": "./build/ts",
+    "pretty": true,
     "jsx": "react",
     "strict": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
+    "importHelpers": true,
+    "skipLibCheck": false,
     "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "strictNullChecks": true,
+    "emitDeclarationOnly": true
   },
-  "include": ["./lib"]
+  "include": [
+    "./config/typescript/**/*",
+    "./src/**/*",
+    "./stories/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx"
+  ]
 }

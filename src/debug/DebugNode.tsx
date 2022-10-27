@@ -65,8 +65,8 @@ export function DebugNode({children, node}: DebugProps) {
             }}
             onClick={() => console.info(node.path.toString(), node)}
           >
-            <DebugAttribute name="label" value={node.translate('label')} />
-            {(['type', 'name', 'depth'] as const).map((key) => (
+            <DebugAttribute name="label" value={node.translate('label') ?? ''} />
+            {(['type', 'name', 'depth'] as const).map(key => (
               <DebugAttribute key={key} name={key} value={node[key]} />
             ))}
             <DebugAttribute name="path" value={node.path.toString()} />

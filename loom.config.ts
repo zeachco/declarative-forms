@@ -6,7 +6,7 @@ import {
   buildLibraryWorkspace,
 } from '@shopify/loom-plugin-build-library';
 
-export default createPackage((pkg) => {
+export default createPackage(pkg => {
   pkg.entry({root: './src/index.ts'});
 
   pkg.use(
@@ -14,7 +14,7 @@ export default createPackage((pkg) => {
       commonjs: true,
       esmodules: true,
       esnext: true,
-      targets: 'extends @shopify/browserslist-config, ios >= 12, node 16',
+      targets: 'extends @shopify/browserslist-config, ios >= 12, node 12.13',
       jestTestEnvironment: 'jsdom',
     }),
     buildLibraryWorkspace(),

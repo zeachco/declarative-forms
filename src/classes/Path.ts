@@ -57,6 +57,7 @@ export class Path {
     return this.segments.reduce((acc: string, seg: PathSegment) => {
       if (seg.isList) return withList ? `${acc}[${seg}]` : acc;
       if (seg.isVariant) return withVariant ? `${acc}[${seg}]` : acc;
+      if (seg.isClone) return acc;
       return acc ? `${acc}.${seg}` : seg.toString();
     }, '');
   }
@@ -66,7 +67,9 @@ export class Path {
    * or any selection / matching without bothering with the selected variants
    */
   public toFullWithoutVariants() {
-    return this.segments.filter((seg) => !seg.isVariant).join('.');
+    return this.segments
+      .filter(({isVariant, isClone}) => !isVariant && !isClone)
+      .join('.');
   }
 
   private compile() {

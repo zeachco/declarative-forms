@@ -6,6 +6,9 @@ interface RangeValidatorOptions {
   maximum: number;
 }
 
+/**
+ * Similar to the {@link lengthValidator} but tests the value against an integer.
+ */
 export const rangeValidator: ValidatorFn = (
   value: SchemaNode['value'],
   {message, minimum = 0, maximum = 100}: SchemaValidator<RangeValidatorOptions>,

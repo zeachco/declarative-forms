@@ -200,3 +200,170 @@ export const expectedValues = {
   someString: '',
   someVariant: {},
 };
+
+// Snapshot of a structure for regression testing
+export const ssnPassportValues = [
+  {
+    firstName: 'Alfonso',
+    lastName: 'Astor',
+    ssnOrPassport: {
+      ssnOrPassportType: 'variantPassport',
+      // warning values are overwritten in the full schema bellow
+      passport: {
+        passportId: 'ginghihnihnhn',
+        country: 'US',
+      },
+    },
+  },
+  {
+    firstName: 'Bob',
+    lastName: 'Bernard',
+    ssnOrPassport: {
+      ssnOrPassportType: 'variantSsn',
+      ssn: '****1111',
+    },
+  },
+];
+
+export const ssnPassportSchema = {
+  equity_details: {
+    attributes: {
+      equityOwnersList: {
+        type: [],
+        value: ssnPassportValues,
+        attributes: {
+          firstName: {
+            name: 'first_name',
+            type: 'string',
+            labels: {
+              label: 'First name',
+            },
+            validators: [
+              {
+                name: 'Presence',
+                message: 'First name is required',
+              },
+            ],
+          },
+          lastName: {
+            name: 'last_name',
+            type: 'string',
+            labels: {
+              label: 'Last name',
+            },
+            validators: [
+              {
+                name: 'Presence',
+                message: 'Last name is required',
+              },
+            ],
+          },
+          ssnOrPassport: {
+            name: 'ssnOrPassport',
+            type: 'polymorphic',
+            value: 'variantSsn',
+            labels: {
+              label: 'This person has a Social Security number (SSN)',
+            },
+            attributes: {
+              variantSsn: {
+                name: 'variantSsn',
+                type: 'polymorphicVariant',
+                labels: {},
+                attributes: {
+                  ssn: {
+                    name: 'ssn',
+                    type: 'ssn',
+                    labels: {
+                      label: 'Social Security number',
+                    },
+                    validators: [
+                      {
+                        name: 'Presence',
+                        message: 'Social Security number is required',
+                      },
+                    ],
+                  },
+                },
+                validators: [
+                  {
+                    name: 'Presence',
+                    message: 'variantSsn is required',
+                  },
+                ],
+              },
+              variantPassport: {
+                name: 'variantPassport',
+                type: 'polymorphicVariant',
+                labels: {},
+                attributes: {
+                  passport: {
+                    name: 'Passport',
+                    type: 'passportNumber',
+                    // purposely set overwriting values
+                    value: {
+                      passportId: null,
+                      country: null,
+                    },
+                    labels: {},
+                    attributes: {
+                      passportId: {
+                        name: 'passport_id',
+                        type: 'string',
+                        labels: {
+                          label: 'Passport number',
+                        },
+                        validators: [
+                          {
+                            name: 'Presence',
+                            message: 'Passport number is required',
+                          },
+                        ],
+                      },
+                      country: {
+                        name: 'country',
+                        type: 'string',
+                        labels: {
+                          label: 'Country/region',
+                        },
+                        validators: [
+                          {
+                            name: 'Presence',
+                            message: 'Country/region is required',
+                          },
+                        ],
+                      },
+                    },
+                    validators: [
+                      {
+                        name: 'Presence',
+                        message: 'Passport is required',
+                      },
+                    ],
+                  },
+                },
+                validators: [
+                  {
+                    name: 'Presence',
+                    message: 'variantPassport is required',
+                  },
+                ],
+              },
+            },
+            validators: [
+              {
+                name: 'Presence',
+                message:
+                  'This person has a Social Security number (SSN) is required',
+              },
+            ],
+            meta: {
+              optIn: 'variantSsn',
+              optOut: 'variantPassport',
+            },
+          },
+        },
+      },
+    },
+  },
+};

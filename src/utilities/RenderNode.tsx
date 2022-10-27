@@ -5,7 +5,7 @@ import {DebugNode} from '../debug/DebugNode';
 
 export function renderNodes(nodes: NodeChildrenMap, uid = '') {
   const keys = Object.keys(nodes);
-  return keys.map((key) => renderNode(nodes[key], `${uid}_${key}`));
+  return keys.map(key => renderNode(nodes[key], `${uid}_${key}`));
 }
 
 export function renderNode(node: SchemaNode, uid = '') {
@@ -13,7 +13,7 @@ export function renderNode(node: SchemaNode, uid = '') {
   let jsx: React.ReactNode[] = [];
   const nodeChildren: React.ReactNode[] = [];
 
-  node.attributes.forEach((key) => {
+  node.attributes.forEach(key => {
     const child = node.children[key];
     if (!node.isVariant) {
       nodeChildren.push(...renderNode(child, reactKey));

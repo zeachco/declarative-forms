@@ -1,7 +1,8 @@
 import {makeObservable, observable, action} from 'mobx';
+import {ValidationError} from './classes/ValidationError';
 
 import {frameworkValidators, frameworkFormatters} from './defaults';
-import {Decorator, FormContext, SharedContext} from './types';
+import {ContextErrors, Decorator, FormContext, SharedContext} from './types';
 
 export type DecorateFunction<T extends SharedContext = SharedContext> = (
   context: DeclarativeFormContext<T>,
@@ -22,8 +23,7 @@ export const defaultSharedContext: SharedContext = {
  * so it's accessible at every level.
  */
 export class DeclarativeFormContext<T extends SharedContext = SharedContext>
-  implements FormContext
-{
+  implements FormContext {
   /**
    * Here is where we pass validators used for the frontend validation process.
    * by nature a validator returns instantly a validation error or null but since
@@ -39,12 +39,14 @@ export class DeclarativeFormContext<T extends SharedContext = SharedContext>
    */
   public validators: FormContext['validators'];
   public values: FormContext['values'];
+  public data: FormContext['data'] = {};
   public translators: FormContext['translators'];
   public formatters: FormContext['formatters'];
   public features: FormContext['features'];
   public decorators: Decorator[] = [];
   public sharedContext: FormContext<T>['sharedContext'];
   public nodes: FormContext<T>['nodes'] = new Map();
+  public focusedNode: undefined | string;
 
   constructor({
     decorate = () => {},
@@ -61,6 +63,7 @@ export class DeclarativeFormContext<T extends SharedContext = SharedContext>
     };
 
     this.values = values || {};
+    this.data = values;
     this.formatters = {
       ...frameworkFormatters,
       ...formatters,
@@ -74,6 +77,7 @@ export class DeclarativeFormContext<T extends SharedContext = SharedContext>
     decorate(this as DeclarativeFormContext<T>);
 
     makeObservable(this, {
+      data: observable,
       sharedContext: observable,
       updateContext: action,
       focusField: action,
@@ -81,26 +85,64 @@ export class DeclarativeFormContext<T extends SharedContext = SharedContext>
   }
 
   /**
-   * Updates the shared context
-   * updating passing a single object as the first argument merges the object
-   * and retriggers every watcher on sharedContext while using a key/value retriggers only
+   * Updating passing a single object as the first argument merges the object
+   * and retriggers every watcher on {@link sharedContext} while using a key/value retriggers only
    * watchers that looks for the changed value.
+   * It's safer to use the key/value syntax to create less unwanted reactions.
+   * ie:
+   * ```tsx
+   * context.updateContext('debug', false)
+   * ```
    */
   public updateContext<K extends keyof FormContext<T>['sharedContext']>(
-    valueOrKey: K | Partial<FormContext<T>['sharedContext']>,
+    key: K | Partial<FormContext<T>['sharedContext']>,
     value?: Partial<FormContext<T>['sharedContext'][K]>,
   ): void {
-    if (value) {
-      this.actualUpdateContext(valueOrKey as string, value);
+    if (value === undefined) {
+      this.oldUpdateContext(key as Partial<FormContext<T>['sharedContext']>);
     } else {
-      this.oldUpdateContext(
-        valueOrKey as Partial<FormContext<T>['sharedContext']>,
-      );
+      this.actualUpdateContext(key as string, value);
     }
   }
 
-  public focusField(nodePath: string = '') {
-    this.sharedContext.focusedNode = nodePath;
+  /**
+   * This is used to define which {@link SchemaNode} should be flagged as behing in focus
+   * Usefull when a list of input fields are displayed and we want to bring the cursor programatically
+   * to a certain node.
+   */
+  public focusField(nodePath?: string) {
+    const getNode = (path?: string) =>
+      typeof path === 'string' ? this.nodes.get(path) : null;
+
+    const old = getNode(this.focusedNode);
+    const next = getNode(nodePath);
+
+    if (old) old.setFocused(false);
+    if (next) next.setFocused(true);
+
+    this.focusedNode = nodePath;
+  }
+
+  /**
+   * Shorthand to send an error to a specific node
+   * can also be done directly on the node with {@link setErrors}
+   * it automaticaly creates instances of {@link ValidationError} based on the received {@link ContextErrors} received.
+   */
+  public sendErrorsToNode(errorsMap: ContextErrors) {
+    Object.keys(errorsMap).forEach(path => {
+      if (path === 'generic') return;
+      const target = this.nodes.get(path);
+      const errors = errorsMap[path];
+      if (!target) {
+        console.warn(
+          `tried to send error to node "${path}" but it was not found in the current context`,
+        );
+        return;
+      }
+      target.setErrors(
+        errors.map(err => new ValidationError(err, {message: err})),
+      );
+    });
   }
 
   /**

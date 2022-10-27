@@ -1,7 +1,9 @@
-import {action, computed, makeObservable, observable, autorun} from 'mobx';
+import {makeAutoObservable, autorun} from 'mobx';
 import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
+import set from 'lodash/set';
+import isObject from 'lodash/isObject';
 
 import {Path} from './classes/Path';
 import {ValidationError} from './classes/ValidationError';
@@ -10,9 +12,8 @@ import {PathSegment} from './classes/PathSegment';
 // Utils and functions
 export type NodeKind = string;
 export type NodeValue = any;
-export type ReactComponent = any;
 export type FormatterFn = (value: any, type: string, node: SchemaNode) => any;
-interface ObjectMap<T = any> {
+export interface ObjectMap<T = any> {
   [key: string]: T;
 }
 type TranslatorKey =
@@ -30,7 +31,11 @@ export interface TranslatorArgs extends ObjectMap {
   // translators and `node.translate` can invokes can use any sort of additional arguments
 }
 
-export type TranslatorFn = (node: SchemaNode, args?: TranslatorArgs) => string;
+
+export type TranslatorFn = (
+  node: SchemaNode,
+  args?: TranslatorArgs,
+) => string | undefined;
 
 export type ValidatorFn<T extends ObjectMap = any> = (
   val: NodeValue,
@@ -61,8 +66,9 @@ interface BaseSchemaValidator {
   message?: string;
 }
 
-export type SchemaValidator<T extends ObjectMap = ObjectMap> =
-  BaseSchemaValidator & T;
+export type SchemaValidator<
+  T extends ObjectMap = ObjectMap
+> = BaseSchemaValidator & T;
 
 export interface SchemaNodeServerDefinition {
   type?: NodeKind | NodeKind[] | {polymorphic: string[]};
@@ -74,6 +80,20 @@ export interface SchemaNodeServerDefinition {
   meta?: ObjectMap;
   options?: string[];
 }
+
+interface NewSchemaNodeDefinitionBase {
+  _type?: NodeKind | NodeKind[];
+  _watch?: SchemaNodeServerDefinition['watch'];
+  _value?: SchemaNodeServerDefinition['value'];
+  _labels?: SchemaNodeServerDefinition['labels'];
+  _validators?: SchemaNodeServerDefinition['validators'];
+  _meta?: SchemaNodeServerDefinition['meta'];
+  _options?: SchemaNodeServerDefinition['options'];
+}
+
+type NewSchemaNodeDefinition = {
+  [key: string]: NewSchemaNodeDefinitionBase;
+} & NewSchemaNodeDefinitionBase;
 
 type LabelDictionnary = ObjectMap<string | LabelDictionnary>;
 
@@ -108,21 +128,23 @@ export interface NodeProps<T extends NodeValue = NodeValue> {
  * be typed extending this interface for better typecheck
  */
 export interface SharedContext extends ObjectMap {
-  focusedNode?: string;
   debug?: boolean;
   _debug_next_reaction?: boolean;
   errors?: ContextErrors;
 }
 
 // used internaly only
-export interface FormContext<T extends SharedContext = SharedContext> {
+export interface FormContext<
+  T extends SharedContext = SharedContext,
+  FormType extends ObjectMap = ObjectMap
+> {
   features: {
-    /** controls if an node of type `option` with no `value` should be initially set to the first option */
-    defaultOptionToFirstValue?: boolean;
     /**
      * False by default
-     * When enabled, changing a node's value will not trigger a validation instantly.
-     * the user will have to manually call validate on the node to compute errors.
+     * When enabled, changing a node's value will still trigger validation but not set the errors.
+     * The errors are used for displaying the error message in the UI.
+     * the user will have to manually call `validateAll` on the node to show the error message in the UI
+     * the error clearing upon changing the value still remains the same
      */
     asyncValidation?: boolean;
     /**
@@ -138,6 +160,7 @@ export interface FormContext<T extends SharedContext = SharedContext> {
      * the path pointer will always point to the last created node unless `throw` is used.
      */
     nodePathCollision?: 'throw' | 'warn' | 'ignore';
+    suppressWarnings?: boolean;
   };
   sharedContext: T;
   nodes: Map<string, SchemaNode>;
@@ -147,6 +170,7 @@ export interface FormContext<T extends SharedContext = SharedContext> {
     Format?: ValidatorFn<ObjectMap>;
   };
   values: ObjectMap;
+  data: FormType;
   formatters: ObjectMap<FormatterFn> & {
     local?: FormatterFn;
     remote?: FormatterFn;
@@ -161,7 +185,8 @@ export interface FormContext<T extends SharedContext = SharedContext> {
     valueOrKey: K | Partial<FormContext<T>['sharedContext']>,
     value?: FormContext<T>['sharedContext'][K],
   ): void;
-  focusField(fieldPath: string): void;
+  focusField(path: string): void;
+  sendErrorsToNode(errors: ContextErrors): void;
   addInitialValuesAfterNode(
     nodeName: SchemaNode['name'],
     values: FormContext['values'],
@@ -173,7 +198,7 @@ const slotNames = ['Before', 'After', 'Wrap', 'Pack', 'Replace'] as const;
 export type DecoratorKeys = typeof slotNames[number];
 
 interface DecoratorSlot {
-  Node?: ReactComponent;
+  Node?: any;
   props?: object | Function;
 }
 
@@ -216,14 +241,14 @@ type GetProps<T extends Noop> = T extends (args: infer P) => any ? P : never;
 export type GenericExcludedComponentProps = 'onChange' | 'value';
 
 /**
- * Used to defines properties of a function without the usual schema node props
+ * Used to defines properties of a function without the usual schema node props.
  * This is usefull to know what properties are expected from a library consumer point of view
  */
 export type SpecialProps<
   T extends Noop,
   E extends
     | GenericExcludedComponentProps
-    | string = GenericExcludedComponentProps,
+    | string = GenericExcludedComponentProps
 > = Omit<GetProps<T>, keyof NodeProps | E>;
 
 /**
@@ -261,7 +286,7 @@ export class Decorator {
    */
   public apply(node: SchemaNode) {
     if (this.match(node)) {
-      slotNames.forEach((key) => {
+      slotNames.forEach(key => {
         if (this[key]) node.decorator[key] = this[key];
       });
     }
@@ -321,11 +346,11 @@ const NO_VALUE = Symbol('');
 
 type NodeSource = 'child' | 'parent' | 'self';
 
-const CLONED_SYMBOL = '__cloned__';
+export const CLONED_SYMBOL = '__cloned__';
 
 /**
  * this represent a highly interactable node of a form schema that is
- * observable with {@link useNode} in order to notify React that attributes have been mutated.
+ * observable with {@link useWatcher} in order to notify React that attributes have been mutated.
  */
 export class SchemaNode<T extends NodeValue = NodeValue> {
   public errors: ValidationError[] = [];
@@ -342,9 +367,13 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
   public isList = false;
 
   /**
-   * True if the node is a polymorphic node
-   * Polymorphic nodes select their variant(s) to display
-   * The selection name is held in the value attribue
+   * True if the node is a polymorphic node.
+   * Meant to manage a node that conditionally renders it's children based on it's own value.
+   * Unmatched children still retain their values and validation is skipped.
+   * Matched children still account in the overall validation process.
+   * When declaring a schema, you can use `polymorphic` as a type to make it a variant.
+   * You can also use `polymorphic-*` ie: `polymorphic-radio`.
+   * Suffix have to follow a dash.
    */
   public isVariant = false;
 
@@ -356,6 +385,7 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
   public name: string;
   public type = '';
   public dirty = false;
+  public focused = false;
   public invalidChildren: Map<string, true> = new Map();
   public decorator: RegisteredDecorations = {};
 
@@ -368,7 +398,7 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
    * valid can be false without errors registered when it fails validation
    * before the user change it's value. It is usefull to prevent submitting
    * a form that was prefilled with wrong values.
-   * It is privately used in isValid() public method for that reason.
+   * It is privately used in {@link isValid} public method for that reason.
    */
   private valid = false;
 
@@ -376,9 +406,12 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
     public context: FormContext,
     schema: SchemaNodeServerDefinition,
     public path: Path = new Path(),
-    public value: NodeValue = NO_VALUE,
-    private updateParent: SchemaNode['onChildrenChange'] = () => {},
+    initialValue: NodeValue = NO_VALUE,
+    private updateParent: SchemaNode['onChildChange'] = () => {},
   ) {
+    this.onChange = this.onChange.bind(this);
+    this.validate = this.validate.bind(this);
+    this.setInitialValue = this.setInitialValue.bind(this);
     this.depth = path.segments.length;
     this.name = path.tail.toString();
 
@@ -386,21 +419,20 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
     // This allows the list specific behavior for getInitialValue to function properly
     // by traversing the tree back up to get an ancestors value.
     this.registerNode(this.path.toString());
-    this.resetNodeValue(value, schema);
+    this.resetNodeValue(initialValue, schema);
     this.saveDecorators();
-    makeObservable(this, {
-      value: observable,
-      errors: observable,
-      uid: computed,
-      onChange: action,
-      validate: action,
-      validateAll: action,
-      setErrors: action,
-      resetNodeValue: action,
-      isValid: action,
-      addListItem: action,
-      removeListItem: action,
-      dirty: observable,
+    makeAutoObservable(this, {
+      // list of properties that we don't care have a false flag
+      decorator: false,
+      // Unlikely to change
+      attributes: false,
+      path: false,
+      name: false,
+      depth: false,
+      type: false,
+      // to avoid overreaching during watcher mapping
+      children: false,
+      context: false,
     });
   }
 
@@ -414,7 +446,7 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
     // in the decoration process, it adds an entry that looks like `${afterNode}.${this.name}`
     for (const segment of this.path.segments) {
       const segmentValue = this.context.values[segment.key];
-      if (typeof segmentValue === 'object' && segmentValue !== null) {
+      if (isObject(segmentValue) && !isMobxArray(segmentValue)) {
         initialValue = this.context.values[segment.key][this.name];
         break;
       }
@@ -424,7 +456,7 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
     // but there's a possibility of collision on nested structures
     // so the server can also send the shortPath instead.
     const matchingValueByShortPath = this.path.segments
-      .filter((seg) => !seg.isList && !seg.isVariant)
+      .filter(seg => !seg.isList && !seg.isVariant)
       .reduce(
         (acc: any, seg: PathSegment) => (acc ? acc[seg.key] : undefined),
         this.context.values,
@@ -444,10 +476,10 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
     // the invocation of schemaCompatibilityLayer must be after value hydratation
     // since it redefines the value but it must be before building
     // the children because it sets the type of node as well
-    this.schema = this.schemaCompatibilityLayer(schema);
+    this.schema = this.normalizeSchema(schema);
 
-    if (this.isList && Array.isArray(this.schema.value)) {
-      this.onChange(this.schema.value as NodeValue, 'self', true);
+    if (this.isList && isMobxArray(this.schema.value)) {
+      this._onChange(this.schema.value as NodeValue, 'self', true);
       return;
     }
 
@@ -457,18 +489,8 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
       this.value = formatter(this.value, this.type, this);
     }
 
-    // If we have a node with options but the selections is invalid (or missing),
-    // it tries to preselect the first option
-    if (
-      this.context.features.defaultOptionToFirstValue &&
-      schema.options &&
-      !schema.options.includes(this.value)
-    ) {
-      this.value = schema.options[0] || null;
-    }
-
     this.buildChildren();
-    this.onChange(this.value, 'self', true);
+    this._onChange(this.value, 'self', true);
   }
 
   /**
@@ -477,21 +499,41 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
    * note: the node still shared the same context so they can refer to
    * each other though {@link SchemaNode.getNodeByPath}
    */
-  public clone(namespace = CLONED_SYMBOL) {
-    return new SchemaNode<T>(
+  public clone(prefix = CLONED_SYMBOL) {
+    // to safe guard against context references being overwritten
+    if (this.isClone())
+      throw new Error(`Cannot clone a clone, use the original reference`);
+
+    // prepare a new unique path
+    const newPath = cloneDeep(this.path);
+    newPath.segments.unshift(new PathSegment(prefix, false, false, true));
+
+    // actual cloning
+    const clonedRoot = new SchemaNode<T>(
       this.context,
       cloneDeep(this.schema),
-      this.path.unshift(namespace),
+      newPath,
       cloneDeep(this.value),
     );
+
+    // copying errors from the original node to the clone
+    this.context.nodes.forEach((node: SchemaNode) => {
+      if (node.isClone()) {
+        const original = node.getOriginalNode();
+        if (!original) return;
+        node.errors = cloneDeep(original.errors);
+      }
+    });
+
+    return clonedRoot;
   }
 
   /**
    * Tells if the current node is a node that was created using the
    * {@link SchemaNode.clone} method.
    */
-  public isClone(namespace = CLONED_SYMBOL) {
-    return !!this.path.segments.find((s) => s.key === namespace);
+  public isClone() {
+    return !!this.path.segments.find(({isClone}) => isClone);
   }
 
   /**
@@ -500,12 +542,14 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
    * In order to make it possible, the cloned node have
    * to be cloned with the `keepContext` set to `true` otherwise
    * the sharedContext will not be the same.
+   * In the case were a child is being added only on a cloned node (ie: items of a list),
+   * it might not exists on the original node.
    */
-  public getOriginalNode(namespace = CLONED_SYMBOL) {
-    if (!this.isClone(namespace)) throw new Error('This node is not a clone');
+  public getOriginalNode() {
+    if (!this.isClone()) throw new Error('This node is not a clone');
     const path = new Path(
       '',
-      this.path.segments.filter((s) => s.key !== namespace),
+      this.path.segments.filter(({isClone}) => !isClone),
     );
     return this.getNodeByPath(path.toString());
   }
@@ -520,9 +564,11 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
    * to be cloned with the `keepContext` set to `true` otherwise
    * the sharedContext will not be the same.
    */
-  public isSameValueAsCloned(namespace = CLONED_SYMBOL) {
-    if (!this.isClone(namespace)) throw new Error('This node is not a clone');
-    return this.getOriginalNode(namespace)?.value === this.value;
+  public isSameValueAsCloned() {
+    if (!this.isClone()) throw new Error('This node is not a clone');
+    const original = this.getOriginalNode();
+    if (!original) return false;
+    return original.value === this.value;
   }
 
   /**
@@ -532,8 +578,8 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
    * A good example is the {@link SchemaNode.clone} method:
    * It's a good practice to clean the cloned node when it's not used anymore
    */
-  public remove(namespace = CLONED_SYMBOL) {
-    if (!this.isClone(namespace)) {
+  public remove() {
+    if (!this.isClone()) {
       console.warn(`Removing a node that is not a clone and likely part of the server schema.
       This might be a code smell.
       SchemaNode path is "${this.path}"
@@ -542,12 +588,21 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
     return this.context.nodes.delete(this.path.toString());
   }
 
-  public isValid(skipChildrenValidation = false): boolean {
+  /**
+   * Reflects whenever the node's value satisfy the validator
+   * and does not have externally set errors
+   * after the first change.
+   * It's possible to have `isValid: false` with no errors with `asyncValidation` set to `true`
+   */
+  public get isValid(): boolean {
     if (!this.valid || this.errors.length) return false;
-    if (skipChildrenValidation) return true;
     // For variants, we do not care about other nodes than the one selected
     if (this.isVariant) return !this.invalidChildren.get(this.value);
     return this.invalidChildren.size === 0;
+  }
+
+  public getInvalidChildren() {
+    return Array.from(this.invalidChildren.keys());
   }
 
   public get pathShort() {
@@ -568,37 +623,50 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
     return this.path.toString();
   }
 
-  // Generic onchange called by the useNode hook or upon construction
-  // we can turn up bubbling the even up or validating in some cases
-  public onChange(value: T, from: NodeSource = 'self', isInitialValue = false) {
-    if (this.isList) {
-      this.setListValues(value as NodeValue);
-    } else {
-      this.value = value;
-    }
-    const errors = this.context.features?.asyncValidation
-      ? []
-      : this.validate(true);
-    this.dirty = !isInitialValue && from !== 'parent';
-    this.valid = errors.length === 0;
-    // We don't want to have errors on creation, just when dirty
-    if (!isInitialValue) this.errors = errors;
+  /**
+   * This is a proxy to the node's value that also checks for watched attribute.
+   * if the schema for this node looks like this:
+   * ```json
+   * {
+   *  type: 'string',
+   *  watch: 'path.to.other.node',
+   * }
+   * ```
+   * that means that whenever the value changes on the node registered at
+   * `path.to.other.node` the value of this node will change as well through reading it's proxy
+   */
+  public get value(): NodeValue {
+    const target = this.getNodeByPath(this.schema.watch!)?.uid ||  this.uid;
+    const data = target
+      ? this.context.data[target] ?? {}
+      : this.context.data;
+    if (this.isVariant) return data[this.name+'Type'];
+    return data;
+  }
 
-    if (from !== 'child' && !isInitialValue) {
-      this.updateChildren();
-    }
+  private set value(val: NodeValue) {
+    this.context.data[this.uid] = val;
+  }
 
-    if (from !== 'parent') {
-      this.updateParent(
-        this.name,
-        this.isVariant || this.isList ? this.data() : this.value,
-        this.isValid(),
-        'child',
-        isInitialValue,
-      );
-    }
+  /** @deprecated use {@link value} directly
+   * as of 1.6.1, proxy is not required anymore to get the watched value */
+  public get proxy() {
+    return this.value;
+  }
 
-    return this.errors;
+  /**
+   * action to change the value of the node and let {@link useWatcher}
+   * react to the changes.
+   */
+  public onChange(value: T) {
+    return this._onChange(value);
+  }
+
+  /**
+   * Similar to {@link onChange} but does not trigger validation errors and dirty state
+   */
+  public setInitialValue(value: T) {
+    return this._onChange(value, 'self', true);
   }
 
   /**
@@ -609,11 +677,26 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
    */
   public setErrors(errors: ValidationError[]) {
     this.errors = errors || [];
+    this.valid = errors.length === 0;
+    // Bubble up validity to the parents
+    this.updateParent(
+      this.name,
+      this.isVariant || this.isList ? this.data() : this.value,
+      this.isValid,
+      'child',
+    );
   }
 
-  public getErrorMessage(): string {
+  /**
+   * Automatically called internally, it's very unlikely that you will ever need this
+   */
+  public setFocused(focused: boolean) {
+    this.focused = focused;
+  }
+
+  public get errorMessage(): string {
     return this.errors.length
-      ? this.translate('error', {error: this.errors[0]})
+      ? this.translate('error', {error: this.errors[0]}) ?? ''
       : '';
   }
 
@@ -627,23 +710,23 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
    * so they will just pass up the value to the next node above them.
    * even though the method is public, it's an internal function.
    */
-  public onChildrenChange(
-    childrenName: string,
-    childrenValue: any,
+  public onChildChange(
+    childName: string,
+    childValue: any,
     isValid = false,
     from: NodeSource = 'self',
     isInitialValue = false,
   ) {
     if (from === 'child') {
-      this.updateChildrenValidity(childrenName, isValid);
+      this.updateChildValidity(childName, isValid);
     }
     // Let's skip nodes with null as
     // it might be intentionnaly set for opt-out nodes
     if (isInitialValue && this.value === null && from !== 'parent') {
       this.updateParent(
         this.name,
-        childrenValue,
-        this.isValid(),
+        childValue,
+        this.isValid,
         'child',
         isInitialValue,
       );
@@ -651,7 +734,7 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
     }
     // for intermediary nodes, values are objects representing children
     const isLeaf = this.attributes.length === 0;
-    if (!isLeaf && !this.value) {
+    if (!this.isVariant && !isLeaf && !this.value) {
       this.value = {};
     }
     // polymorphic nodes values are the polymorphic selection
@@ -660,10 +743,10 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
       this.updateParent(
         this.name,
         {
-          ...childrenValue,
-          [`${this.name}Type`]: childrenName,
+          ...childValue,
+          [`${this.name}Type`]: childName,
         },
-        this.isValid(),
+        this.isValid,
         'child',
         isInitialValue,
       );
@@ -674,17 +757,17 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
       this.updateParent(
         this.name,
         this.value.map((item: SchemaNode) => item.data()),
-        this.isValid(),
+        this.isValid,
         'child',
         isInitialValue,
       );
       return;
     }
     // other types of nodes just get updated
-    this.onChange(
+    this._onChange(
       {
         ...this.value,
-        [childrenName]: childrenValue,
+        [childName]: childValue,
       },
       from,
       isInitialValue,
@@ -695,13 +778,13 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
     if (!this.schema.validators) return [];
 
     const errors = this.schema.validators
-      .map((config) => {
+      .map(config => {
         const fn = this.context.validators[config.name];
         return fn?.(this.value, config, this);
       })
       .filter(Boolean) as ValidationError[];
 
-    if (updateParent) {
+    if (!asDryRun && updateParent) {
       this.updateParent(
         this.name,
         this.isVariant || this.isList ? this.validateAll() : this.value,
@@ -716,12 +799,15 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
     return errors;
   }
 
-  public translate(mode: TranslatorKey, args?: TranslatorArgs): string {
+  public translate(
+    translatorKey?: TranslatorKey,
+    args?: TranslatorArgs,
+  ): ReturnType<TranslatorFn> {
     const {translators} = this.context;
-    const translator = translators[mode as keyof typeof translators];
+    const translator = translators[translatorKey as keyof typeof translators];
     if (!translator) {
       return translators.default
-        ? translators.default(this, {...args, key: mode})
+        ? translators.default(this, {...args, key: translatorKey})
         : '';
     }
     return translator(this, args) || '';
@@ -739,6 +825,14 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
     return this.context.nodes.get(fullPath);
   }
 
+  /**
+   * If you have a node with path a.b.c with a children d
+   * You can do node.getRelativeNodeByPath('d') instead of node.getNodeByPath('a.b.c.d')
+   */
+  public getRelativeNodeByPath(relativePath: string) {
+    return this.getNodeByPath(this.path.add(relativePath).toString());
+  }
+
   public parentNode(): SchemaNode | undefined {
     const {segments} = this.path;
     const parentKey = segments.slice(0, -1).join('.');
@@ -754,16 +848,17 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
         this.context,
         this.schema,
         this.path.add(index.toString(), true),
-        undefined,
-        (value, path) => this.onChildrenChange(value, path),
+        this.getInitialValue({value: item}),
+        (value, path) => this.onChildChange(value, path),
       );
-      itemNode.onChange(item, 'self');
       return itemNode;
     });
-    this.buildChildren();
   }
 
-  // methods specific to list type
+  /**
+   * When the node is of list type,
+   * add a new item to the array potentially passing it's item value.
+   */
   public addListItem(value?: any) {
     if (!this.isList) {
       throw new Error('node is not a list');
@@ -773,10 +868,10 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
       this.schema,
       this.path.add(this.value.length.toString(), true),
       value,
-      (value, path) => this.onChildrenChange(value, path),
+      (value, path) => this.onChildChange(value, path),
     );
 
-    if (value) node.onChange(value);
+    if (value) node._onChange(value);
 
     this.value = [...this.value, node];
     this.buildChildren();
@@ -820,10 +915,12 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
     return validationResults;
   }
 
-  // This method calculate the node's value
-  // descending all it's children
-  // it also calls the formater to convert client's values
-  // to server values
+  /**
+   * This method calculate the node's value
+   * descending all it's children
+   * it also calls the formater to convert client's values
+   * to server values
+   */
   public data(validate = false): T extends never ? object : T {
     if (this.isVariant) {
       return this.attributes.reduce((acc, key) => {
@@ -852,20 +949,100 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
       : this.value;
   }
 
+  /**
+   * action to change the value of the node and let {@link useWatcher}
+   * react to the changes.
+   *
+   * `isInitialValue` does not run a full validation, meaning it does not
+   * set the errors on the node but still detects when it's invalid
+   *
+   * `from` is used internally and serve to define in which direction the event
+   * will be propagating to other nodes
+   */
+  private _onChange(
+    value: T,
+    from: NodeSource = 'self',
+    isInitialValue = false,
+  ): ValidationError[] {
+    if (this.isList) {
+      this.setListValues(value as NodeValue);
+    } else if (this.isVariant) {
+      if (isObject(value)) {
+        const variantKey = `${this.name}Type`;
+        const {[variantKey]: variant, ...data} = value as NodeValue;
+        if (variant) {
+          const errors = this._onChange(variant, from, isInitialValue);
+          const selectedNode = this.children[variant];
+          selectedNode._onChange(data, 'parent', isInitialValue);
+          selectedNode.updateChildren();
+          return errors;
+        } else {
+          if (!this.context.features.suppressWarnings) {
+            console.error(
+              `failed to set value of polymorphic node "${
+                this.uid
+              }" with ${JSON.stringify({value})}`,
+            );
+          }
+          return [];
+        }
+      } else {
+        this.value = value;
+      }
+    } else {
+      this.value = value;
+    }
+
+    const errors = this.validate(true);
+
+    // We don't want to have errors on creation,
+    // just when the user is changing the value afterwards
+    const applyErrors =
+      (!this.context.features?.asyncValidation && !isInitialValue) ||
+      errors.length === 0;
+
+    this.valid = errors.length === 0;
+    this.dirty = !isInitialValue && from !== 'parent';
+
+    if (applyErrors) this.errors = errors;
+
+    if (from !== 'child' && !isInitialValue) {
+      this.updateChildren();
+    }
+
+    if (from !== 'parent') {
+      this.updateParent(
+        this.name,
+        this.isVariant || this.isList ? this.data() : this.value,
+        this.isValid,
+        'child',
+        isInitialValue,
+      );
+    }
+
+    return this.errors;
+  }
+
   private getInitialValue(schema: SchemaNodeServerDefinition = this.schema) {
-    const initialValue = schema.value || this.context.values[this.name];
+    // const initialValue = get(this.context.data, this.uid) || schema.value || this.context.values[this.name];
+    const initialValue = this.context.data[this.uid] || schema.value || this.context.values[this.name];
     if (initialValue !== undefined) return initialValue;
 
     const pathParts = this.path.toString().split('.');
 
-    // This is naive and only checks the first possible list node, but we could make this more robust by checking all
-    // potential list nodes. This might be solved through recursion, or a while loop. First collecting the indexes of all
-    // possible list nodes in one pass, and then working through to find which is the top most that is an actual list type.
-    // We don't want to assume that any node with a number as it's path name is definitely a list, so we perform a second
-    // check below to verify that yes, in fact, the ancestral node we found is in fact a list.
-    const possibleListNodeIndex = pathParts.findIndex(
-      (part) => !isNaN(Number(part)),
-    );
+    /**
+     * This is naive and only checks the first possible list node,
+     * but we could make this more robust by checking all
+     * potential list nodes. This might be solved through recursion, or a while loop.
+     * First collecting the indexes of all possible list nodes in one pass,
+     * and then working through to find which is the top most that is an actual list type.
+     * We don't want to assume that any node with a number as it's path name is definitely a list,
+     * so we perform a second check below to verify that yes, in fact,
+     * the ancestral node we found is in fact a list.
+     */
+    const possibleListNodeIndex = pathParts
+      .reverse()
+      .findIndex(part => !isNaN(Number(part)));
 
     if (
       possibleListNodeIndex === -1 ||
@@ -880,26 +1057,41 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
 
     const parentValue = possibleListNode?.schema?.value;
     const childPath = pathParts.slice(possibleListNodeIndex);
-    return get(parentValue, childPath);
+    return childPath.reduce((acc, part) => {
+      // this check is to avoid triggering the mobx get proxy
+      // eslint-disable-next-line no-prototype-builtins
+      if (!acc?.hasOwnProperty(part)) return undefined;
+      return acc[part];
+    }, parentValue);
   }
 
   // utilities
   private updateChildren() {
-    if (this.isList || this.isVariant) return;
-    this.attributes.forEach((key) => {
+    if (this.isList) return;
+    if (isObject(this.value)) {
+      const orphans = Object.keys(this.value)
+        .filter(key => !this.attributes.includes(key))
+        .join(', ');
+      if (orphans.length && !this.context.features.suppressWarnings) {
+        console.warn(
+          `Trying to set values on unexisting keys. Orphans: ${orphans}`,
+        );
+      }
+    }
+    this.attributes.forEach(key => {
       const child: SchemaNode = this.children[key];
-      if (!child || child.isList || child.isVariant) return;
+      if (!child || child.isList) return;
       const childValue = this.value ? this.value[key] : null;
-      child.onChange(childValue, 'parent');
-      this.updateChildrenValidity(child.name, child.isValid());
+      child._onChange(childValue, 'parent');
+      this.updateChildValidity(child.name, child.isValid);
     });
   }
 
-  private updateChildrenValidity(childrenName: string, isValid: boolean) {
+  private updateChildValidity(childName: string, isValid: boolean) {
     if (isValid) {
-      this.invalidChildren.delete(childrenName);
+      this.invalidChildren.delete(childName);
     } else {
-      this.invalidChildren.set(childrenName, true);
+      this.invalidChildren.set(childName, true);
     }
   }
 
@@ -917,7 +1109,7 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
     if (!this.schema.attributes) return {};
 
     this.attributes = Object.keys(this.schema.attributes);
-    this.attributes.forEach((key) => {
+    this.attributes.forEach(key => {
       const attributes = this.schema.attributes!;
       const schema = attributes[key] as SchemaNodeDefinition;
 
@@ -929,7 +1121,7 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
         // Falling back to checking the parents value[key] allows us to handle this edge case.
         this.children[key]?.value ?? get(this.value, key),
         (name, value, isValid, _source, isInitialValue) => {
-          this.onChildrenChange(name, value, isValid, 'child', isInitialValue);
+          this.onChildChange(name, value, isValid, 'child', isInitialValue);
         },
       );
     });
@@ -952,9 +1144,16 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
     this.context.nodes.set(namespace, this);
   }
 
-  private schemaCompatibilityLayer(
-    schema: SchemaNodeServerDefinition,
+  private translateSchema(_schema: NewSchemaNodeDefinition): SchemaNodeServerDefinition {
+    return _schema as SchemaNodeServerDefinition;
+  }
+
+  private normalizeSchema(
+    _schema: SchemaNodeServerDefinition,
   ): SchemaNodeDefinition {
+    const usesNewSchema = !!Object.keys(_schema).find(key => key.startsWith('$'))
+    const schema = usesNewSchema ? this.translateSchema(_schema as any) : cloneDeep(_schema);
+
     let type = schema.type || 'group';
 
     if (typeof type !== 'string') {
@@ -973,7 +1172,7 @@ export class SchemaNode<T extends NodeValue = NodeValue> {
       }
     }
 
-    if (type === 'polymorphic') this.isVariant = true;
+    if (/^polymorphic(-.*)?$/.test(type as string)) this.isVariant = true;
 
     // At this point type can only be a string, no polymorphic or list shape
     this.type = type as NodeKind;

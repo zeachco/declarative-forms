@@ -1,5 +1,5 @@
 /* eslint-env node */
-exports.jestPreset = function (jestPreset) {
+exports.jestPreset = function(jestPreset) {
   const jsxKey = '\\.jsx?$';
   let transform = {};
   // temporary export until sewing-kit is fixed

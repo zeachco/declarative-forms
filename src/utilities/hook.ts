@@ -1,16 +1,19 @@
-import {useCallback, useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
+import isEqual from 'lodash/isEqual';
 import {autorun, trace} from 'mobx';
 
 import {NodeValue, SchemaNode, SharedContext} from '../types';
 
 import {isSchemaNode} from './compatibility';
-import {DeclarativeFormContext} from '../DeclarativeFormContext';
 import {ValidationError} from '../classes/ValidationError';
 
 interface Features {
   forceSelection?: boolean;
-  allowUndefined?: boolean;
-  contextOnly?: boolean;
+}
+interface GroupError {
+  fields: string[];
+  message: string;
+  unresolved: boolean;
 }
 
 /**
@@ -21,40 +24,16 @@ interface Features {
 export function useNode<
   T extends NodeValue = NodeValue,
   C extends SharedContext = SharedContext,
->(
-  node: SchemaNode<T>,
-  {forceSelection, allowUndefined = false, contextOnly = false}: Features = {},
-) {
-  let exists = true;
-  if (!isSchemaNode<T>(node)) {
-    if (allowUndefined) {
-      node = new SchemaNode<T>(new DeclarativeFormContext({}), {});
-      exists = false;
-    } else {
-      throw new Error('bad node type received');
-    }
-  }
-
-  const getInvalidChildren = useCallback(() => {
-    const children = [] as string[];
-    node.invalidChildren.forEach((_, child) => children.push(child));
-    return children;
-  }, [node.invalidChildren]);
-
-  // This proxy is usefull when passed directly to external components
-  // avoid to lose the context or have to `node.onChange.bind(node)`
-  const onChange = useCallback((val: T) => node.onChange(val), [node]);
+>(node: SchemaNode<T>, {forceSelection}: Features = {}) {
+  if (!isSchemaNode<T>(node)) throw new Error('bad node type received');
 
   const [state, setState] = useState({
     focused: false,
-    exists,
     value: node.value as T,
     errors: node.errors || [],
     serverErrors: [] as ValidationError[],
-    errorMessage: node.getErrorMessage(),
-    setInitialValue,
-    isValid: node.isValid(),
-    invalidChildren: getInvalidChildren(),
+    errorMessage: node.errorMessage,
+    isValid: node.isValid,
     sharedContext: node.context.sharedContext as C,
     /** @private used to keep track of the state change*/
     remoteErrors: node.context.sharedContext.errors,
@@ -68,18 +47,36 @@ export function useNode<
       return autorun(() => {
         const remoteErrors = node.context.sharedContext.errors;
 
-        if (remoteErrors !== state.remoteErrors) {
+        if (remoteErrors && Object.keys(remoteErrors).length > 1) {
           const serverPath = node.path.toFullWithoutVariants();
           const serverErrorsTarget = remoteErrors
             ? remoteErrors[serverPath]
             : null;
           const externalErrors =
             mapContextErrorsToValidationErrors(serverErrorsTarget);
-          node.setErrors(externalErrors);
+          const areErrorsEqual = isEqual(externalErrors, state.serverErrors);
+          if (externalErrors.length && !areErrorsEqual) {
+            node.setErrors(externalErrors);
+          }
         }
       });
     },
-    [node, state.remoteErrors],
+    [node],
+  );
+
+  useEffect(
+    function maybeUpdateErrorsFromGroupErrors() {
+      const groupErrors = node.parentNode()?.schema?.meta?.groupErrors;
+      if (groupErrors && groupErrors.length) {
+        const groupError = groupErrors.find((groupError: GroupError) =>
+          groupError.fields.includes(node.name),
+        );
+        if (groupError && !node.dirty) {
+          node.setErrors([{type: 'Presence'}]);
+        }
+      }
+    },
+    [node],
   );
 
   useEffect(
@@ -93,14 +90,11 @@ export function useNode<
     [node],
   );
 
-  return {...state, onChange};
-
-  function setInitialValue(value: any) {
-    setState({
-      ...state,
-      errors: node.onChange(value, undefined, true),
-    });
-  }
+  return {
+    ...state,
+    onChange: node.onChange,
+    setInitialValue: node.setInitialValue,
+  };
 
   function forceInitialSelectionEffect() {
     const [firstOptionValue] = node.attributes;
@@ -121,18 +115,13 @@ export function useNode<
       const serverPath = node.path.toFullWithoutVariants();
       const focused = node.context.sharedContext.focusedNode === serverPath;
       const value = node.value;
-      const isValid = node.isValid();
+      const isValid = node.isValid;
       const errors = node.errors;
-      const errorMessage = node.getErrorMessage();
+      const errorMessage = node.errorMessage;
       const sharedContext = node.context.sharedContext as C;
       const remoteErrors = node.context.sharedContext.errors;
 
       setState((previousState) => {
-        const contextHasChanged =
-          previousState.sharedContext !== node.context.sharedContext;
-
-        if (contextOnly && !contextHasChanged) return previousState;
-
         return {
           ...previousState,
           focused,

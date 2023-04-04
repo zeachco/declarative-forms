@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Checking staged files..."
+
+DOCS='docs'
+
+stagedFiles() {
+  git diff --cached --name-only --diff-filter=ACMRTUXB
+}
+
+# Get the list of files that are staged for commit
+countFilesInDocs=$(stagedFiles | grep ^$DOCS | wc -l)
+countFilesNotInDocs=$(stagedFiles | grep -v ^$DOCS | wc -l)
+
+if [ $countFilesNotInDocs -gt 0 -a $countFilesInDocs -gt 0 ]; then
+    echo "💥 Error:"
+    echo "You are trying to commit changes to '$DOCS' along with other files, this is likely a mistake."
+    echo "Please commit files under '$DOCS' separately if that's really what you want to do."
+    exit 1
+fi
+
+# Prevents to commit if lint fails, remove if the project becomes too big and it takes too long to lint
+yarn lint

@@ -1,0 +1,14 @@
+name: declarative-forms
+type: node
+up:
+  - node:
+      version: v16.14.2
+      yarn: 1.22.17
+commands:
+  __default__: start
+  build: yarnpkg build
+  lint: yarnpkg lint
+  start: yarn storybook
+  test: yarnpkg test
+  # release: yarn changelog && yarn version
+  release: yarn release

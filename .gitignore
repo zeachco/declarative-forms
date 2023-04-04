@@ -1,5 +1,14 @@
+*.log
 node_modules
-.loom
+/build
+/coverage
+/types
+/index.*
 .DS_Store
-build
-index.*
+/src/types/graphql/*
+/src/**/*.graphql.d.ts
+.loom
+yarn-error.log
+index.mjs
+index.esnext
+.idea

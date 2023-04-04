@@ -200,3 +200,245 @@ export const expectedValues = {
   someString: '',
   someVariant: {},
 };
+
+// Snapshot of a structure for regression testing
+export const ssnPassportValues = [
+  {
+    firstName: 'Alfonso',
+    lastName: 'Astor',
+    ssnOrPassport: {
+      ssnOrPassportType: 'variantPassport',
+      // warning values are overwritten in the full schema bellow
+      passport: {
+        passportId: 'ginghihnihnhn',
+        country: 'US',
+      },
+    },
+  },
+  {
+    firstName: 'Bob',
+    lastName: 'Bernard',
+    ssnOrPassport: {
+      ssnOrPassportType: 'variantSsn',
+      ssn: '****1111',
+    },
+  },
+];
+
+// Snapshot of a structure for regression testing
+export const invalidSsnPassportValues = [
+  {
+    firstName: 'Alfonso',
+    lastName: 'Astor',
+    ssnOrPassport: {
+      ssnOrPassportType: 'variantPassport',
+      // warning values can be overwritten in the full
+      // schema bellow as local values takes priority
+      passport: {
+        passportId: 'ginghihnihnhn',
+        country: 'US',
+      },
+    },
+  },
+  {
+    firstName: 'Bob',
+    lastName: 'Bernard',
+    ssnOrPassport: {
+      ssnOrPassportType: 'variantSsn',
+      ssn: '',
+    },
+  },
+];
+
+export const ssnPassportSchema = (
+  value = ssnPassportValues,
+  overwritePassportWithNulls = false,
+) => ({
+  equity_details: {
+    attributes: {
+      equityOwnersList: {
+        type: [],
+        value,
+        attributes: {
+          firstName: {
+            name: 'first_name',
+            type: 'string',
+            labels: {
+              label: 'First name',
+            },
+            validators: [
+              {
+                name: 'Presence',
+                message: 'First name is required',
+              },
+            ],
+          },
+          lastName: {
+            name: 'last_name',
+            type: 'string',
+            labels: {
+              label: 'Last name',
+            },
+            validators: [
+              {
+                name: 'Presence',
+                message: 'Last name is required',
+              },
+            ],
+          },
+          ssnOrPassport: {
+            name: 'ssnOrPassport',
+            type: 'polymorphic',
+            value: 'variantSsn',
+            labels: {
+              label: 'This person has a Social Security number (SSN)',
+            },
+            attributes: {
+              variantSsn: {
+                name: 'variantSsn',
+                type: 'polymorphicVariant',
+                labels: {},
+                attributes: {
+                  ssn: {
+                    name: 'ssn',
+                    type: 'ssn',
+                    labels: {
+                      label: 'Social Security number',
+                    },
+                    validators: [
+                      {
+                        name: 'Presence',
+                        message: 'Social Security number is required',
+                      },
+                    ],
+                  },
+                },
+                validators: [
+                  {
+                    name: 'Presence',
+                    message: 'variantSsn is required',
+                  },
+                ],
+              },
+              variantPassport: {
+                name: 'variantPassport',
+                type: 'polymorphicVariant',
+                labels: {},
+                attributes: {
+                  passport: {
+                    name: 'Passport',
+                    type: 'passportNumber',
+                    // purposely set overwriting values
+                    value: overwritePassportWithNulls
+                      ? {
+                          passportId: null,
+                          country: null,
+                        }
+                      : undefined,
+                    labels: {},
+                    attributes: {
+                      passportId: {
+                        name: 'passport_id',
+                        type: 'string',
+                        labels: {
+                          label: 'Passport number',
+                        },
+                        validators: [
+                          {
+                            name: 'Presence',
+                            message: 'Passport number is required',
+                          },
+                        ],
+                      },
+                      country: {
+                        name: 'country',
+                        type: 'string',
+                        labels: {
+                          label: 'Country/region',
+                        },
+                        validators: [
+                          {
+                            name: 'Presence',
+                            message: 'Country/region is required',
+                          },
+                        ],
+                      },
+                    },
+                    validators: [
+                      {
+                        name: 'Presence',
+                        message: 'Passport is required',
+                      },
+                    ],
+                  },
+                },
+                validators: [
+                  {
+                    name: 'Presence',
+                    message: 'variantPassport is required',
+                  },
+                ],
+              },
+            },
+            validators: [
+              {
+                name: 'Presence',
+                message:
+                  'This person has a Social Security number (SSN) is required',
+              },
+            ],
+            meta: {
+              optIn: 'variantSsn',
+              optOut: 'variantPassport',
+            },
+          },
+        },
+      },
+    },
+  },
+});
+
+/**
+ * Dummy schema with a data that looks like this
+ * ```tsx
+ * {
+ *  color: {
+ *    colorType: 'rgb'
+ *    red: 0,
+ *    green: 0,
+ *    blue: 0,
+ *  }
+ * }
+ * ```
+ *
+ * or
+ *
+ * ```tsx
+ * {
+ *  color: {
+ *    colorType: 'hex'
+ *    code: '#00ff00',
+ *  }
+ * }
+ * ```
+ */
+export const colorSchema = {
+  color: {
+    type: 'polymorphic',
+    attributes: {
+      rgb: {
+        red: {type: 'integer'},
+        green: {type: 'integer'},
+        blue: {type: 'integer'},
+      },
+      hex: {
+        code: {type: 'string'},
+      },
+      hsl: {
+        hue: {type: 'integer'},
+        saturation: {type: 'integer'},
+        light: {type: 'integer'},
+      },
+    },
+  },
+};

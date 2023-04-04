@@ -37,7 +37,7 @@ export function DebugNode({children, node}: DebugProps) {
     height: (rect.height || 0) + 10,
   };
 
-  const errorCount = node.errors.length + node.invalidChildren.size;
+  const errorCount = node.errors.length + node.getInvalidChildren().length;
 
   return (
     <div
@@ -65,7 +65,10 @@ export function DebugNode({children, node}: DebugProps) {
             }}
             onClick={() => console.info(node.path.toString(), node)}
           >
-            <DebugAttribute name="label" value={node.translate('label')} />
+            <DebugAttribute
+              name="label"
+              value={node.translate('label') ?? ''}
+            />
             {(['type', 'name', 'depth'] as const).map((key) => (
               <DebugAttribute key={key} name={key} value={node[key]} />
             ))}

@@ -1,0 +1,15 @@
+containers:
+  default:
+    build:
+      from: ubuntu-latest
+      type: ci
+
+env:
+  YARN_PRODUCTION: 'false'
+
+steps:
+  - label: Build
+    timeout: 5m
+    run:
+      - yarn: ~
+      - yarn buildkite:ci

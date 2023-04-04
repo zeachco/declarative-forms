@@ -1,4 +1,4 @@
-interface ValidationErrorOptions {
+export interface ValidationErrorOptions {
   maximum?: number;
   minimum?: number;
   format?: string;
@@ -8,9 +8,11 @@ interface ValidationErrorOptions {
 }
 
 /**
- * Instance generated when a validator is triggered on a node's value.
- * {@link useNode} automaticaly creates instances of this class for all {@link ContextErrors} found on the {@link SharedContext}
+ * Instance of validation error generated when a validator is triggered with a failing state.
  */
-export class ValidationError {
-  constructor(public type: string, public data?: ValidationErrorOptions) {}
+export class ValidationError<DataAdditionalOptions = {}> {
+  constructor(
+    public type: string,
+    public data?: ValidationErrorOptions & DataAdditionalOptions,
+  ) {}
 }

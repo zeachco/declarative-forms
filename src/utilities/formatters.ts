@@ -11,11 +11,17 @@ const mapByKind = {
   boolean: toBoolean,
 };
 
-export function defaultTypeFormater(val: any, type: string, _node: SchemaNode) {
-  // the backend could intentionnaly send null values
-  // these are not to be formatted as it allows differencing
-  // between undefined and nil
-  if (val === null) return val;
+/**
+ * When value is null or undefined, it has different behavior:
+ * The backend could intentionally send `null` values.
+ * These are not to be formatted as it allows differencing between `undefined` and `nil`
+ */
+export function defaultTypeFormatter(
+  value: any,
+  type: string,
+  _node: SchemaNode,
+) {
+  if (value === null) return value;
   const transform = mapByKind[type as keyof typeof mapByKind];
-  return transform ? transform(val) : val;
+  return transform ? transform(value) : value;
 }

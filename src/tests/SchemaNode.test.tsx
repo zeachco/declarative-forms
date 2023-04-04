@@ -1,15 +1,12 @@
 /* eslint-disable jest/prefer-strict-equal */
 import {SchemaNode, SchemaValidator, ValidatorFn} from '../types';
-import {
-  DeclarativeFormContext,
-  DecorateFunction,
-} from '../DeclarativeFormContext';
+import {DeclarativeFormContext} from '../DeclarativeFormContext';
 import {ValidationError} from '../classes/ValidationError';
 import {
-  defaultSchema,
   expectedValues,
   expectedValuesWithNewSchema,
   newSchema,
+  ssnPassportSchema,
 } from './fixtures';
 
 import {
@@ -18,28 +15,7 @@ import {
   lengthValidator,
   rangeValidator,
 } from '../utilities/validators';
-
-interface SetupProps extends DeclarativeFormContext {
-  decorate: DecorateFunction;
-  schema: any;
-}
-
-function setup({
-  values,
-  decorate = (() => {}) as DecorateFunction,
-  schema = defaultSchema,
-  features = {},
-  validators = {},
-}: Partial<SetupProps> = {}) {
-  const context = new DeclarativeFormContext({
-    values,
-    decorate,
-    features,
-    validators,
-  });
-  const root = new SchemaNode(context, {type: '', attributes: schema});
-  return {root};
-}
+import {mountDeclarativeForm, setup} from './utilities';
 
 describe('SchemaNode', () => {
   it('creates a root node all fields having a value', () => {
@@ -515,27 +491,29 @@ describe('SchemaNode', () => {
     expect(someNumber.dirty).toBe(false);
   });
 
-  it('[legacy feature] preselects the first option when the value is not valid', () => {
-    const values = {someOptionNode: 'not_found'};
-    const {root} = setup({values, features: {defaultOptionToFirstValue: true}});
-    const {someVariant} = root.children;
-
-    someVariant.onChange('asOption');
-
-    expect(root.value.someVariant.someOptionNode).toBe('a');
-  });
-
   it('does not preselects the first option when the value is not valid', () => {
     const values = {someOptionNode: 'not_found'};
     const {root} = setup({
       values,
-      features: {defaultOptionToFirstValue: false},
     });
     const {someVariant} = root.children;
 
     someVariant.onChange('asOption');
 
     expect(root.value.someVariant.someOptionNode).toBe('not_found');
+  });
+
+  it('does not preselects the first option when the value is not valid', () => {
+    const values = {someOptionNode: 'not_found'};
+    const {root} = setup({
+      values,
+      features: {preventInvalidValues: true},
+    });
+    const {someVariant} = root.children;
+
+    someVariant.onChange('asOption');
+
+    expect(root.value.someVariant.someOptionNode).toBe(null);
   });
 
   describe('fields validation', () => {
@@ -591,35 +569,81 @@ describe('SchemaNode', () => {
       const {someString, someGroup} = root.children;
       const {someStringNested} = someGroup.children;
 
-      expect(someString.isValid()).toBe(true);
-      expect(someStringNested.isValid()).toBe(true);
-      expect(root.isValid()).toBe(true);
+      expect(someString.isValid).toBe(true);
+      expect(someStringNested.isValid).toBe(true);
+      expect(root.isValid).toBe(true);
     });
 
-    it('defers error validation when asyncValidation is true', () => {
+    it('getInvalidChildren returns only invalid children of itself, excluding cloned nodes with similar paths', () => {
+      const {root} = setup({
+        schema: {
+          name: {
+            type: 'string',
+            validators: [{name: 'Presence'}],
+          },
+        },
+      });
+
+      root.validateAll();
+      const clone = root.clone();
+
+      // by default, both structures are invalid
+      expect(root.isValid).toBe(false);
+      expect(clone.isValid).toBe(false);
+      expect(root.getInvalidChildren()).toHaveLength(1);
+      expect(clone.getInvalidChildren()).toHaveLength(1);
+
+      // we make valid only the root node, not the clone
+      root.children.name.onChange('John');
+
+      // the root node is valid, but the clone is not
+      expect(root.isValid).toBe(true);
+      expect(clone.isValid).toBe(false);
+      expect(root.getInvalidChildren()).toHaveLength(0);
+      expect(clone.getInvalidChildren()).toHaveLength(1);
+
+      // now lets reverse the roles
+      root.children.name.onChange('');
+      clone.children.name.onChange('aa');
+
+      expect(root.isValid).toBe(false);
+      expect(clone.isValid).toBe(true);
+      expect(root.getInvalidChildren()).toHaveLength(1);
+      expect(clone.getInvalidChildren()).toHaveLength(0);
+    });
+
+    it('does not set errorsMessage immediatly when asyncValidation is true', () => {
       const {root} = setup({
         values: {
-          someStringNested: '',
+          someStringNested: 'four',
           someString: 'AZ',
         },
         features: {
           asyncValidation: true,
+          enableFormatValidator: true,
         },
       });
 
+      expect(root.isValid).toBe(true);
+
       const {someString, someGroup} = root.children;
       const {someStringNested} = someGroup.children;
-      someString.onChange('a');
-      someStringNested.onChange('a');
 
-      expect(someString.isValid()).toBe(true);
-      expect(someStringNested.isValid()).toBe(true);
-      expect(root.isValid()).toBe(true);
+      // triggers a Format validation error
+      someString.onChange('a');
+      // triggers a Length validation error
+      someStringNested.onChange('a');
+      expect(root.isValid).toBe(false);
+
+      expect(someString.errorMessage).toBe('');
+      expect(someString.isValid).toBe(false);
+      expect(someStringNested.errorMessage).toBe('');
+      expect(someStringNested.isValid).toBe(false);
     });
 
-    it('validates errors asynchronously when asyncValidation is true', () => {
+    it('shows errors message only after validateAll is used when asyncValidation is true', () => {
       const expected = {
-        errors: [
+        errors: expect.arrayContaining([
           {
             type: 'MinimumLength',
             data: {
@@ -627,41 +651,53 @@ describe('SchemaNode', () => {
               minimum: 3,
             },
           },
-        ],
+        ]),
         isValid: false,
       };
 
       const {root} = setup({
         values: {
-          someStringNested: '',
+          someStringNested: 'four',
           someString: 'AZ',
         },
         features: {
           asyncValidation: true,
+          enableFormatValidator: true,
         },
       });
 
+      expect(root.isValid).toBe(true);
+
       const {someString, someGroup} = root.children;
       const {someStringNested} = someGroup.children;
+
+      // triggers a Format validation error
       someString.onChange('a');
+      // triggers a Length validation error
       someStringNested.onChange('a');
+      expect(root.isValid).toBe(false);
+      expect(someString.isValid).toBe(false);
+      expect(someStringNested.isValid).toBe(false);
+      expect(someString.errorMessage).toBe('');
+      expect(someStringNested.errorMessage).toBe('');
 
-      expect(someString.isValid()).toBe(true);
-      expect(someStringNested.isValid()).toBe(true);
-      expect(root.isValid()).toBe(true);
+      const validationResults = root.validateAll();
 
-      const isValid = root.validateAll();
+      expect(root.isValid).toBe(false);
+      expect(someString.isValid).toBe(false);
+      expect(someStringNested.isValid).toBe(false);
+      expect(someString.errorMessage).toBe('Format');
+      expect(someStringNested.errorMessage).toBe('MinimumLength');
+      expect(validationResults).toEqual(expected);
 
-      expect(someString.isValid()).toBe(true);
-      expect(someStringNested.isValid()).toBe(false);
-      expect(root.isValid()).toBe(false);
-      expect(isValid).toEqual(expected);
+      someString.onChange('AZ');
+      someStringNested.onChange('four');
 
-      someStringNested.onChange('aaa');
-
-      expect(someString.isValid()).toBe(true);
-      expect(someStringNested.isValid()).toBe(true);
-      expect(root.isValid()).toBe(true);
+      expect(someString.isValid).toBe(true);
+      expect(someString.errorMessage).toBe('');
+      expect(someStringNested.isValid).toBe(true);
+      expect(someStringNested.errorMessage).toBe('');
+      expect(root.isValid).toBe(true);
     });
 
     it('marks invalid when created with the wrong values', () => {
@@ -675,9 +711,9 @@ describe('SchemaNode', () => {
       const {someString, someGroup} = root.children;
       const {someStringNested} = someGroup.children;
 
-      expect(someString.isValid()).toBe(false);
-      expect(someStringNested.isValid()).toBe(false);
-      expect(root.isValid()).toBe(false);
+      expect(someString.isValid).toBe(false);
+      expect(someStringNested.isValid).toBe(false);
+      expect(root.isValid).toBe(false);
     });
 
     it('marks valid when changed with the right values', () => {
@@ -693,11 +729,49 @@ describe('SchemaNode', () => {
       someString.onChange('AZ');
       someStringNested.onChange('');
 
-      expect(someString.isValid()).toBe(true);
-      expect(someStringNested.isValid()).toBe(true);
-      expect(root.isValid()).toBe(true);
+      expect(someString.isValid).toBe(true);
+      expect(someStringNested.isValid).toBe(true);
+      expect(root.isValid).toBe(true);
       expect(someString.validate()).toStrictEqual([]);
       expect(someStringNested.validate()).toStrictEqual([]);
+    });
+
+    it('marks parent nodes invalid when a child is changed with `setErrors`', () => {
+      const {root} = setup({
+        schema: {
+          someGroup: {
+            attributes: {
+              someStringNested: {
+                value: 'four',
+                type: 'string',
+                validators: [{name: 'Presence'}],
+              },
+            },
+          },
+        },
+        features: {
+          asyncValidation: true,
+        },
+      });
+
+      const {someGroup} = root.children;
+      const {someStringNested} = someGroup.children;
+
+      expect(root.isValid).toBe(true);
+      expect(someGroup.isValid).toBe(true);
+      expect(someStringNested.isValid).toBe(true);
+
+      // setting the error on the leaf node
+      someStringNested.setErrors([{type: 'Format'}]);
+      expect(root.isValid).toBe(false);
+      expect(someGroup.isValid).toBe(false);
+      expect(someStringNested.isValid).toBe(false);
+
+      // changing the value to trigger a reevaluation
+      someStringNested.onChange('AZ');
+      expect(root.isValid).toBe(true);
+      expect(someGroup.isValid).toBe(true);
+      expect(someStringNested.isValid).toBe(true);
     });
 
     it('marks invalid when changed with the wrong values', () => {
@@ -713,9 +787,9 @@ describe('SchemaNode', () => {
       someString.onChange('a');
       someStringNested.onChange('a');
 
-      expect(someString.isValid()).toBe(true);
-      expect(someStringNested.isValid()).toBe(false);
-      expect(root.isValid()).toBe(false);
+      expect(someString.isValid).toBe(true);
+      expect(someStringNested.isValid).toBe(false);
+      expect(root.isValid).toBe(false);
     });
 
     describe('when changed from a non leaf node', () => {
@@ -734,9 +808,9 @@ describe('SchemaNode', () => {
           someStringNested: 'a',
         });
 
-        expect(someString.isValid()).toBe(true);
-        expect(someStringNested.isValid()).toBe(false);
-        expect(root.isValid()).toBe(false);
+        expect(someString.isValid).toBe(true);
+        expect(someStringNested.isValid).toBe(false);
+        expect(root.isValid).toBe(false);
       });
 
       it('marks valid when changed with the right values', () => {
@@ -754,9 +828,30 @@ describe('SchemaNode', () => {
           someStringNested: 'AZF',
         });
 
-        expect(someString.isValid()).toBe(true);
-        expect(someStringNested.isValid()).toBe(true);
-        expect(root.isValid()).toBe(true);
+        expect(someString.isValid).toBe(true);
+        expect(someStringNested.isValid).toBe(true);
+        expect(root.isValid).toBe(true);
+      });
+
+      it('does not crash when calling onChange with a non object map', () => {
+        const {root} = setup();
+        const {someGroup} = root.children;
+
+        // Does nothing as it's an invalid call
+        someGroup.onChange('test');
+        expect(someGroup.data()).toStrictEqual({
+          someNumberNested: 0,
+          someStringNested: '',
+        });
+
+        someGroup.onChange(null);
+        expect(someGroup.data()).toStrictEqual(null);
+
+        someGroup.onChange(undefined);
+        expect(someGroup.data()).toStrictEqual({
+          someNumberNested: null,
+          someStringNested: null,
+        });
       });
     });
   });
@@ -773,6 +868,21 @@ describe('SchemaNode', () => {
     it('returns the original node from which this one was cloned', () => {
       const {clonedNode, originalNode} = setupClones();
       expect(clonedNode.getOriginalNode()).toBe(originalNode);
+    });
+  });
+
+  describe('getRelativeNodeByPath()', () => {
+    it('returns the relative node from another node', () => {
+      const {root} = setup();
+      const {someGroup} = root.children;
+      const {someStringNested} = someGroup.children;
+      expect(root.getRelativeNodeByPath('someGroup.someStringNested')).toBe(
+        someStringNested,
+      );
+      expect(someGroup.getRelativeNodeByPath('someStringNested')).toBe(
+        someStringNested,
+      );
+      expect(someGroup.getRelativeNodeByPath('')).toBe(someGroup);
     });
   });
 
@@ -808,6 +918,17 @@ describe('SchemaNode', () => {
     it('creates a new node', () => {
       const {clonedNode, originalNode} = setupClones();
       expect(clonedNode).not.toBe(originalNode);
+    });
+
+    it('copies errors as well', async () => {
+      const {root} = setup();
+      const originalNode = root.children.someString;
+      const error = new ValidationError('server', {error: 'test'});
+      originalNode.setErrors([error]);
+
+      const clonedNode = originalNode.clone();
+      expect(clonedNode).not.toBe(originalNode);
+      expect(clonedNode.errors).toStrictEqual(originalNode.errors);
     });
 
     it('does not have effect on the origin node', () => {
@@ -875,6 +996,53 @@ describe('SchemaNode', () => {
       expect(root.value).toStrictEqual(expected);
     });
 
+    it('updates the index on node removal', () => {
+      const schema = {
+        list: {
+          type: [],
+          attributes: {
+            name: {},
+          },
+        },
+      };
+
+      const {root} = setup({schema});
+      const {list} = root.children;
+
+      list.addListItem({name: 'Bob'});
+      list.addListItem({name: 'Marco'});
+      list.addListItem({name: 'Polo'});
+
+      const [item1, item2, item3] = list.value;
+
+      expect(item1.data().name).toBe('Bob');
+      expect(item2.data().name).toBe('Marco');
+      expect(item3.data().name).toBe('Polo');
+
+      expect(item1.children.name.path.toString()).toBe('list.0.name');
+      expect(item2.children.name.path.toString()).toBe('list.1.name');
+      expect(item3.children.name.path.toString()).toBe('list.2.name');
+
+      list.removeListItem(1); // Bye Marco
+
+      const [updatedItem1, updatedItem2] = list.value;
+
+      expect(updatedItem1.data()).toStrictEqual(item1.data());
+      expect(updatedItem2.data()).toStrictEqual(item3.data());
+
+      expect(updatedItem1.value).toStrictEqual(item1.value);
+      expect(updatedItem2.value).toStrictEqual(item3.value);
+
+      expect(updatedItem1.isDirty).toStrictEqual(item1.isDirty);
+      expect(updatedItem2.isDirty).toStrictEqual(item3.isDirty);
+
+      expect(updatedItem1.data().name).toBe('Bob');
+      expect(updatedItem2.data().name).toBe('Polo');
+
+      expect(updatedItem1.children.name.path.toString()).toBe('list.0.name');
+      expect(updatedItem2.children.name.path.toString()).toBe('list.1.name');
+    });
+
     it('hydrates list items with specific node intial values, excluding global values', () => {
       function decorate(context: DeclarativeFormContext) {
         context.addInitialValuesAfterNode('someVariantList', {
@@ -913,68 +1081,201 @@ describe('SchemaNode', () => {
 
       expect(root.value).toStrictEqual(expected);
     });
+
+    it('hydrates polymorphic children of a list item', () => {
+      const schema = ssnPassportSchema();
+
+      const {root} = setup({schema});
+
+      expect(
+        root.children.equity_details.children.equityOwnersList.value,
+      ).toHaveLength(2);
+
+      const ownersList = root.children.equity_details.children.equityOwnersList;
+      ownersList.addListItem({
+        firstName: 'Bob',
+        lastName: 'Bernard',
+        ssnOrPassport: {
+          ssnOrPassportType: 'variantSsn',
+          ssn: '****1111',
+        },
+      });
+
+      expect(ownersList.value).toHaveLength(3);
+      expect(ownersList.value[2].children.ssnOrPassport.value).toBe(
+        'variantSsn',
+      );
+      expect(
+        ownersList.value[2].children.ssnOrPassport.children.variantSsn.children
+          .ssn.value,
+      ).toBe('****1111');
+    });
   });
 
-  describe('isList', () => {
-    describe('nested value initialization', () => {
-      it('initializes nested values from list value array', () => {
-        const value = [
-          {
-            name: {
-              first: 'Matt',
-              last: 'Hagner',
-            },
-            address: {
-              address1: '1 Fake St',
-              address2: '#23',
-              city: 'Minneapolis',
-              province: 'MN',
-              country: 'US',
-              zip: '55555',
-            },
-          },
-        ];
-        const {root} = setup({
-          schema: {
-            list: {
-              type: ['person'],
-              value,
-              attributes: {
-                name: {
-                  attributes: {
-                    first: {
-                      type: 'string',
-                    },
-                    last: {
-                      type: 'string',
-                    },
-                  },
-                },
-                address: {
-                  attributes: {
-                    address1: {
-                      type: 'string',
-                    },
-                    address2: {
-                      type: 'string',
-                    },
-                    city: {
-                      type: 'string',
-                    },
-                    zip: {
-                      type: 'string',
-                    },
-                    province: {
-                      type: 'string',
-                    },
-                    country: {
-                      type: 'string',
-                    },
-                  },
+  describe('hydrates child values of a polymorphic node', () => {
+    const schema = {
+      transport: {
+        type: 'polymorphic',
+        attributes: {
+          Plane: {
+            attributes: {
+              airport: {type: 'string'},
+              boarding: {
+                attributes: {
+                  gate: {type: 'integer'},
+                  section: {type: 'string'},
                 },
               },
             },
           },
+        },
+      },
+    };
+
+    const forwardedData = {
+      transport: {
+        transportType: 'Plane',
+        airport: 'YUL',
+        boarding: {
+          section: 'A',
+          gate: 78,
+        },
+      },
+    };
+
+    it('receives an object at the polymorphic level', async () => {
+      const {root} = setup({schema});
+      root.children.transport.onChange(forwardedData.transport);
+      expect(root.data()).toStrictEqual(forwardedData);
+    });
+
+    it("receives an object at the polymorphic's parent level", async () => {
+      const {root} = setup({schema});
+      root.onChange(forwardedData);
+      expect(root.data()).toStrictEqual(forwardedData);
+    });
+  });
+
+  describe('hydrates child values of a polymorphic node', () => {
+    const schema = {
+      transport: {
+        type: 'polymorphic',
+        attributes: {
+          Plane: {
+            attributes: {
+              airport: {type: 'string'},
+              boarding: {
+                attributes: {
+                  gate: {type: 'integer'},
+                  section: {type: 'string'},
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const forwardedData = {
+      transport: {
+        transportType: 'Plane',
+        airport: 'YUL',
+        boarding: {
+          section: 'A',
+          gate: 78,
+        },
+      },
+    };
+
+    it('receives an object at the polymorphic level', async () => {
+      const {root} = setup({schema});
+      root.children.transport.onChange(forwardedData.transport);
+      expect(root.data()).toStrictEqual(forwardedData);
+    });
+
+    it("receives an object at the polymorphic's parent level", async () => {
+      const {root} = setup({schema});
+      root.onChange(forwardedData);
+      expect(root.data()).toStrictEqual(forwardedData);
+    });
+  });
+
+  describe('isList', () => {
+    describe('nested value initialization', () => {
+      const value = [
+        {
+          name: {
+            first: 'Matt',
+            last: 'Hagner',
+          },
+          address: {
+            address1: '1 Fake St',
+            address2: '#23',
+            city: 'Minneapolis',
+            province: 'MN',
+            country: 'US',
+            zip: '55555',
+          },
+        },
+      ];
+      const schema = {
+        list: {
+          type: ['person'],
+          attributes: {
+            name: {
+              attributes: {
+                first: {
+                  type: 'string',
+                },
+                last: {
+                  type: 'string',
+                },
+              },
+            },
+            address: {
+              attributes: {
+                address1: {
+                  type: 'string',
+                },
+                address2: {
+                  type: 'string',
+                },
+                city: {
+                  type: 'string',
+                },
+                zip: {
+                  type: 'string',
+                },
+                province: {
+                  type: 'string',
+                },
+                country: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      };
+
+      it('initializes nested values from list value array (with values directly on the schema)', () => {
+        const {root} = setup({
+          schema: {
+            ...schema,
+            list: {
+              ...schema.list,
+              value,
+            },
+          },
+        });
+
+        expect(root.children.list.data()).toStrictEqual(value);
+      });
+
+      it('initializes nested values from list value array (with values from the context)', () => {
+        const {root} = setup({
+          schema,
+          values: {list: value},
         });
 
         expect(root.children.list.data()).toStrictEqual(value);
@@ -1046,7 +1347,7 @@ describe('validateAll()', () => {
                 },
               },
               polymorphic: {
-                type: 'polymorphic',
+                type: 'polymorphic-example',
                 value: 'one',
                 attributes: {
                   one: {
@@ -1118,6 +1419,34 @@ describe('validateAll()', () => {
       });
 
       expect(root.context.validators.EvenNumber).toBe(customValidator);
+    });
+  });
+
+  describe('translate', () => {
+    const customTranslators = {
+      default: (_: SchemaNode) => `Default`,
+      label: (_: SchemaNode) => `Label`,
+      error: (node: SchemaNode, {error}: {error: ValidationError}) =>
+        `Errors.${error?.type} error on ${node.translate('label')}`,
+    } as DeclarativeFormContext['translators'];
+
+    it('translate using translators namespace', async () => {
+      const {node} = await mountDeclarativeForm({customTranslators});
+      expect(node.translate('label')).toBe('Label');
+    });
+
+    it('translate uses `default` for unknown translators namespace', async () => {
+      const {node} = await mountDeclarativeForm({customTranslators});
+      expect(node.translate('label2')).toBe('Default');
+    });
+
+    it('getErrorMessage uses translate("error", {error})', async () => {
+      const {node} = await mountDeclarativeForm({customTranslators});
+      const error = new ValidationError('Custom', {message: 'Error'});
+      const expected = `Errors.Custom error on Label`;
+      node.setErrors([error]);
+      expect(node.translate('error', {error})).toBe(expected);
+      expect(node.errorMessage).toBe(expected);
     });
   });
 });

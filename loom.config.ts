@@ -14,11 +14,11 @@ export default createPackage((pkg) => {
       commonjs: true,
       esmodules: true,
       esnext: true,
-      targets: 'extends @shopify/browserslist-config, ios >= 12, node 16',
+      targets: 'extends @shopify/browserslist-config, ios >= 12, node 12.13',
       jestTestEnvironment: 'jsdom',
     }),
     buildLibraryWorkspace(),
-    eslint(),
+    eslint({files: '{src/**/,jest,loom,babel}*.{ts,tsx,md,js}'}),
     prettier({files: '**/*.{md,json,yaml,yml}'}),
   );
 });
